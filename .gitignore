@@ -16,3 +16,6 @@ slnx.sqlite
 ProjectSettings.json
 VSWorkspaceState.json
 operations-agent/
+
+# Local report backups made by scripts/generate_report.py
+reports/backups/
