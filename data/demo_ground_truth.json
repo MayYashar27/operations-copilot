@@ -1,0 +1,12 @@
+{
+  "operational_incidents": {
+    "2026-08-25": "12:00-13:00 login issues after application update",
+    "2026-08-26": "14:00-15:00 cross-category mobile app issue",
+    "2026-08-27": "15:00-16:00 staffing capacity shortage"
+  },
+  "agent_scenarios": {
+    "A04": "Increasing transfers, concentrated in technical_support",
+    "A07": "Decreasing handling time, increasingly repetitive short notes",
+    "A09": "Lower volume but disproportionately complex technical cases"
+  }
+}

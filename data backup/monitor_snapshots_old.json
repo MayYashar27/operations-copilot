@@ -1,0 +1,200 @@
+[
+  {
+    "timestamp": "2026-08-25T11:30:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 6,
+    "available_agents": 6,
+    "answered_calls": 14,
+    "abandoned_calls": 1,
+    "average_wait_time_minutes": 2.1
+  },
+  {
+    "timestamp": "2026-08-25T11:35:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 7,
+    "available_agents": 5,
+    "answered_calls": 15,
+    "abandoned_calls": 1,
+    "average_wait_time_minutes": 2.3
+  },
+  {
+    "timestamp": "2026-08-25T11:40:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 7,
+    "available_agents": 5,
+    "answered_calls": 16,
+    "abandoned_calls": 1,
+    "average_wait_time_minutes": 2.5
+  },
+  {
+    "timestamp": "2026-08-25T11:45:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 8,
+    "available_agents": 4,
+    "answered_calls": 17,
+    "abandoned_calls": 1,
+    "average_wait_time_minutes": 2.8
+  },
+  {
+    "timestamp": "2026-08-25T11:50:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 9,
+    "available_agents": 3,
+    "answered_calls": 18,
+    "abandoned_calls": 2,
+    "average_wait_time_minutes": 3.2
+  },
+  {
+    "timestamp": "2026-08-25T11:55:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 10,
+    "available_agents": 2,
+    "answered_calls": 20,
+    "abandoned_calls": 2,
+    "average_wait_time_minutes": 3.8
+  },
+  {
+    "timestamp": "2026-08-25T12:00:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 10,
+    "available_agents": 2,
+    "answered_calls": 22,
+    "abandoned_calls": 3,
+    "average_wait_time_minutes": 4.5
+  },
+  {
+    "timestamp": "2026-08-25T12:05:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 11,
+    "available_agents": 1,
+    "answered_calls": 25,
+    "abandoned_calls": 4,
+    "average_wait_time_minutes": 5.8
+  },
+  {
+    "timestamp": "2026-08-25T12:10:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 11,
+    "available_agents": 1,
+    "answered_calls": 28,
+    "abandoned_calls": 5,
+    "average_wait_time_minutes": 6.9
+  },
+  {
+    "timestamp": "2026-08-25T12:15:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 12,
+    "available_agents": 0,
+    "answered_calls": 31,
+    "abandoned_calls": 7,
+    "average_wait_time_minutes": 8.1
+  },
+  {
+    "timestamp": "2026-08-25T12:20:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 12,
+    "available_agents": 0,
+    "answered_calls": 34,
+    "abandoned_calls": 9,
+    "average_wait_time_minutes": 9.4
+  },
+  {
+    "timestamp": "2026-08-25T12:25:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 12,
+    "available_agents": 0,
+    "answered_calls": 37,
+    "abandoned_calls": 11,
+    "average_wait_time_minutes": 10.6
+  },
+  {
+    "timestamp": "2026-08-25T12:30:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 12,
+    "available_agents": 0,
+    "answered_calls": 40,
+    "abandoned_calls": 13,
+    "average_wait_time_minutes": 11.8
+  },
+  {
+    "timestamp": "2026-08-25T12:35:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 12,
+    "available_agents": 0,
+    "answered_calls": 43,
+    "abandoned_calls": 15,
+    "average_wait_time_minutes": 12.4
+  },
+  {
+    "timestamp": "2026-08-25T12:40:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 11,
+    "available_agents": 1,
+    "answered_calls": 46,
+    "abandoned_calls": 17,
+    "average_wait_time_minutes": 12.8
+  },
+  {
+    "timestamp": "2026-08-25T12:45:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 11,
+    "available_agents": 1,
+    "answered_calls": 49,
+    "abandoned_calls": 18,
+    "average_wait_time_minutes": 12.2
+  },
+  {
+    "timestamp": "2026-08-25T12:50:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 10,
+    "available_agents": 2,
+    "answered_calls": 52,
+    "abandoned_calls": 19,
+    "average_wait_time_minutes": 11.3
+  },
+  {
+    "timestamp": "2026-08-25T12:55:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 10,
+    "available_agents": 2,
+    "answered_calls": 55,
+    "abandoned_calls": 20,
+    "average_wait_time_minutes": 10.4
+  },
+  {
+    "timestamp": "2026-08-25T13:00:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 9,
+    "available_agents": 3,
+    "answered_calls": 58,
+    "abandoned_calls": 20,
+    "average_wait_time_minutes": 9.1
+  },
+  {
+    "timestamp": "2026-08-25T13:05:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 8,
+    "available_agents": 4,
+    "answered_calls": 60,
+    "abandoned_calls": 20,
+    "average_wait_time_minutes": 7.4
+  },
+  {
+    "timestamp": "2026-08-25T13:10:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 7,
+    "available_agents": 5,
+    "answered_calls": 62,
+    "abandoned_calls": 20,
+    "average_wait_time_minutes": 5.8
+  },
+  {
+    "timestamp": "2026-08-25T13:15:00",
+    "total_agents_on_shift": 12,
+    "agents_on_calls": 6,
+    "available_agents": 6,
+    "answered_calls": 64,
+    "abandoned_calls": 20,
+    "average_wait_time_minutes": 4.2
+  }
+]
