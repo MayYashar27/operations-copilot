@@ -1,0 +1,89 @@
+@import '@fontsource-variable/inter';
+@import 'tailwindcss';
+
+/*
+ * Design tokens. Components use these names (bg-surface, text-ink-2, ...),
+ * never raw hex, so the whole look is tuned from this one block.
+ */
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Neutrals: warm, low-chroma grays */
+  --color-canvas: #f7f7f5;      /* page background */
+  --color-surface: #ffffff;     /* panels */
+  --color-subtle: #fafaf8;      /* table headers, quiet fills */
+  --color-hover: #f5f5f2;
+  --color-line: #e7e5e0;        /* borders */
+  --color-line-soft: #efeee9;   /* dividers inside panels */
+
+  --color-ink: #1b1b1f;         /* primary text */
+  --color-ink-2: #55534e;       /* secondary text */
+  --color-ink-3: #8a8780;       /* muted: labels, axes */
+
+  /* Interactive accent */
+  --color-accent: #2557c7;
+  --color-accent-soft: #edf2fc;
+
+  /* Screening statuses: review categories, not ratings */
+  --color-status-review: #d98a1c;
+  --color-status-review-ink: #84500a;
+  --color-status-review-bg: #fdf4e4;
+  --color-status-findings: #5b7fc0;
+  --color-status-findings-ink: #2f4a7c;
+  --color-status-findings-bg: #eef3fb;
+  --color-status-clear: #4f9a6a;
+  --color-status-clear-ink: #2f6544;
+  --color-status-clear-bg: #edf6f0;
+  --color-status-nodata: #b4b1a9;
+  --color-status-nodata-ink: #66645e;
+  --color-status-nodata-bg: #f2f1ee;
+
+  /* Evidence sources */
+  --color-rule: #2d6a70;        /* deterministic metric signal */
+  --color-rule-bg: #eaf4f4;
+  --color-ai: #5f45b0;          /* AI-generated observation */
+  --color-ai-bg: #f3f0fc;
+
+  /* Charts */
+  --color-chart-bar: #2a78d6;
+  --color-chart-highlight: #eb6834;
+  --color-chart-highlight-ink: #b4501f; /* text-safe version */
+  --color-chart-grid: #efeee9;
+  --color-chart-axis: #c9c7c0;
+
+  --shadow-panel: 0 1px 2px rgb(27 27 31 / 0.04);
+  --shadow-pop: 0 6px 20px rgb(27 27 31 / 0.10), 0 1px 3px rgb(27 27 31 / 0.06);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans text-sm;
+    /* Inter alternates: straight-legged l/1 for clearer IDs and numbers */
+    font-feature-settings: 'cv05', 'cv08';
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+}
+
+@layer components {
+  .btn-secondary {
+    @apply inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[13px] font-medium text-ink shadow-panel transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply inline-flex h-8 items-center gap-1.5 rounded-lg bg-ink px-3 text-[13px] font-medium text-white shadow-panel transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .link {
+    @apply font-medium text-accent hover:underline underline-offset-2;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}

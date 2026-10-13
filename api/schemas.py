@@ -38,6 +38,20 @@ class DayMetrics(BaseModel):
     average_available_agents: Optional[float]
 
 
+class HourlyVolume(BaseModel):
+    hour: str                  # "08:00-09:00"
+    requests: int
+    above_threshold: bool
+
+
+class VolumeProfile(BaseModel):
+    """Requests per working hour, from tools.detect_hourly_volume_anomalies."""
+    average_hourly_requests: float
+    threshold: float           # an hour at or above this counts as unusual
+    threshold_multiplier: float
+    hours: List[HourlyVolume]
+
+
 class PriorityItem(BaseModel):
     agent_id: str
     reasons: List[str]
@@ -50,6 +64,7 @@ class ReportOverview(BaseModel):
     total_agents: int
     status_counts: StatusCounts
     day_metrics: Optional[DayMetrics]
+    volume_profile: Optional[VolumeProfile]
     priority_items: List[PriorityItem]
 
 

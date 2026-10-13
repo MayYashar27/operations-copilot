@@ -72,6 +72,15 @@ def test_overview_counts_add_up(client):
         assert item["reasons"]
 
 
+def test_overview_volume_profile_matches_day_total(client):
+    body = client.get(f"/api/reports/{DATE}").json()
+    profile = body["volume_profile"]
+    assert len(profile["hours"]) == 9  # 08:00-17:00
+    assert sum(h["requests"] for h in profile["hours"]) == body["day_metrics"]["total_requests"]
+    for h in profile["hours"]:
+        assert h["above_threshold"] == (h["requests"] >= profile["threshold"])
+
+
 def test_agents_list(client):
     rows = client.get(f"/api/reports/{DATE}/agents").json()
     assert len(rows) == 15

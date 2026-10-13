@@ -15,8 +15,8 @@ from api.config import Settings
 from api.schemas import (
     AgentDetail, AgentMetrics, AgentRow, AIObservation, DailyTrendPoint,
     DayMetrics, DocumentationScreening, EvidenceRequest, Investigation,
-    PeriodComparison, PriorityItem, ReportListItem, ReportOverview,
-    RuleSignal, StatusCounts,
+    HourlyVolume, PeriodComparison, PriorityItem, ReportListItem,
+    ReportOverview, RuleSignal, StatusCounts, VolumeProfile,
 )
 
 
@@ -87,6 +87,25 @@ def _investigation(settings: Settings, report: storage.SavedReport, agent_id: st
         ) from exc
 
 
+VOLUME_THRESHOLD_MULTIPLIER = 1.5  # the default used by tools.py
+
+
+def _volume_profile(date: str) -> Optional[VolumeProfile]:
+    result = _call_tool(tools.detect_hourly_volume_anomalies, date, VOLUME_THRESHOLD_MULTIPLIER)
+    if not result or not result.get("total_requests"):
+        return None
+    threshold = result["threshold"]
+    return VolumeProfile(
+        average_hourly_requests=result["average_hourly_volume"],
+        threshold=threshold,
+        threshold_multiplier=VOLUME_THRESHOLD_MULTIPLIER,
+        hours=[
+            HourlyVolume(hour=hour, requests=count, above_threshold=count >= threshold)
+            for hour, count in result["hourly_counts"].items()
+        ],
+    )
+
+
 def _metrics(agent_id: str, start: str, end: str) -> Optional[Dict[str, Any]]:
     return _call_tool(tools.get_agent_performance, agent_id, start, end)
 
@@ -127,12 +146,18 @@ def get_overview(settings: Settings, date: str) -> ReportOverview:
     except DataUnavailableError:
         day = None  # e.g. no monitor snapshots for this date; the rest still renders
 
+    try:
+        volume = _volume_profile(date)
+    except DataUnavailableError:
+        volume = None
+
     return ReportOverview(
         date=report.date,
         lookback_start=report.agent_results[0].lookback_start if report.agent_results else None,
         total_agents=report.total_agents,
         status_counts=counts,
         day_metrics=DayMetrics.model_validate(day) if day else None,
+        volume_profile=volume,
         priority_items=priority,
     )
 
