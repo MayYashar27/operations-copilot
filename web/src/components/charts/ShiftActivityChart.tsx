@@ -23,7 +23,7 @@ export function ShiftActivityChart({ hours, metric }: { hours: HourlyActivity[];
   const cx = (i: number) => MARGIN.left + band * (i + 0.5)
   const y = (value: number) => MARGIN.top + plotHeight - (value / max) * plotHeight
   const ticks = Array.from({ length: Math.round(max / step) + 1 }, (_, i) => i * step)
-  const barWidth = Math.min(18, band * 0.36)
+  const barWidth = Math.min(20, band * 0.38)
 
   const linePath = (pick: (h: HourlyActivity) => number | null) =>
     hours
@@ -45,6 +45,12 @@ export function ShiftActivityChart({ hours, metric }: { hours: HourlyActivity[];
     <div ref={containerRef} className="relative select-none" style={{ height: HEIGHT }} onMouseLeave={() => setHovered(null)}>
       {width > 0 && (
         <svg width={width} height={HEIGHT} role="img" aria-label={`${spec.label} by hour, today versus typical`}>
+          <defs>
+            <linearGradient id="activity-area" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="var(--color-chart-today)" stopOpacity="0.28" />
+              <stop offset="1" stopColor="var(--color-chart-today)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
           {ticks.map((tick) => (
             <g key={tick}>
               <line x1={MARGIN.left} x2={width - MARGIN.right} y1={y(tick)} y2={y(tick)}
@@ -58,7 +64,7 @@ export function ShiftActivityChart({ hours, metric }: { hours: HourlyActivity[];
           {/* Crosshair column behind the marks */}
           {hovered !== null && (
             <rect x={MARGIN.left + band * hovered} y={MARGIN.top} width={band} height={plotHeight}
-              className="fill-hover" />
+              className="fill-accent-soft/60" rx={10} />
           )}
 
           {spec.form === 'bar'
@@ -66,17 +72,17 @@ export function ShiftActivityChart({ hours, metric }: { hours: HourlyActivity[];
                 const value = spec.today(h) ?? 0
                 const top = y(value)
                 const x = cx(i) - barWidth / 2
-                const r = Math.min(4, (y(0) - top) / 2, barWidth / 2)
+                const r = Math.min(6, (y(0) - top) / 2, barWidth / 2)
                 const d = `M${x},${y(0)} V${top + r} Q${x},${top} ${x + r},${top} H${x + barWidth - r} Q${x + barWidth},${top} ${x + barWidth},${top + r} V${y(0)} Z`
                 return (
                   <path key={h.hour} style={{ d: `path('${d}')` }}
                     className={`transition-[d,opacity] duration-300 ease-out ${h.above_threshold ? 'fill-chart-unusual' : 'fill-chart-today'}`}
-                    opacity={hovered === null || hovered === i ? 1 : 0.55} />
+                    opacity={hovered === null || hovered === i ? 1 : 0.45} />
                 )
               })
             : (
               <>
-                <path d={areaPath} className="fill-chart-today/8" />
+                <path d={areaPath} fill="url(#activity-area)" />
                 <path d={todayLine} fill="none" strokeWidth={2.25} strokeLinejoin="round" strokeLinecap="round"
                   className="stroke-chart-today" />
               </>

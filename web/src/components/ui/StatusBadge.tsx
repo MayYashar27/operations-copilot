@@ -12,7 +12,7 @@ export function StatusBadge({ status, compact = false }: { status: ScreeningStat
   return (
     <span
       title={meta.description}
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ${tone.badge}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-[3px] text-[11.5px] font-semibold whitespace-nowrap ${tone.badge}`}
     >
       <StatusDot status={status} className="size-1.5" />
       {compact ? meta.short : meta.label}

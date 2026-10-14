@@ -22,7 +22,7 @@ export const ACTIVITY_METRICS: Record<
     today: (h) => h.average_wait_minutes, typical: (h) => h.typical_wait_minutes,
   },
   available: {
-    label: 'Available agents', unit: 'agents', digits: 1, form: 'line',
+    label: 'Availability', unit: 'agents', digits: 1, form: 'line',
     today: (h) => h.average_available_agents, typical: (h) => h.typical_available_agents,
   },
 }

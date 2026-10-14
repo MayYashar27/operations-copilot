@@ -29,7 +29,7 @@ export function ShiftHeatmap({ days, selectedDate }: Props) {
   const labelWidth = 76
   const gap = 3
   const cell = width ? (width - labelWidth - gap * (HOURS.length - 1)) / HOURS.length : 0
-  const rowHeight = 22
+  const rowHeight = 20
 
   const active = hovered ? days[hovered.day] : null
 
@@ -57,8 +57,8 @@ export function ShiftHeatmap({ days, selectedDate }: Props) {
                   <span
                     key={h}
                     onMouseEnter={() => setHovered({ day: d, hour: h })}
-                    className={`block rounded-[4px] transition-transform duration-150 ${isHovered ? 'scale-110 ring-2 ring-ink/70' : ''} ${
-                      selected && !isHovered ? 'ring-1 ring-ink/25' : ''
+                    className={`block rounded-[6px] transition-transform duration-150 ${isHovered ? 'scale-110 ring-2 ring-accent shadow-lift' : ''} ${
+                      selected && !isHovered ? 'ring-1 ring-accent/40' : ''
                     }`}
                     style={{
                       width: cell, height: rowHeight, marginRight: h < HOURS.length - 1 ? gap : 0,
@@ -76,12 +76,12 @@ export function ShiftHeatmap({ days, selectedDate }: Props) {
         <span className="inline-flex items-center gap-1.5">
           Fewer
           <span className="inline-flex gap-[2px]">
-            {RAMP.map((c) => <span key={c} className="h-2.5 w-3 rounded-[2px]" style={{ background: c }} />)}
+            {RAMP.map((c) => <span key={c} className="h-2.5 w-3 rounded-[3px]" style={{ background: c }} />)}
           </span>
           More requests
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-3 rounded-[2px] bg-chart-unusual" /> Unusual hour (≥ 1.5× the day’s average)
+          <span className="h-2.5 w-3 rounded-[3px] bg-chart-unusual" /> Unusual hour (≥ 1.5× the day’s average)
         </span>
       </div>
 

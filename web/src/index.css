@@ -1,87 +1,85 @@
-@import '@fontsource-variable/inter';
-@import '@fontsource/instrument-serif/400.css';
-@import '@fontsource/instrument-serif/400-italic.css';
+@import '@fontsource-variable/plus-jakarta-sans';
 @import 'tailwindcss';
 
 /*
- * Operations Copilot design tokens.
- * Identity: graphite sidebar on warm paper, a serif voice for headlines,
- * cobalt for action, an amber scale for attention, violet for AI, teal for rules.
- * Components use these names (bg-surface, text-ink-2, ...), never raw hex.
+ * Operations Copilot design tokens: a light, layered AI workspace.
+ * Periwinkle-lavender backdrop -> soft frame -> pale panes -> white cards.
+ * Indigo-periwinkle for action, violet for AI, teal for rules,
+ * rose / gold / mint for screening status (always paired with a label).
+ * Components use these names (bg-pane, text-ink-2, ...), never raw hex.
  */
 @theme {
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Instrument Serif', ui-serif, Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  /* Paper neutrals */
-  --color-canvas: #f5f4ef;
-  --color-surface: #ffffff;
-  --color-subtle: #faf9f6;
-  --color-hover: #f3f2ed;
-  --color-line: #e4e2db;
-  --color-line-soft: #eeece6;
+  /* Layers */
+  --color-frame: #eef0fa;       /* the workspace shell */
+  --color-pane: #f6f7fd;        /* secondary panel and main area */
+  --color-surface: #ffffff;     /* cards */
+  --color-subtle: #f8f9fe;
+  --color-hover: #eff1fc;
+  --color-selected: #e6e9fd;
+  --color-selected-2: #ece8fd;  /* gradient partner for selected items */
+  --color-skeleton: #e9ecf9;
+  --color-line: #e4e7f6;
+  --color-line-soft: #eef0fa;
 
-  --color-ink: #15171c;
-  --color-ink-2: #4e4f57;
-  --color-ink-3: #8a8983;
-
-  /* Graphite sidebar */
-  --color-night: #14161b;
-  --color-night-2: #1e2128;
-  --color-night-line: #262932;
-  --color-night-ink: #e9e9ec;
-  --color-night-ink-2: #a2a4ad;
-  --color-night-ink-3: #6f727c;
-  --color-night-good: #7fd1a0;
-  --color-night-ai: #b7a6f5;
+  /* Ink (cool navy) */
+  --color-ink: #1d2142;
+  --color-ink-2: #5a6082;
+  --color-ink-3: #979cb8;
 
   /* Action */
-  --color-accent: #3352e0;
-  --color-accent-ink: #2a43b8;
-  --color-accent-soft: #eef1fd;
+  --color-accent: #5b6cf0;
+  --color-accent-strong: #4757de;
+  --color-accent-2: #8c7cf6;    /* gradient partner */
+  --color-accent-soft: #e8ebfd;
 
-  /* Attention scale (screening statuses: review categories, not ratings) */
-  --color-status-review: #c2620f;
-  --color-status-review-ink: #8a440a;
-  --color-status-review-bg: #fcefe2;
-  --color-status-findings: #dda23a;
-  --color-status-findings-ink: #78560f;
-  --color-status-findings-bg: #fcf5e4;
-  --color-status-clear: #4e9a6c;
-  --color-status-clear-ink: #2f6544;
-  --color-status-clear-bg: #ecf5ef;
-  --color-status-nodata: #b4b1a9;
-  --color-status-nodata-ink: #66645e;
-  --color-status-nodata-bg: #f2f1ee;
+  /* Screening status: review categories, not ratings */
+  --color-status-review: #d9497a;
+  --color-status-review-ink: #a3264f;
+  --color-status-review-bg: #fde9f0;
+  --color-status-findings: #e2a93b;
+  --color-status-findings-ink: #8a5c08;
+  --color-status-findings-bg: #fcf4e2;
+  --color-status-clear: #2fae86;
+  --color-status-clear-ink: #1b7558;
+  --color-status-clear-bg: #e2f6ef;
+  --color-status-nodata: #b4b8cc;
+  --color-status-nodata-ink: #6b7090;
+  --color-status-nodata-bg: #eff0f6;
 
   /* Evidence sources */
-  --color-rule: #1d7472;
-  --color-rule-bg: #e7f3f2;
-  --color-ai: #6a4bd6;
-  --color-ai-bg: #f2effd;
+  --color-rule: #1f9b98;
+  --color-rule-ink: #137270;
+  --color-rule-bg: #e2f4f3;
+  --color-ai: #7c5cf0;
+  --color-ai-ink: #5b3fd0;
+  --color-ai-bg: #efeafe;
 
   /* Deltas (direction x whether up is good) */
-  --color-good: #2f7a4c;
-  --color-bad: #b4432e;
+  --color-good: #1b9a6c;
+  --color-bad: #d23c66;
 
   /* Charts */
-  --color-chart-today: #3352e0;
-  --color-chart-typical: #a9a79f;
-  --color-chart-unusual: #e0662b;
-  --color-chart-unusual-ink: #b04a17;
-  --color-chart-grid: #eeece6;
-  --color-chart-axis: #cfccc4;
-  --color-chart-muted: #dcd9d1;
+  --color-chart-today: #6d7cf3;
+  --color-chart-typical: #b3b8d4;
+  --color-chart-unusual: #d9497a;
+  --color-chart-grid: #edeff8;
+  --color-chart-axis: #d8dbec;
 
-  --shadow-panel: 0 1px 2px rgb(21 23 28 / 0.04), 0 0 0 1px rgb(21 23 28 / 0.02);
-  --shadow-lift: 0 4px 14px rgb(21 23 28 / 0.07), 0 1px 3px rgb(21 23 28 / 0.05);
-  --shadow-pop: 0 10px 30px rgb(21 23 28 / 0.12), 0 2px 6px rgb(21 23 28 / 0.06);
+  --radius-card: 18px;
+  --radius-pane: 24px;
 
-  --animate-rise: rise 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  --animate-fade: fade 200ms ease-out both;
+  --shadow-card: 0 1px 2px rgb(60 70 140 / 0.05), 0 4px 14px rgb(60 70 140 / 0.04);
+  --shadow-lift: 0 10px 28px rgb(60 70 140 / 0.11), 0 2px 6px rgb(60 70 140 / 0.05);
+  --shadow-pop: 0 16px 40px rgb(60 70 140 / 0.16), 0 3px 8px rgb(60 70 140 / 0.06);
+  --shadow-accent: 0 6px 16px rgb(91 108 240 / 0.32);
+
+  --animate-rise: rise 380ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade: fade 180ms ease-out both;
 
   @keyframes rise {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: none; }
   }
   @keyframes fade {
@@ -93,15 +91,16 @@
 :root {
   /* Used from inline SVG/style values, so declared outside @theme
      (Tailwind only emits @theme variables that appear in class names). */
-  --color-chart-unusual: #e0662b;
-  /* Sequential (one hue, light -> dark) for magnitude */
-  --color-seq-1: #dbe8fa;
-  --color-seq-2: #b7d3f6;
-  --color-seq-3: #9ec5f4;
-  --color-seq-4: #86b6ef;
-  --color-seq-5: #5598e7;
-  --color-seq-6: #2a78d6;
-  --color-seq-7: #1c5cab;
+  --color-chart-today: #6d7cf3;
+  --color-chart-unusual: #d9497a;
+  /* Sequential periwinkle ramp (one hue, light -> dark) for magnitude */
+  --color-seq-1: #eef0fd;
+  --color-seq-2: #dfe3fc;
+  --color-seq-3: #c9d0fb;
+  --color-seq-4: #aeb8f8;
+  --color-seq-5: #8f9cf5;
+  --color-seq-6: #6d7cf3;
+  --color-seq-7: #4f5ce0;
 }
 
 @layer base {
@@ -111,13 +110,16 @@
   }
 
   body {
-    @apply bg-canvas text-ink font-sans text-sm;
-    /* Inter alternates: straight-legged l/1 for clearer IDs and numbers */
-    font-feature-settings: 'cv05', 'cv08';
+    @apply text-ink font-sans text-[13.5px];
+    background: linear-gradient(160deg, #e3e6fa 0%, #cfd5f4 55%, #c3cbf1 100%) fixed;
   }
 
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-accent;
+  }
+
+  ::selection {
+    @apply bg-accent-soft;
   }
 
   /* Motion is a nicety; respect people who turn it off. */
@@ -131,20 +133,27 @@
 }
 
 @layer components {
-  .btn-secondary {
-    @apply inline-flex h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-3.5 text-[13px] font-medium text-ink shadow-panel transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-50;
+  .card {
+    @apply rounded-[var(--radius-card)] bg-surface shadow-card ring-1 ring-line/60;
   }
   .btn-primary {
-    @apply inline-flex h-9 items-center gap-1.5 rounded-lg bg-ink px-3.5 text-[13px] font-medium text-white shadow-panel transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-br from-accent to-accent-2 px-4 text-[13px] font-semibold text-white shadow-accent transition-all duration-200 hover:-translate-y-px hover:brightness-105 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50;
   }
-  .btn-ghost {
-    @apply inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium text-ink-2 transition-colors hover:bg-hover hover:text-ink;
+  .btn-secondary {
+    @apply inline-flex h-10 items-center gap-2 rounded-xl bg-surface px-4 text-[13px] font-semibold text-ink shadow-card ring-1 ring-line/60 transition-all duration-200 hover:-translate-y-px hover:text-accent hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .icon-btn {
+    @apply inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface text-ink-2 shadow-card ring-1 ring-line/60 transition-all duration-200 hover:-translate-y-px hover:text-accent hover:shadow-lift;
   }
   .link {
-    @apply font-medium text-accent underline-offset-2 hover:underline;
+    @apply font-semibold text-accent underline-offset-2 hover:underline;
   }
-  .eyebrow {
-    @apply text-[11.5px] font-semibold tracking-[0.08em] text-ink-3 uppercase;
+  .section-label {
+    @apply text-[12px] font-medium text-ink-3;
+  }
+  .scroll-soft {
+    scrollbar-width: thin;
+    scrollbar-color: #d5d9f0 transparent;
   }
 }
 

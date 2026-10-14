@@ -5,25 +5,25 @@ interface PanelProps {
   description?: ReactNode
   actions?: ReactNode
   children: ReactNode
-  /** Remove body padding, e.g. for edge-to-edge tables. */
+  /** Remove body padding, e.g. for edge-to-edge lists. */
   flush?: boolean
   className?: string
 }
 
-/** The standard bordered container for a section of content. */
+/** The standard white card. Headers sit inside the card without a divider. */
 export function Panel({ title, description, actions, children, flush, className = '' }: PanelProps) {
   return (
-    <section className={`rounded-xl border border-line bg-surface shadow-panel ${className}`}>
+    <section className={`card ${className}`}>
       {(title || actions) && (
-        <header className="flex flex-col gap-3 border-b border-line-soft px-5 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-          <div className="min-w-0">
+        <header className="px-5 pt-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             {title && <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-ink">{title}</h2>}
-            {description && <p className="mt-0.5 text-[13px] text-ink-3">{description}</p>}
+            {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
           </div>
-          {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+          {description && <p className="mt-1 text-[12.5px] leading-relaxed text-ink-3">{description}</p>}
         </header>
       )}
-      <div className={flush ? '' : 'p-5'}>{children}</div>
+      <div className={flush ? 'pt-3' : 'p-5 pt-4'}>{children}</div>
     </section>
   )
 }

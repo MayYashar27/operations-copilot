@@ -2,7 +2,7 @@ import { AlertCircle, RotateCw } from 'lucide-react'
 import type { ComponentType, ReactNode } from 'react'
 
 export function Skeleton({ className = '' }: { className?: string }) {
-  return <div aria-hidden className={`animate-pulse rounded-md bg-line-soft ${className}`} />
+  return <div aria-hidden className={`animate-pulse rounded-xl bg-skeleton ${className}`} />
 }
 
 interface MessageProps {
@@ -17,13 +17,13 @@ export function EmptyState({ icon: Icon, title, children, action }: MessageProps
   return (
     <div className="flex flex-col items-center px-6 py-12 text-center">
       {Icon && (
-        <div className="mb-3 flex size-10 items-center justify-center rounded-lg border border-line bg-subtle">
-          <Icon className="size-5 text-ink-3" strokeWidth={1.75} />
+        <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-soft to-ai-bg">
+          <Icon className="size-5 text-accent" strokeWidth={1.8} />
         </div>
       )}
-      <p className="font-medium text-ink">{title}</p>
-      {children && <div className="mt-1 max-w-md text-[13px] leading-relaxed text-ink-2">{children}</div>}
-      {action && <div className="mt-4">{action}</div>}
+      <p className="text-[14px] font-semibold text-ink">{title}</p>
+      {children && <div className="mt-1.5 max-w-md text-[13px] leading-relaxed text-ink-2">{children}</div>}
+      {action && <div className="mt-5">{action}</div>}
     </div>
   )
 }
@@ -36,13 +36,13 @@ export function ErrorState({ title = 'Something went wrong', message, onRetry }:
 }) {
   return (
     <div role="alert" className="flex flex-col items-center px-6 py-12 text-center">
-      <div className="mb-3 flex size-10 items-center justify-center rounded-lg border border-red-200 bg-red-50">
-        <AlertCircle className="size-5 text-red-700" strokeWidth={1.75} />
+      <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-status-review-bg">
+        <AlertCircle className="size-5 text-status-review" strokeWidth={1.8} />
       </div>
-      <p className="font-medium text-ink">{title}</p>
-      <p className="mt-1 max-w-md text-[13px] leading-relaxed text-ink-2">{message}</p>
+      <p className="text-[14px] font-semibold text-ink">{title}</p>
+      <p className="mt-1.5 max-w-md text-[13px] leading-relaxed text-ink-2">{message}</p>
       {onRetry && (
-        <button type="button" onClick={onRetry} className="btn-secondary mt-4">
+        <button type="button" onClick={onRetry} className="btn-secondary mt-5">
           <RotateCw className="size-3.5" /> Try again
         </button>
       )}

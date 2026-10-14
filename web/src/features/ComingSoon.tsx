@@ -1,11 +1,10 @@
 import { ArrowLeft, Construction } from 'lucide-react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useDatedLink } from '../app/context'
-import { PageHeader } from '../components/layout/PageHeader'
-import { Panel } from '../components/ui/Panel'
+import { Workspace, WorkspaceHeader } from '../components/layout/Workspace'
 import { EmptyState } from '../components/ui/States'
 
-/** Temporary placeholder for screens built in the next steps. */
+/** Temporary placeholder for screens being redesigned next. */
 export function ComingSoon({ title }: { title: string }) {
   const { agentId } = useParams()
   const [params] = useSearchParams()
@@ -13,25 +12,21 @@ export function ComingSoon({ title }: { title: string }) {
   const datedLink = useDatedLink()
 
   return (
-    <>
-      <PageHeader eyebrow={agentId ? 'Agent' : undefined} title={agentId ? `Agent ${agentId}` : title} />
-      <Panel>
+    <Workspace>
+      <WorkspaceHeader title={agentId ? `Agent ${agentId}` : title} />
+      <div className="card">
         <EmptyState
           icon={Construction}
-          title={`${title} is being built next`}
+          title={`${title} is being redesigned next`}
           action={
             <Link to={datedLink('/')} className="btn-secondary">
               <ArrowLeft className="size-3.5" /> Back to overview
             </Link>
           }
         >
-          {question && (
-            <p>
-              Pre-filled question: <span className="text-ink">“{question}”</span>
-            </p>
-          )}
+          {question && <p>Pre-filled question: <span className="text-ink">“{question}”</span></p>}
         </EmptyState>
-      </Panel>
-    </>
+      </div>
+    </Workspace>
   )
 }
