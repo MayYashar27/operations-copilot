@@ -190,6 +190,7 @@ def list_agents(settings: Settings, date: str) -> List[AgentRow]:
             status=result.investigation_status,
             investigation_reasons=result.investigation_reasons,
             rule_signal_codes=[s.code for s in rule_signals(result)],
+            rule_signals=rule_signals(result),
             ai_observation_count=len(ai_observations(result)),
             ai_finding_titles=[o.finding for o in ai_observations(result)],
             has_investigation=storage.load_investigation(settings.reports_dir, report, result.agent_id) is not None,

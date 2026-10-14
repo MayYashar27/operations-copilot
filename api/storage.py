@@ -103,3 +103,25 @@ def load_investigation(
         return data
 
     return report.investigations.get(agent_id)
+
+
+def load_raw_agent_result(reports_dir: Path, date: str, agent_id: str) -> Dict[str, Any]:
+    """The agent's screening result exactly as saved (all fields), used as
+    input when re-running the existing deep-investigation workflow."""
+    report = load_report(reports_dir, date)  # validates the file first
+    raw = _read_json(reports_dir / f"agent_performance_{report.date}.json")
+    for result in raw.get("agent_results", []):
+        if result.get("agent_id") == agent_id:
+            return result
+    raise ReportNotFoundError(f"Agent {agent_id} is not in the report for {date}")
+
+
+def save_agent_investigation(reports_dir: Path, date: str, agent_id: str, investigation: Dict[str, Any]) -> Path:
+    """Write an on-demand investigation where load_investigation() looks first."""
+    folder = reports_dir / "investigations"
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{date}_{agent_id}.json"
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(investigation, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(path)
+    return path

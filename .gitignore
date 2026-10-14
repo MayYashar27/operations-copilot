@@ -19,3 +19,7 @@ operations-agent/
 
 # Local report backups made by scripts/generate_report.py
 reports/backups/
+
+# Live Ask Copilot runs on this machine (examples/ is committed)
+investigations/local/
+reports/investigations/

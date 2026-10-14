@@ -57,3 +57,22 @@ export function average(values: (number | null)[]): number | null {
   const present = values.filter((v): v is number => v !== null)
   return present.length ? present.reduce((sum, v) => sum + v, 0) / present.length : null
 }
+
+/** "14 Oct, 13:02" for a full ISO timestamp, in the viewer's time zone. */
+export function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+export function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+}
+
+export function isToday(iso: string): boolean {
+  return new Date(iso).toDateString() === new Date().toDateString()
+}
+
+export function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return m ? `${m}m ${s.toString().padStart(2, '0')}s` : `${s}s`
+}

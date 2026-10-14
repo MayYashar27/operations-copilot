@@ -72,21 +72,28 @@ export function Rail() {
         ))}
       </ul>
 
-      <div className="group relative hidden rounded-2xl bg-surface/60 p-1.5 shadow-card ring-1 ring-white/70 lg:block">
-        <span
-          tabIndex={0}
-          aria-label={live ? 'Live mode: new AI investigations enabled on this machine' : 'Demo mode: read-only, no AI calls'}
-          className={`flex size-11 items-center justify-center rounded-xl ${live ? 'bg-status-clear-bg text-status-clear-ink' : 'text-ink-3'}`}
+      <div className="group relative rounded-2xl bg-surface/60 p-1 shadow-card ring-1 ring-white/70 lg:p-1.5">
+        <button
+          type="button"
+          aria-label={`${live ? 'Live mode' : 'Demo mode'}. About this data`}
+          className={`flex size-9 items-center justify-center rounded-xl lg:size-11 ${live ? 'bg-status-clear-bg text-status-clear-ink' : 'text-ink-3 hover:text-accent'}`}
         >
           {live ? <Zap className="size-[18px]" strokeWidth={1.9} /> : <Lock className="size-[18px]" strokeWidth={1.9} />}
-        </span>
-        <span className="pointer-events-none absolute bottom-0 left-full z-40 ml-3 w-56 -translate-x-1 rounded-xl bg-ink p-3 text-white opacity-0 shadow-pop transition-all duration-150 group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:opacity-100">
+        </button>
+        {/* Popover: opens on hover or keyboard focus. Mobile: below-left; desktop: beside the rail. */}
+        <span role="tooltip"
+          className="pointer-events-none absolute top-full right-0 z-40 mt-2 w-64 rounded-xl bg-ink p-3.5 text-white opacity-0 shadow-pop transition-all duration-150 group-focus-within:opacity-100 group-hover:opacity-100 lg:top-auto lg:right-auto lg:bottom-0 lg:left-full lg:mt-0 lg:ml-3">
           <span className="block text-[12.5px] font-semibold">{live ? 'Live mode' : 'Demo mode'}</span>
-          <span className="mt-1 block text-[12px] leading-snug text-white/70">
+          <span className="mt-1 block text-[12px] leading-snug text-white/75">
             {live
-              ? 'Copilot can run new AI investigations on this machine.'
+              ? 'Copilot can run new AI investigations from this machine.'
               : 'Read-only. Saved AI results on synthetic data; no AI calls are made.'}
           </span>
+          {config && (
+            <span className="mt-2.5 block border-t border-white/15 pt-2.5 text-[11.5px] leading-snug text-white/60">
+              {config.disclaimer}
+            </span>
+          )}
         </span>
       </div>
     </nav>

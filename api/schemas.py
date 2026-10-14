@@ -6,7 +6,7 @@ returns only what the UI needs, and the frontend can rely on these types.
 
 from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 ScreeningStatus = Literal["screened", "findings", "investigation", "insufficient_data"]
@@ -141,6 +141,7 @@ class AgentRow(BaseModel):
     status: ScreeningStatus
     investigation_reasons: List[str]
     rule_signal_codes: List[str]
+    rule_signals: List[RuleSignal] = []        # same signals, with their evidence numbers
     ai_observation_count: int
     ai_finding_titles: List[str] = []
     has_investigation: bool
@@ -236,3 +237,75 @@ class AgentDetail(BaseModel):
 
 
 ReportOverview.model_rebuild()
+
+
+# ---------------------------------------------------------
+# Ask Copilot: persisted investigations
+# ---------------------------------------------------------
+
+InvestigationStatus = Literal["running", "completed", "failed"]
+InvestigationOrigin = Literal["example", "local"]
+InvestigationKind = Literal["question", "agent"]
+
+
+class DateRange(BaseModel):
+    start: str
+    end: str
+
+
+class TraceStep(BaseModel):
+    """One tool call made by the agent, as safely recorded for review."""
+    tool: str
+    args: Dict[str, Any]
+    result: Any = None              # parsed JSON when small enough
+    result_preview: Optional[str] = None  # truncated text otherwise
+    result_truncated: bool = False
+
+
+class PatternTheme(BaseModel):
+    theme: str
+    request_ids: List[int]
+    evidence_count: int
+    confidence: str
+
+
+class InvestigationError(BaseModel):
+    type: str
+    message: str
+
+
+class InvestigationRecord(BaseModel):
+    id: str
+    kind: InvestigationKind = "question"
+    origin: InvestigationOrigin
+    question: str
+    agent_id: Optional[str] = None
+    report_date: Optional[str] = None     # the shift selected when it was asked
+    date_range: Optional[DateRange] = None  # dates the agent actually examined
+    status: InvestigationStatus
+    created_at: str
+    completed_at: Optional[str] = None
+    model: Optional[str] = None
+    # kind == "question": InvestigationResult from langgraph_agent.py
+    # kind == "agent":    AgentInvestigationResult from langgraph_agent.py
+    result: Optional[Dict[str, Any]] = None
+    pattern_themes: List[PatternTheme] = []
+    narrative: Optional[str] = None       # the agent's final prose answer, if any
+    trace: List[TraceStep] = []
+    error: Optional[InvestigationError] = None
+
+
+class InvestigationSummary(BaseModel):
+    id: str
+    kind: InvestigationKind
+    origin: InvestigationOrigin
+    question: str
+    agent_id: Optional[str]
+    report_date: Optional[str]
+    status: InvestigationStatus
+    created_at: str
+
+
+class NewInvestigation(BaseModel):
+    question: str = Field(min_length=5, max_length=600)
+    report_date: Optional[str] = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")

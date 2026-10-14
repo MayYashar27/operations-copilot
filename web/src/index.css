@@ -145,6 +145,9 @@
   .icon-btn {
     @apply inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface text-ink-2 shadow-card ring-1 ring-line/60 transition-all duration-200 hover:-translate-y-px hover:text-accent hover:shadow-lift;
   }
+  .btn-ghost-sm {
+    @apply inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[12.5px] font-semibold text-ink-3 transition-colors hover:bg-hover hover:text-accent;
+  }
   .link {
     @apply font-semibold text-accent underline-offset-2 hover:underline;
   }

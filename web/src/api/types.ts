@@ -98,8 +98,155 @@ export interface AgentRow {
   status: ScreeningStatus
   investigation_reasons: string[]
   rule_signal_codes: string[]
+  rule_signals: RuleSignal[]
   ai_observation_count: number
   ai_finding_titles: string[]
   has_investigation: boolean
   metrics: AgentMetrics | null
+}
+
+// ---------------------------------------------------------
+// Agent detail (GET /reports/{date}/agents/{id})
+// ---------------------------------------------------------
+
+export interface RuleSignal {
+  source: 'rule'
+  code: string
+  category: string
+  evidence: Record<string, unknown>
+}
+
+export interface AIObservation {
+  source: 'ai'
+  finding: string
+  request_ids: number[]
+  explanation: string
+}
+
+export interface DailyTrendPoint {
+  date: string
+  handled_requests: number
+  transfer_rate_percent: number | null
+  first_line_resolution_rate_percent: number | null
+  average_handling_time_minutes: number | null
+  requests_per_scheduled_hour: number | null
+}
+
+export interface PeriodMetrics {
+  dates: string[] | null
+  requests: number
+  transfers: number
+  transfer_rate_percent: number | null
+  average_handling_time_minutes: number | null
+}
+
+export interface DocumentationScreening {
+  total_requests: number
+  documented_requests: number
+  missing_documentation_count: number
+  short_documentation_count: number
+  short_documentation_percent: number | null
+  short_word_threshold: number
+  average_documentation_words: number | null
+  repeated_text_group_count: number
+}
+
+export interface InvestigationFinding {
+  finding: string
+  supporting_request_ids: number[]
+  supporting_metrics: string[]
+  interpretation: string
+}
+
+export interface AgentInvestigation {
+  summary: string
+  observed_facts: string[]
+  findings: InvestigationFinding[]
+  hypotheses: string[]
+  missing_evidence: string[]
+  recommendations: string[]
+}
+
+export interface EvidenceRequest {
+  request_id: number
+  request_time: string
+  classification: string | null
+  subject: string | null
+  status: string | null
+  transferred_to: string | null
+  handling_time_minutes: number | null
+  documentation: string | null
+}
+
+export interface AgentDetail {
+  agent_id: string
+  date: string
+  lookback_start: string | null
+  status: ScreeningStatus
+  investigation_reasons: string[]
+  day_metrics: AgentMetrics | null
+  lookback_metrics: AgentMetrics | null
+  team_baseline: AgentMetrics | null
+  daily_trends: DailyTrendPoint[]
+  period_comparison: { earlier: PeriodMetrics; later: PeriodMetrics; peers_later: PeriodMetrics } | null
+  rule_signals: RuleSignal[]
+  ai_observations: AIObservation[]
+  ai_observation_summary: string | null
+  documentation_screening: DocumentationScreening | null
+  investigation: AgentInvestigation | null
+  evidence_requests: EvidenceRequest[]
+  methodology: string | null
+}
+
+// ---------------------------------------------------------
+// Ask Copilot
+// ---------------------------------------------------------
+
+export type InvestigationStatus = 'running' | 'completed' | 'failed'
+
+export interface InvestigationSummary {
+  id: string
+  kind: 'question' | 'agent'
+  origin: 'example' | 'local'
+  question: string
+  agent_id: string | null
+  report_date: string | null
+  status: InvestigationStatus
+  created_at: string
+}
+
+/** InvestigationResult from langgraph_agent.py (question investigations). */
+export interface QuestionResult {
+  observed_facts: string[]
+  supported_patterns: string[]
+  hypotheses: string[]
+  confirmed_root_cause: string | null
+  missing_evidence: string[]
+  recommendations: string[]
+}
+
+export interface TraceStep {
+  tool: string
+  args: Record<string, unknown>
+  result: unknown
+  result_preview: string | null
+  result_truncated: boolean
+}
+
+export interface PatternTheme {
+  theme: string
+  request_ids: number[]
+  evidence_count: number
+  confidence: string
+}
+
+export interface InvestigationRecord extends InvestigationSummary {
+  date_range: { start: string; end: string } | null
+  completed_at: string | null
+  model: string | null
+  result: (QuestionResult | (AgentInvestigation & { agent_id: string; date: string })) | null
+  pattern_themes: PatternTheme[]
+  narrative: string | null
+  trace: TraceStep[]
+  error: { type: string; message: string } | null
 }

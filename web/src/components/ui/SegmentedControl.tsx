@@ -25,7 +25,7 @@ export function SegmentedControl<T extends string>({ label, value, options, onCh
   }, [index, options.length])
 
   return (
-    <div role="radiogroup" aria-label={label} className="relative inline-flex rounded-xl bg-frame p-1">
+    <div role="radiogroup" aria-label={label} className="relative inline-flex max-w-full overflow-x-auto rounded-xl bg-frame p-1 [scrollbar-width:none]">
       {thumb && (
         <span aria-hidden
           className="absolute top-1 bottom-1 rounded-[10px] bg-surface shadow-card transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]"

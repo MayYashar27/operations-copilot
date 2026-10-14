@@ -28,6 +28,7 @@ class Settings:
     app_mode: str
     reports_dir: Path
     has_api_key: bool
+    investigations_dir: Path = PROJECT_ROOT / "investigations"
 
     @property
     def live_investigations_enabled(self) -> bool:
@@ -43,9 +44,11 @@ def load_settings() -> Settings:
         raise ValueError(f"APP_MODE must be one of {sorted(VALID_MODES)}, got {mode!r}")
 
     reports_dir = Path(os.getenv("REPORTS_DIR", PROJECT_ROOT / "reports"))
+    investigations_dir = Path(os.getenv("INVESTIGATIONS_DIR", PROJECT_ROOT / "investigations"))
 
     return Settings(
         app_mode=mode,
         reports_dir=reports_dir,
         has_api_key=bool(os.getenv("ANTHROPIC_API_KEY", "").strip()),
+        investigations_dir=investigations_dir,
     )

@@ -1,5 +1,5 @@
 import { PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 
 interface WorkspaceState {
   hasSide: boolean
@@ -13,14 +13,22 @@ interface WorkspaceProps {
   /** Optional contextual panel (shifts, agent directory, history). */
   side?: ReactNode
   children: ReactNode
+  /** When this changes (e.g. a different agent), the main area scrolls to the top. */
+  scrollKey?: string
+  /** Fixed content at the bottom of the main area, e.g. the Copilot composer. */
+  footer?: ReactNode
 }
 
 /**
  * The layered workspace: [contextual side panel] + [main area].
  * Desktop: the side panel can be collapsed. Small screens: it opens as a drawer.
  */
-export function Workspace({ side, children }: WorkspaceProps) {
+export function Workspace({ side, children, scrollKey, footer }: WorkspaceProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const mainRef = useRef<HTMLElement>(null)
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 })
+  }, [scrollKey])
   const [drawerOpen, setDrawerOpen] = useState(false)
   const isDesktop = () => window.matchMedia('(min-width: 1024px)').matches
 
@@ -39,11 +47,18 @@ export function Workspace({ side, children }: WorkspaceProps) {
           </aside>
         )}
 
-        <main className="scroll-soft relative min-w-0 flex-1 overflow-y-auto rounded-[var(--radius-pane)] bg-pane">
+        <div className="relative flex min-w-0 flex-1 flex-col rounded-[var(--radius-pane)] bg-pane lg:overflow-hidden">
           {/* Soft lavender glow, echoing the reference's light, airy depth */}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-72 bg-[radial-gradient(60%_100%_at_50%_100%,rgb(140_124_246/0.10),transparent)]" />
-          <div className="relative mx-auto max-w-[1180px] animate-rise px-4 py-5 sm:px-6 lg:px-8 lg:py-7">{children}</div>
-        </main>
+          <main ref={mainRef} className="scroll-soft relative min-h-0 flex-1 overflow-y-auto">
+            <div className="relative mx-auto max-w-[1180px] animate-rise px-4 py-5 sm:px-6 lg:px-8 lg:py-7">{children}</div>
+          </main>
+          {footer && (
+            <div className="sticky bottom-0 z-10 shrink-0 rounded-b-[var(--radius-pane)] bg-gradient-to-t from-pane via-pane to-transparent px-4 pt-3 pb-4 sm:px-6 lg:static lg:px-8">
+              {footer}
+            </div>
+          )}
+        </div>
       </div>
 
       {side && drawerOpen && (

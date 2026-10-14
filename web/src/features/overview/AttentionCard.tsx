@@ -6,7 +6,7 @@ import { AgentMonogram } from '../../components/ui/AgentMonogram'
 import { SourceIcon } from '../../components/ui/SourceTag'
 import { StatusBadge } from '../../components/ui/StatusBadge'
 import { attentionShortlist } from '../../lib/attention'
-import { signalLabel } from '../../lib/signals'
+import { signalSentence } from '../../lib/signals'
 import { STATUS_META, STATUS_ORDER, TONE_CLASSES } from '../../lib/status'
 
 /** Priority attention: a short list. The full roster lives on the Agents screen. */
@@ -64,18 +64,21 @@ export function AttentionCard({ rows, counts, total }: { rows: AgentRow[]; count
   )
 }
 
-/** The concise "why": metric signals first, then the lead AI observation. */
+/**
+ * The specific "why": the strongest metric signal stated with its own
+ * numbers, then the lead AI observation. Both are labelled by source.
+ */
 function WhyLines({ row }: { row: AgentRow }) {
-  const signals = row.rule_signal_codes
+  const [lead, ...rest] = row.rule_signals ?? []
   const aiLead = row.ai_finding_titles[0]
   return (
     <div className="mt-2.5 space-y-1.5 pl-[52px]">
-      {signals.length > 0 && (
+      {lead && (
         <p className="flex items-start gap-1.5 text-[12.5px] leading-snug text-ink-2">
           <SourceIcon source="rule" className="mt-[2px] size-3.5 shrink-0" />
           <span>
-            {signals.slice(0, 2).map(signalLabel).join(' · ')}
-            {signals.length > 2 && <span className="text-ink-3"> · +{signals.length - 2}</span>}
+            {signalSentence(lead)}
+            {rest.length > 0 && <span className="text-ink-3"> · +{rest.length} more {rest.length === 1 ? 'signal' : 'signals'}</span>}
           </span>
         </p>
       )}

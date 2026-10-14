@@ -1,0 +1,220 @@
+{
+  "id": "example-20261014-130150-c42a40",
+  "kind": "question",
+  "origin": "example",
+  "question": "On 2026-09-07, how many requests were transferred, to which destinations, and which request classifications were most often transferred?",
+  "agent_id": null,
+  "report_date": "2026-09-07",
+  "date_range": {
+    "start": "2026-09-07",
+    "end": "2026-09-07"
+  },
+  "status": "completed",
+  "created_at": "2026-10-14T10:01:50+00:00",
+  "completed_at": "2026-10-14T10:02:29+00:00",
+  "model": "claude-sonnet-4-6",
+  "result": {
+    "observed_facts": [
+      "On 2026-09-07, there were 200 total requests recorded.",
+      "61 requests were transferred (30.5% of total); 139 were resolved directly (69.5%).",
+      "Transfer destinations: Technical Support received 35 transfers, Billing received 13, Back Office received 11, and Supervisor received 2.",
+      "Technical Support was the most common transfer destination, accounting for 57.4% of all transfers.",
+      "Request classifications for the day: payment_issue (60), technical_issue (51), general_information (45), login_issue (44).",
+      "Payment Issue: 20 of 60 requests transferred (33.3%); top destination was Technical Support (14 transfers).",
+      "Technical Issue: 16 of 51 requests transferred (31.4%); top destination was Technical Support (8 transfers).",
+      "Login Issue: 16 of 44 requests transferred (36.4%); top destination was Technical Support (10 transfers).",
+      "General Information: 9 of 45 requests transferred (20.0%); top destination was Billing (4 transfers).",
+      "Supervisor escalations totaled only 2, originating from Payment Issue (1) and Technical Issue (1) classifications.",
+      "No pattern analysis was performed for this investigation."
+    ],
+    "supported_patterns": [
+      "Technical Support was the dominant transfer destination across all four request classifications.",
+      "Payment Issue and Login Issue classifications each generated the highest absolute or rate-based transfer volumes among all classifications.",
+      "General Information requests had the lowest transfer rate (20%) compared to all other classifications."
+    ],
+    "hypotheses": [
+      "Login Issue requests may be more difficult for front-line agents to resolve directly, as they had the highest transfer rate (36.4%), but this has not been confirmed by agent-level or resolution-quality data.",
+      "The concentration of transfers to Technical Support across multiple classification types may suggest that Technical Support acts as a general escalation path rather than a specialist-only queue, but routing logic has not been examined.",
+      "Payment Issue requests may require specialist handling that front-line agents cannot provide, given their high absolute transfer volume and frequent routing to Technical Support, but no process or policy data has been reviewed to confirm this.",
+      "The low supervisor escalation count (2) may reflect effective first- and second-tier handling, or may reflect under-escalation, but no quality or outcome data is available to distinguish between these possibilities."
+    ],
+    "confirmed_root_cause": null,
+    "missing_evidence": [
+      "Agent-level transfer data to determine whether specific agents or teams are driving higher transfer rates.",
+      "Historical transfer volume and rate data from prior dates to establish whether 2026-09-07 figures represent normal, elevated, or reduced activity.",
+      "Resolution outcome data (e.g., first-contact resolution rates, re-contact rates) to assess whether transfers led to successful resolution.",
+      "Routing policy or workflow documentation to confirm whether Technical Support is intended as a specialist or general escalation destination.",
+      "Time-of-day breakdown of transfers to identify whether transfer rates vary by shift or hour.",
+      "Pattern analysis results, which were not performed for this investigation period."
+    ],
+    "recommendations": [
+      "Review Login Issue handling procedures and agent training, as this classification had the highest transfer rate (36.4%), to determine whether additional front-line support resources or knowledge base improvements could reduce transfers.",
+      "Investigate the routing logic for Technical Support to confirm it is being used appropriately and not as a catch-all escalation path across unrelated classification types.",
+      "Run pattern analysis across a broader date range to determine whether the transfer volumes and rates observed on 2026-09-07 are typical or anomalous.",
+      "Collect agent-level transfer data to identify whether transfer rates are concentrated among specific agents or teams, which could inform targeted coaching or process changes.",
+      "Examine resolution outcomes for transferred requests to assess whether transfers are resulting in successful resolution or further escalation."
+    ]
+  },
+  "pattern_themes": [],
+  "narrative": "Here is the full picture for **2026-09-07**:\n\n---\n\n## 📊 Overall Transfer Summary\n\n| Metric | Count |\n|---|---|\n| Total requests | 200 |\n| Transferred | **61** (30.5%) |\n| Resolved directly | 139 (69.5%) |\n\n---\n\n## 📍 Transfers by Destination\n\n| Destination | Transfers | Share of Transfers |\n|---|---|---|\n| Technical Support | 35 | 57.4% |\n| Billing | 13 | 21.3% |\n| Back Office | 11 | 18.0% |\n| Supervisor | 2 | 3.3% |\n| **Total** | **61** | 100% |\n\n**Technical Support** was by far the most common transfer destination, receiving more than half of all transferred requests.\n\n---\n\n## 🗂️ Transfers by Request Classification\n\n| Classification | Total Requests | Transferred | Transfer Rate | Top Destination |\n|---|---|---|---|---|\n| **Payment Issue** | 60 | **20** | 33.3% | Technical Support (14) |\n| **Technical Issue** | 51 | **16** | 31.4% | Technical Support (8) |\n| **Login Issue** | 44 | **16** | 36.4% | Technical Support (10) |\n| **General Information** | 45 | **9** | 20.0% | Billing (4) |\n\n---\n\n## 🔑 Key Findings\n\n1. **Payment Issues drove the most transfers in absolute terms** — 20 out of 61 total transfers (32.8%), despite being the largest classification by volume.\n2. **Login Issues had the highest transfer rate** — 36.4% of login issue requests were transferred, suggesting agents may be escalating these rather than resolving them directly.\n3. **Technical Support was the dominant destination across all classifications**, particularly for Payment Issues (14 transfers) and Login Issues (10 transfers), which may suggest these request types require specialist handling.\n4. **General Information had the lowest transfer rate** (20%), consistent with the expectation that informational requests are more straightforwardly resolved.\n5. **Supervisor escalations were rare** — only 2 total, both from Payment and Technical Issue categories.",
+  "trace": [
+    {
+      "tool": "get_transfers_by_destination",
+      "args": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59"
+      },
+      "result": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "transfer_destinations": {
+          "technical_support": 35,
+          "billing": 13,
+          "back_office": 11,
+          "supervisor": 2
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_requests_by_classification",
+      "args": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59"
+      },
+      "result": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "classifications": {
+          "payment_issue": 60,
+          "general_information": 45,
+          "technical_issue": 51,
+          "login_issue": 44
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_requests_by_status",
+      "args": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59"
+      },
+      "result": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "statuses": {
+          "transferred": 61,
+          "resolved": 139
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_classification_status_breakdown",
+      "args": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "classification": "payment_issue"
+      },
+      "result": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "classification": "payment_issue",
+        "request_count": 60,
+        "statuses": {
+          "transferred": 20,
+          "resolved": 40
+        },
+        "transfer_destinations": {
+          "technical_support": 14,
+          "back_office": 2,
+          "billing": 3,
+          "supervisor": 1
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_classification_status_breakdown",
+      "args": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "classification": "technical_issue"
+      },
+      "result": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "classification": "technical_issue",
+        "request_count": 51,
+        "statuses": {
+          "resolved": 35,
+          "transferred": 16
+        },
+        "transfer_destinations": {
+          "technical_support": 8,
+          "billing": 3,
+          "back_office": 4,
+          "supervisor": 1
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_classification_status_breakdown",
+      "args": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "classification": "general_information"
+      },
+      "result": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "classification": "general_information",
+        "request_count": 45,
+        "statuses": {
+          "resolved": 36,
+          "transferred": 9
+        },
+        "transfer_destinations": {
+          "technical_support": 3,
+          "back_office": 2,
+          "billing": 4
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_classification_status_breakdown",
+      "args": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "classification": "login_issue"
+      },
+      "result": {
+        "start_time": "2026-09-07T00:00:00",
+        "end_time": "2026-09-07T23:59:59",
+        "classification": "login_issue",
+        "request_count": 44,
+        "statuses": {
+          "resolved": 28,
+          "transferred": 16
+        },
+        "transfer_destinations": {
+          "billing": 3,
+          "technical_support": 10,
+          "back_office": 3
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    }
+  ],
+  "error": null
+}

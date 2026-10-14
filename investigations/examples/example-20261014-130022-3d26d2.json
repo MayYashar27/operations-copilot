@@ -1,0 +1,345 @@
+{
+  "id": "example-20261014-130022-3d26d2",
+  "kind": "question",
+  "origin": "example",
+  "question": "There was an unusually high workload on 2026-08-27 between 15:00 and 16:00. Investigate what happened and explain the likely cause.",
+  "agent_id": null,
+  "report_date": "2026-09-07",
+  "date_range": {
+    "start": "2026-08-27",
+    "end": "2026-08-27"
+  },
+  "status": "completed",
+  "created_at": "2026-10-14T10:00:22+00:00",
+  "completed_at": "2026-10-14T10:01:50+00:00",
+  "model": "claude-sonnet-4-6",
+  "result": {
+    "observed_facts": [
+      "Total requests during 15:00–16:00 were 45, compared to 20 in the prior hour (14:00–15:00), a 125% increase (+25 requests).",
+      "The payment_issue classification was the largest single category during the incident window with 16 requests, up from 6 in the baseline hour (+167%).",
+      "login_issue requests rose from 3 to 10 (+7), general_information from 3 to 9 (+6), and technical_issue from 8 to 10 (+2) during the same window.",
+      "Average wait time during 15:00–16:00 was 12.49 minutes; the monitor-recorded average wait time was 13.65 minutes.",
+      "Average available agents during the incident window was 0.77, with a peak of 8 agents simultaneously on calls.",
+      "45 additional abandoned calls were recorded during the incident window.",
+      "26 of 45 requests (58%) were transferred rather than resolved at first contact; 19 were resolved.",
+      "Of the 16 payment_issue requests, 9 (56%) were transferred — 4 to technical support, 3 to billing, and 2 to back office; 7 were resolved at first line.",
+      "Across all 45 requests, transfers were distributed across technical support (10), billing (7), back office (7), and supervisor (2).",
+      "The 5-minute bucket breakdown shows two demand peaks: 7 requests in 15:00–15:05 and 8 requests in 15:40–15:45; volume was not uniformly distributed.",
+      "All 16 payment_issue requests fell into three sub-themes: payment questions about recent payments (6 requests), pending transaction inquiries (5 requests), and billing/charge clarification (5 requests).",
+      "Billing and charge clarification requests (request IDs 30141, 30144, 30180, 30155, 30172) were all escalated rather than resolved at first line.",
+      "Pending transaction inquiries that were escalated included request IDs 30156, 30150, and 30168."
+    ],
+    "supported_patterns": [
+      "High volume of payment and transaction-related inquiries (payment questions, pending transactions, billing inquiries) dominated the request queue during the incident window, accounting for all 16 payment_issue requests (high confidence, pattern analysis).",
+      "Billing and charge clarification requests consistently required escalation rather than first-line resolution — all 5 such requests were transferred (high confidence, pattern analysis).",
+      "Pending transaction inquiries frequently required escalation rather than first-line resolution — 3 of 5 such requests were transferred (high confidence, pattern analysis).",
+      "Escalations for similar payment-related request types were routed inconsistently across multiple teams (billing, back office, and technical support), suggesting non-standardised escalation paths (medium confidence, pattern analysis).",
+      "Demand arrived in waves rather than as a single sustained surge, with distinct mini-peaks at 15:00–15:05 and 15:40–15:45."
+    ],
+    "hypotheses": [
+      "The volume spike may have been triggered by an upstream payment processing delay or billing system event affecting multiple customers simultaneously, causing them to contact support to check the status of pending transactions or recent charges — though no direct technical evidence from payment or billing systems is available to confirm this.",
+      "The high escalation rate (56% for payment_issue) and inconsistent routing across billing, back office, and technical support may have compounded queue pressure by preventing first-line resolution and distributing load unpredictably across downstream teams.",
+      "The concurrent spike in login_issue requests (+7) may be related to the payment inquiry surge — customers unable to log in to self-serve channels to check payment status may have been forced to contact support, amplifying inbound volume."
+    ],
+    "confirmed_root_cause": null,
+    "missing_evidence": [
+      "Payment processing system logs or incident records from approximately 14:45–15:00 on 2026-08-27, which could confirm or rule out a processing delay, error, or batch job failure as the trigger.",
+      "Billing system change logs or error records around the same time window.",
+      "Baseline average wait time for the prior hour (14:00–15:00) to quantify the degradation in customer experience.",
+      "Baseline abandoned call count for the prior hour to contextualise the +45 abandoned calls figure.",
+      "Details on the login_issue requests to determine whether they are related to payment self-service access or are an independent issue.",
+      "Staffing schedule data to confirm whether the low agent availability (0.77 average) was due to planned staffing levels, unplanned absences, or agents being overwhelmed by the volume surge.",
+      "First-contact resolution rate for payment_issue during the baseline hour, to determine whether the elevated escalation rate during the incident window is anomalous."
+    ],
+    "recommendations": [
+      "Investigate payment and billing systems for any processing delays, errors, or batch events that occurred around 14:45–15:00 on 2026-08-27 to determine whether a system-side event drove the customer contact surge.",
+      "Review and standardise escalation paths for payment-related sub-types (pending transactions, billing inquiries, payment questions) to reduce inconsistent routing across billing, back office, and technical support.",
+      "Investigate the login_issue spike (+7 requests during the incident window) to determine whether it is related to the payment inquiry surge, particularly whether customers were unable to access self-serve channels to check payment status.",
+      "Assess first-contact resolution capability for payment_issue requests — if agents lack the tools, access, or authority to resolve billing and pending transaction inquiries at first line, targeted training or system access improvements should be evaluated.",
+      "Review staffing thresholds and surge protocols: average available agents of 0.77 indicates no spare capacity existed during the incident window, and 45 additional calls were abandoned as a result."
+    ]
+  },
+  "pattern_themes": [
+    {
+      "theme": "High volume of payment and transaction-related inquiries (payment questions, pending transactions, billing inquiries) dominating the request queue",
+      "request_ids": [
+        30156,
+        30138,
+        30139,
+        30151,
+        30141,
+        30175,
+        30179,
+        30169,
+        30140,
+        30171,
+        30150,
+        30144,
+        30180,
+        30155,
+        30168,
+        30172
+      ],
+      "evidence_count": 16,
+      "confidence": "high"
+    },
+    {
+      "theme": "Billing and charge clarification requests frequently requiring escalation rather than first-line resolution",
+      "request_ids": [
+        30141,
+        30144,
+        30180,
+        30155,
+        30172
+      ],
+      "evidence_count": 5,
+      "confidence": "high"
+    },
+    {
+      "theme": "Pending transaction inquiries frequently requiring escalation rather than first-line resolution",
+      "request_ids": [
+        30156,
+        30150,
+        30168
+      ],
+      "evidence_count": 3,
+      "confidence": "high"
+    },
+    {
+      "theme": "Escalations routed to multiple different teams (billing, back office, technical support) for similar request types, suggesting inconsistent escalation paths",
+      "request_ids": [
+        30156,
+        30151,
+        30141,
+        30150,
+        30144,
+        30180,
+        30155,
+        30168,
+        30172
+      ],
+      "evidence_count": 9,
+      "confidence": "medium"
+    }
+  ],
+  "narrative": "I now have sufficient evidence to deliver a comprehensive investigation report.\n\n---\n\n## 🔍 Incident Investigation: 2026-08-27 | 15:00–16:00\n\n---\n\n### 1. Volume Spike — Confirmed Fact\n\n| Metric | 14:00–15:00 (Baseline) | 15:00–16:00 (Incident) | Change |\n|---|---|---|---|\n| Total Requests | 20 | 45 | **+25 (+125%)** |\n| Avg. Wait Time | — | **12.49 min** | — |\n| Monitor Avg. Wait | — | **13.65 min** | — |\n| Avg. Available Agents | — | **0.77** | Near-zero |\n| Peak Agents on Calls | — | **8** | — |\n| Abandoned Calls | — | **+45** | Significant |\n\nThe request volume more than doubled compared to the prior hour. Agent availability was critically low (average of 0.77 agents free), and 45 additional calls were abandoned during the window — indicating that customers could not get through.\n\n---\n\n### 2. Classification Breakdown — Confirmed Fact\n\n| Classification | 14:00–15:00 | 15:00–16:00 | Change |\n|---|---|---|---|\n| **payment_issue** | 6 | **16** | **+10 (+167%)** |\n| technical_issue | 8 | 10 | +2 |\n| login_issue | 3 | 10 | +7 |\n| general_information | 3 | 9 | +6 |\n\n`payment_issue` saw the sharpest proportional increase (+167%) and is the **single largest classification** during the incident window. While all categories rose, payment issues stand out as the dominant driver.\n\n---\n\n### 3. Intra-Hour Volume Pattern — Confirmed Fact\n\nThe 5-minute bucket breakdown shows two mini-peaks:\n- **15:00–15:05**: 7 requests (opening burst)\n- **15:40–15:45**: 8 requests (second surge)\n\nVolume was not uniformly distributed, suggesting demand arrived in waves rather than a single event.\n\n---\n\n### 4. Semantic Analysis of Payment Requests — Supported Pattern\n\nAll 16 `payment_issue` requests fell into three recurring sub-themes:\n\n| Sub-theme | Request IDs | Count |\n|---|---|---|\n| Payment questions (recent payments) | 30139, 30151, 30175, 30179, 30140, 30171 | 6 |\n| Pending transaction inquiries | 30156, 30138, 30169, 30150, 30168 | 5 |\n| Billing/charge clarification | 30141, 30144, 30180, 30155, 30172 | 5 |\n\nThese are closely related topics — all revolving around **payment status uncertainty** — suggesting customers were contacting support because they lacked visibility into the state of their transactions or charges.\n\n---\n\n### 5. Escalation & Transfer Analysis — Confirmed Fact\n\n- **26 of 45 requests (58%) were transferred** rather than resolved at first contact.\n- Of the 16 `payment_issue` requests, **9 (56%) were transferred**, split across:\n  - Technical Support: 4\n  - Billing: 3\n  - Back Office: 2\n\n> **Supported Pattern (medium confidence):** The pattern-analysis component identified that similar request types (billing inquiries, pending transactions) were escalated to *different* teams — billing, back office, and technical support — for what appear to be comparable issues. This suggests **inconsistent escalation paths**, which would have amplified queue pressure by distributing load unpredictably across downstream teams.\n\n---\n\n### 6. Operational Stress — Confirmed Fact\n\n- Average available agents: **0.77** (effectively no spare capacity throughout the hour)\n- Peak agents simultaneously on calls: **8**\n- **45 additional abandoned calls** recorded — a direct indicator of customer-facing service degradation\n\nThe combination of near-zero agent availability and high abandonment confirms the operation was at or beyond capacity for the full hour.\n\n---\n\n### 7. Summary & Likely Cause\n\n#### Observed Facts:\n- Request volume spiked +125% vs. the prior hour.\n- `payment_issue` was the dominant classification, rising +167%.\n- Agent availability collapsed to near-zero; 45 calls were abandoned.\n- 56% of payment requests required escalation, routed inconsistently across multiple teams.\n\n#### Supported Interpretation (Hypothesis — not confirmed root cause):\nThe spike was **most likely driven by a surge in customer payment-related uncertainty** — customers contacting support because they could not determine the status of pending transactions or recent charges. This is consistent with a possible upstream payment processing delay or billing system event that affected multiple customers simultaneously, though **no direct technical evidence (e.g., system logs or incident records) is available to confirm this**.\n\nThe high escalation rate and inconsistent routing across billing, back office, and technical support **may have compounded the workload** by preventing first-line resolution and creating downstream queue pressure.\n\n#### What Would Confirm the Root Cause:\n- Payment processing system logs or incident records from ~14:45–15:00 showing a delay, error, or batch processing event\n- Billing system change logs around the same time\n- Confirmation of whether the `login_issue` spike (also +7 requests) is related (e.g., customers unable to log in to self-serve and check payment status)\n\n---\n\n### 8. Recommendations\n\n1. **Investigate payment/billing systems** for any processing delays, errors, or batch jobs that completed or failed around 14:45–15:00 on 2026-08-27.\n2. **Standardize escalation paths** for payment-related sub-types (pending transactions, billing inquiries) to reduce inconsistent routing across billing, back office, and technical support.\n3. **Review first-contact resolution capability** for payment issues — if agents lack the tools or authority to resolve these at first line, targeted training or system access improvements may reduce the 56% transfer rate.\n4. **Investigate the login_issue spike** (+7 requests) to determine whether it is related — customers unable to self-serve may have been forced to call in, amplifying the payment inquiry volume.\n5. **Assess staffing thresholds** — average available agents of 0.77 indicates the team had no buffer; consider surge protocols for future similar events.",
+  "trace": [
+    {
+      "tool": "count_requests",
+      "args": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00"
+      },
+      "result": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "request_count": 45
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "count_requests",
+      "args": {
+        "start_time": "2026-08-27T14:00:00",
+        "end_time": "2026-08-27T15:00:00"
+      },
+      "result": {
+        "start_time": "2026-08-27T14:00:00",
+        "end_time": "2026-08-27T15:00:00",
+        "request_count": 20
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_requests_by_classification",
+      "args": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00"
+      },
+      "result": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "classifications": {
+          "payment_issue": 16,
+          "technical_issue": 10,
+          "general_information": 9,
+          "login_issue": 10
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_average_wait_time",
+      "args": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00"
+      },
+      "result": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "average_wait_time_minutes": 12.49,
+        "request_count": 45
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_monitor_metrics",
+      "args": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00"
+      },
+      "result": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "snapshot_count": 13,
+        "average_monitor_wait_time_minutes": 13.65,
+        "average_available_agents": 0.77,
+        "peak_agents_on_calls": 8,
+        "answered_calls_change": 111,
+        "abandoned_calls_change": 45
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_requests_by_time_bucket",
+      "args": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "bucket_minutes": 5
+      },
+      "result": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "bucket_minutes": 5,
+        "request_counts": {
+          "15:00-15:05": 7,
+          "15:05-15:10": 5,
+          "15:10-15:15": 3,
+          "15:15-15:20": 5,
+          "15:20-15:25": 4,
+          "15:25-15:30": 0,
+          "15:30-15:35": 4,
+          "15:35-15:40": 4,
+          "15:40-15:45": 8,
+          "15:45-15:50": 0,
+          "15:50-15:55": 1,
+          "15:55-16:00": 4
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "compare_values",
+      "args": {
+        "current": 45,
+        "baseline": 20
+      },
+      "result": {
+        "current": 45.0,
+        "baseline": 20.0,
+        "absolute_change": 25.0,
+        "percentage_change": 125.0
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_requests_by_classification",
+      "args": {
+        "start_time": "2026-08-27T14:00:00",
+        "end_time": "2026-08-27T15:00:00"
+      },
+      "result": {
+        "start_time": "2026-08-27T14:00:00",
+        "end_time": "2026-08-27T15:00:00",
+        "classifications": {
+          "technical_issue": 8,
+          "general_information": 3,
+          "login_issue": 3,
+          "payment_issue": 6
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_requests_by_status",
+      "args": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00"
+      },
+      "result": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "statuses": {
+          "transferred": 26,
+          "resolved": 19
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_request_details",
+      "args": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "classification": "payment_issue"
+      },
+      "result": null,
+      "result_preview": "{\"start_time\": \"2026-08-27T15:00:00\", \"end_time\": \"2026-08-27T16:00:00\", \"classification_filter\": \"payment_issue\", \"request_count\": 16, \"requests\": [{\"request_id\": 30156, \"request_time\": \"2026-08-27T15:00:21\", \"subject\": \"Pending transaction\", \"classification\": \"payment_issue\", \"documentation\": \"Customer asked about a transaction that is still pending. Escalated to billing for follow-up.\"}, {\"request_id\": 30138, \"request_time\": \"2026-08-27T15:01:49\", \"subject\": \"Pending transaction\", \"classification\": \"payment_issue\", \"documentation\": \"Customer asked about a transaction that is still pending. Verified details and resolved the request on first line.\"}, {\"request_id\": 30139, \"request_time\": \"2026-08-27T15:02:29\", \"subject\": \"Payment question\", \"classification\": \"payment_issue\", \"documentation\": \"Customer contacted support regarding a recent payment. Verified details and resolved the request on first line.\"}, {\"request_id\": 30151, \"request_time\": \"2026-08-27T15:04:17\", \"subject\": \"Payment question\", \"classification\": \"payment_issue\", \"documentation\": \"Customer contacted support regarding a recent payment. Escalated to back office for follow-up.\"}, {\"request_id\": 30141, \"request_time\": \"2026-08-27T15:04:46\", \"subject\": \"Billing inquiry\", \"classification\": \"payment_issue\", \"documentation\": \"Customer requested clarification regarding a charge. Escalated to technical support for follow-up.\"}, {\"request_id\": 30175, \"request_time\": \"2026-08-27T15:06:08\", \"subject\": \"Payment question\", \"classification\": \"payment_issue\", \"documentation\": \"Customer contacted support regarding a recent payment. Verified details and resolved the request on first line.\"}, {\"request_id\": 30179, \"request_time\": \"2026-08-27T15:14:02\", \"subject\": \"Payment question\", \"classification\": \"payment_issue\", \"documentation\": \"Customer contacted support regarding a recent payment. Verified details and resolved the request on first line.\"}, {\"request_id\": 30169, \"request_time\": \"2026-08-27T15:15:36\", \"subject\": \"Pending transaction\", \"classification\": \"payment_issue\", \"documentation\": \"Customer asked about a transaction that is still pending. Verified details and resolved the request on first line.\"}, {\"request_id\": 30140, \"request_time\": \"2026-08-27T15:16:51\", \"subject\": \"Payment question\", \"classification\": \"payment_issue\", \"documentation\": \"Customer contacted support regarding a recent payment. Verified details and resolved the request on first line.\"}, {\"request_id\": 30171, \"request_time\": \"2026-08-27T15:19:44\", \"subject\": \"Payment question\", \"classification\": \"payment_issue\", \"documentation\": \"Customer contacted support regarding a recent payment. Verified details and resolved the request on first line.\"}, {\"request_id\": 30150, \"request_time\": \"2026-08-27T15:35:12\", \"subject\": \"Pending transaction\", \"classification\": \"payment_issue\", \"documentation\": \"Customer asked about a transaction that is still pending. Escalated to billing for follow-up.\"}, {\"request_id\": 30144, \"request_time\": \"2026-08-27T15:41:54\", \"subject\": \"Billing inquiry\", \"classification\": \"payment_issue\", \"documentation\": \"Customer requested clarification regarding a charge. Escalated to back office for follow-up.\"}, {\"request_id\": 30180, \"request_time\": \"2026-08-27T15:42:12\", \"subject\": \"Billing inquiry\", \"classification\": \"payment_issue\", \"documentation\": \"Customer requested clarification regarding a charge. Escalated to technical support for follow-up.\"}, {\"request_id\": 30155, \"request_time\": \"2026-08-27T15:54:05\", \"subject\": \"Billing inquiry\", \"classification\": \"payment_issue\", \"documentation\": \"Customer requested clarification regarding a charge. Escalated to technical support for follow-up.\"}, {\"request_id\": 30168, \"request_time\": \"2026-08-27T15:57:25\", \"subject\": \"Pending transaction\", \"classification\": \"payment_issue\", \"documentation\": \"Customer asked about a transaction that is still pending. Escalated to technical support for follow-up.\"}, {\"request_id\": 30172, \"request_time\": \"2026-08-27T15:",
+      "result_truncated": true
+    },
+    {
+      "tool": "get_transfers_by_destination",
+      "args": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00"
+      },
+      "result": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "transfer_destinations": {
+          "billing": 7,
+          "technical_support": 10,
+          "back_office": 7,
+          "supervisor": 2
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    },
+    {
+      "tool": "get_classification_status_breakdown",
+      "args": {
+        "classification": "payment_issue",
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00"
+      },
+      "result": {
+        "start_time": "2026-08-27T15:00:00",
+        "end_time": "2026-08-27T16:00:00",
+        "classification": "payment_issue",
+        "request_count": 16,
+        "statuses": {
+          "transferred": 9,
+          "resolved": 7
+        },
+        "transfer_destinations": {
+          "billing": 3,
+          "back_office": 2,
+          "technical_support": 4
+        }
+      },
+      "result_preview": null,
+      "result_truncated": false
+    }
+  ],
+  "error": null
+}
