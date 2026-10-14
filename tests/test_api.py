@@ -81,6 +81,26 @@ def test_overview_volume_profile_matches_day_total(client):
         assert h["above_threshold"] == (h["requests"] >= profile["threshold"])
 
 
+def test_overview_hourly_activity_and_trend(client):
+    body = client.get(f"/api/reports/{DATE}").json()
+
+    hours = body["hourly_activity"]
+    assert len(hours) == 9
+    assert sum(h["requests"] for h in hours) == body["day_metrics"]["total_requests"]
+    assert all(h["typical_requests"] is not None for h in hours)
+
+    trend = body["daily_trend"]
+    assert trend[-1]["date"] == DATE and trend[-1]["has_report"] is True
+    assert [t["date"] for t in trend] == sorted(t["date"] for t in trend)
+    assert all(t["date"] >= body["lookback_start"] for t in trend)
+    assert all(sum(t["hourly_requests"]) == t["total_requests"] for t in trend)
+
+
+def test_agent_rows_include_ai_finding_titles(client):
+    rows = {r["agent_id"]: r for r in client.get(f"/api/reports/{DATE}/agents").json()}
+    assert len(rows["A04"]["ai_finding_titles"]) == rows["A04"]["ai_observation_count"]
+
+
 def test_agents_list(client):
     rows = client.get(f"/api/reports/{DATE}/agents").json()
     assert len(rows) == 15

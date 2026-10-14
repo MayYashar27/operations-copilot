@@ -35,6 +35,34 @@ export interface VolumeProfile {
   hours: HourlyVolume[]
 }
 
+export interface HourlyActivity {
+  hour: string
+  requests: number
+  above_threshold: boolean
+  typical_requests: number | null
+  average_wait_minutes: number | null
+  typical_wait_minutes: number | null
+  average_available_agents: number | null
+  typical_available_agents: number | null
+}
+
+export interface UnusualHour {
+  hour: string
+  requests: number
+  ratio_to_average: number
+}
+
+export interface DailyTrendItem {
+  date: string
+  total_requests: number
+  average_wait_time_minutes: number | null
+  abandoned_calls: number | null
+  average_available_agents: number | null
+  unusual_hours: UnusualHour[]
+  hourly_requests: number[]
+  has_report: boolean
+}
+
 export interface PriorityItem {
   agent_id: string
   reasons: string[]
@@ -49,6 +77,9 @@ export interface ReportOverview {
   day_metrics: DayMetrics | null
   volume_profile: VolumeProfile | null
   priority_items: PriorityItem[]
+  hourly_activity: HourlyActivity[]
+  daily_trend: DailyTrendItem[]
+  team_day_metrics: AgentMetrics | null
 }
 
 export interface AgentMetrics {
@@ -68,6 +99,7 @@ export interface AgentRow {
   investigation_reasons: string[]
   rule_signal_codes: string[]
   ai_observation_count: number
+  ai_finding_titles: string[]
   has_investigation: boolean
   metrics: AgentMetrics | null
 }

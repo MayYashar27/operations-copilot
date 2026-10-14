@@ -10,11 +10,11 @@ from typing import Any, Callable, Dict, List, Optional, Set
 from pydantic import ValidationError
 
 import tools
-from api import storage
+from api import shift, storage
 from api.config import Settings
 from api.schemas import (
     AgentDetail, AgentMetrics, AgentRow, AIObservation, DailyTrendPoint,
-    DayMetrics, DocumentationScreening, EvidenceRequest, Investigation,
+    DailyTrendItem, DayMetrics, DocumentationScreening, HourlyActivity, EvidenceRequest, Investigation,
     HourlyVolume, PeriodComparison, PriorityItem, ReportListItem,
     ReportOverview, RuleSignal, StatusCounts, VolumeProfile,
 )
@@ -151,6 +151,20 @@ def get_overview(settings: Settings, date: str) -> ReportOverview:
     except DataUnavailableError:
         volume = None
 
+    lookback_start = report.agent_results[0].lookback_start if report.agent_results else None
+    days = shift.lookback_days(lookback_start or date, date)
+    report_dates = set(storage.list_report_dates(settings.reports_dir))
+    try:
+        hourly = _call_tool(shift.hourly_activity, date, days) or []
+        trend = _call_tool(shift.daily_trend, days, report_dates) or []
+    except DataUnavailableError:
+        hourly, trend = [], []
+
+    team = None
+    if report.agent_results:
+        performance = _metrics(report.agent_results[0].agent_id, date, date)
+        team = AgentMetrics.model_validate(performance["team_baseline"]) if performance else None
+
     return ReportOverview(
         date=report.date,
         lookback_start=report.agent_results[0].lookback_start if report.agent_results else None,
@@ -159,6 +173,9 @@ def get_overview(settings: Settings, date: str) -> ReportOverview:
         day_metrics=DayMetrics.model_validate(day) if day else None,
         volume_profile=volume,
         priority_items=priority,
+        hourly_activity=[HourlyActivity.model_validate(h) for h in hourly],
+        daily_trend=[DailyTrendItem.model_validate(d) for d in trend],
+        team_day_metrics=team,
     )
 
 
@@ -174,6 +191,7 @@ def list_agents(settings: Settings, date: str) -> List[AgentRow]:
             investigation_reasons=result.investigation_reasons,
             rule_signal_codes=[s.code for s in rule_signals(result)],
             ai_observation_count=len(ai_observations(result)),
+            ai_finding_titles=[o.finding for o in ai_observations(result)],
             has_investigation=storage.load_investigation(settings.reports_dir, report, result.agent_id) is not None,
             metrics=AgentMetrics.model_validate(performance["agent"]) if performance else None,
         ))

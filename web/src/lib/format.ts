@@ -38,3 +38,22 @@ export function formatMinutes(value: number | null | undefined): string {
 export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
   return `${count} ${count === 1 ? singular : plural}`
 }
+
+export function formatWeekdayShort(iso: string): string {
+  return parseDate(iso).toLocaleDateString('en-GB', { weekday: 'short' })
+}
+
+export function formatDayMonth(iso: string): string {
+  return parseDate(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+}
+
+/** Relative change in percent, or null when there is no baseline. */
+export function percentChange(current: number | null, baseline: number | null): number | null {
+  if (current === null || baseline === null || baseline === 0) return null
+  return ((current - baseline) / baseline) * 100
+}
+
+export function average(values: (number | null)[]): number | null {
+  const present = values.filter((v): v is number => v !== null)
+  return present.length ? present.reduce((sum, v) => sum + v, 0) / present.length : null
+}

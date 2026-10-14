@@ -1,5 +1,5 @@
 import { ArrowLeft, Construction } from 'lucide-react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useDatedLink } from '../app/context'
 import { PageHeader } from '../components/layout/PageHeader'
 import { Panel } from '../components/ui/Panel'
@@ -8,6 +8,8 @@ import { EmptyState } from '../components/ui/States'
 /** Temporary placeholder for screens built in the next steps. */
 export function ComingSoon({ title }: { title: string }) {
   const { agentId } = useParams()
+  const [params] = useSearchParams()
+  const question = params.get('q')
   const datedLink = useDatedLink()
 
   return (
@@ -19,10 +21,16 @@ export function ComingSoon({ title }: { title: string }) {
           title={`${title} is being built next`}
           action={
             <Link to={datedLink('/')} className="btn-secondary">
-              <ArrowLeft className="size-3.5" /> Back to dashboard
+              <ArrowLeft className="size-3.5" /> Back to overview
             </Link>
           }
-        />
+        >
+          {question && (
+            <p>
+              Pre-filled question: <span className="text-ink">“{question}”</span>
+            </p>
+          )}
+        </EmptyState>
       </Panel>
     </>
   )

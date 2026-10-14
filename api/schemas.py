@@ -52,6 +52,35 @@ class VolumeProfile(BaseModel):
     hours: List[HourlyVolume]
 
 
+class HourlyActivity(BaseModel):
+    """One working hour of the selected day, next to its typical value."""
+    hour: str
+    requests: int
+    above_threshold: bool
+    typical_requests: Optional[float]
+    average_wait_minutes: Optional[float]
+    typical_wait_minutes: Optional[float]
+    average_available_agents: Optional[float]
+    typical_available_agents: Optional[float]
+
+
+class UnusualHour(BaseModel):
+    hour: str
+    requests: int
+    ratio_to_average: float
+
+
+class DailyTrendItem(BaseModel):
+    date: str
+    total_requests: int
+    average_wait_time_minutes: Optional[float]
+    abandoned_calls: Optional[int]
+    average_available_agents: Optional[float]
+    unusual_hours: List[UnusualHour]
+    hourly_requests: List[int] = []             # 08:00-17:00, one per hour
+    has_report: bool
+
+
 class PriorityItem(BaseModel):
     agent_id: str
     reasons: List[str]
@@ -66,6 +95,10 @@ class ReportOverview(BaseModel):
     day_metrics: Optional[DayMetrics]
     volume_profile: Optional[VolumeProfile]
     priority_items: List[PriorityItem]
+    # Added for the redesigned Overview (all deterministic):
+    hourly_activity: List[HourlyActivity] = []
+    daily_trend: List[DailyTrendItem] = []      # working days in the lookback window
+    team_day_metrics: Optional["AgentMetrics"] = None
 
 
 # ---------------------------------------------------------
@@ -109,6 +142,7 @@ class AgentRow(BaseModel):
     investigation_reasons: List[str]
     rule_signal_codes: List[str]
     ai_observation_count: int
+    ai_finding_titles: List[str] = []
     has_investigation: bool
     metrics: Optional[AgentMetrics]
 
@@ -199,3 +233,6 @@ class AgentDetail(BaseModel):
     evidence_requests: List[EvidenceRequest]
 
     methodology: Optional[str]
+
+
+ReportOverview.model_rebuild()

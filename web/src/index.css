@@ -1,58 +1,107 @@
 @import '@fontsource-variable/inter';
+@import '@fontsource/instrument-serif/400.css';
+@import '@fontsource/instrument-serif/400-italic.css';
 @import 'tailwindcss';
 
 /*
- * Design tokens. Components use these names (bg-surface, text-ink-2, ...),
- * never raw hex, so the whole look is tuned from this one block.
+ * Operations Copilot design tokens.
+ * Identity: graphite sidebar on warm paper, a serif voice for headlines,
+ * cobalt for action, an amber scale for attention, violet for AI, teal for rules.
+ * Components use these names (bg-surface, text-ink-2, ...), never raw hex.
  */
 @theme {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Instrument Serif', ui-serif, Georgia, serif;
 
-  /* Neutrals: warm, low-chroma grays */
-  --color-canvas: #f7f7f5;      /* page background */
-  --color-surface: #ffffff;     /* panels */
-  --color-subtle: #fafaf8;      /* table headers, quiet fills */
-  --color-hover: #f5f5f2;
-  --color-line: #e7e5e0;        /* borders */
-  --color-line-soft: #efeee9;   /* dividers inside panels */
+  /* Paper neutrals */
+  --color-canvas: #f5f4ef;
+  --color-surface: #ffffff;
+  --color-subtle: #faf9f6;
+  --color-hover: #f3f2ed;
+  --color-line: #e4e2db;
+  --color-line-soft: #eeece6;
 
-  --color-ink: #1b1b1f;         /* primary text */
-  --color-ink-2: #55534e;       /* secondary text */
-  --color-ink-3: #8a8780;       /* muted: labels, axes */
+  --color-ink: #15171c;
+  --color-ink-2: #4e4f57;
+  --color-ink-3: #8a8983;
 
-  /* Interactive accent */
-  --color-accent: #2557c7;
-  --color-accent-soft: #edf2fc;
+  /* Graphite sidebar */
+  --color-night: #14161b;
+  --color-night-2: #1e2128;
+  --color-night-line: #262932;
+  --color-night-ink: #e9e9ec;
+  --color-night-ink-2: #a2a4ad;
+  --color-night-ink-3: #6f727c;
+  --color-night-good: #7fd1a0;
+  --color-night-ai: #b7a6f5;
 
-  /* Screening statuses: review categories, not ratings */
-  --color-status-review: #d98a1c;
-  --color-status-review-ink: #84500a;
-  --color-status-review-bg: #fdf4e4;
-  --color-status-findings: #5b7fc0;
-  --color-status-findings-ink: #2f4a7c;
-  --color-status-findings-bg: #eef3fb;
-  --color-status-clear: #4f9a6a;
+  /* Action */
+  --color-accent: #3352e0;
+  --color-accent-ink: #2a43b8;
+  --color-accent-soft: #eef1fd;
+
+  /* Attention scale (screening statuses: review categories, not ratings) */
+  --color-status-review: #c2620f;
+  --color-status-review-ink: #8a440a;
+  --color-status-review-bg: #fcefe2;
+  --color-status-findings: #dda23a;
+  --color-status-findings-ink: #78560f;
+  --color-status-findings-bg: #fcf5e4;
+  --color-status-clear: #4e9a6c;
   --color-status-clear-ink: #2f6544;
-  --color-status-clear-bg: #edf6f0;
+  --color-status-clear-bg: #ecf5ef;
   --color-status-nodata: #b4b1a9;
   --color-status-nodata-ink: #66645e;
   --color-status-nodata-bg: #f2f1ee;
 
   /* Evidence sources */
-  --color-rule: #2d6a70;        /* deterministic metric signal */
-  --color-rule-bg: #eaf4f4;
-  --color-ai: #5f45b0;          /* AI-generated observation */
-  --color-ai-bg: #f3f0fc;
+  --color-rule: #1d7472;
+  --color-rule-bg: #e7f3f2;
+  --color-ai: #6a4bd6;
+  --color-ai-bg: #f2effd;
+
+  /* Deltas (direction x whether up is good) */
+  --color-good: #2f7a4c;
+  --color-bad: #b4432e;
 
   /* Charts */
-  --color-chart-bar: #2a78d6;
-  --color-chart-highlight: #eb6834;
-  --color-chart-highlight-ink: #b4501f; /* text-safe version */
-  --color-chart-grid: #efeee9;
-  --color-chart-axis: #c9c7c0;
+  --color-chart-today: #3352e0;
+  --color-chart-typical: #a9a79f;
+  --color-chart-unusual: #e0662b;
+  --color-chart-unusual-ink: #b04a17;
+  --color-chart-grid: #eeece6;
+  --color-chart-axis: #cfccc4;
+  --color-chart-muted: #dcd9d1;
 
-  --shadow-panel: 0 1px 2px rgb(27 27 31 / 0.04);
-  --shadow-pop: 0 6px 20px rgb(27 27 31 / 0.10), 0 1px 3px rgb(27 27 31 / 0.06);
+  --shadow-panel: 0 1px 2px rgb(21 23 28 / 0.04), 0 0 0 1px rgb(21 23 28 / 0.02);
+  --shadow-lift: 0 4px 14px rgb(21 23 28 / 0.07), 0 1px 3px rgb(21 23 28 / 0.05);
+  --shadow-pop: 0 10px 30px rgb(21 23 28 / 0.12), 0 2px 6px rgb(21 23 28 / 0.06);
+
+  --animate-rise: rise 360ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade: fade 200ms ease-out both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+:root {
+  /* Used from inline SVG/style values, so declared outside @theme
+     (Tailwind only emits @theme variables that appear in class names). */
+  --color-chart-unusual: #e0662b;
+  /* Sequential (one hue, light -> dark) for magnitude */
+  --color-seq-1: #dbe8fa;
+  --color-seq-2: #b7d3f6;
+  --color-seq-3: #9ec5f4;
+  --color-seq-4: #86b6ef;
+  --color-seq-5: #5598e7;
+  --color-seq-6: #2a78d6;
+  --color-seq-7: #1c5cab;
 }
 
 @layer base {
@@ -70,17 +119,32 @@
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-accent;
   }
+
+  /* Motion is a nicety; respect people who turn it off. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 1ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 1ms !important;
+    }
+  }
 }
 
 @layer components {
   .btn-secondary {
-    @apply inline-flex h-8 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 text-[13px] font-medium text-ink shadow-panel transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-3.5 text-[13px] font-medium text-ink shadow-panel transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply inline-flex h-8 items-center gap-1.5 rounded-lg bg-ink px-3 text-[13px] font-medium text-white shadow-panel transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex h-9 items-center gap-1.5 rounded-lg bg-ink px-3.5 text-[13px] font-medium text-white shadow-panel transition-colors hover:bg-ink/85 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-medium text-ink-2 transition-colors hover:bg-hover hover:text-ink;
   }
   .link {
-    @apply font-medium text-accent hover:underline underline-offset-2;
+    @apply font-medium text-accent underline-offset-2 hover:underline;
+  }
+  .eyebrow {
+    @apply text-[11.5px] font-semibold tracking-[0.08em] text-ink-3 uppercase;
   }
 }
 
