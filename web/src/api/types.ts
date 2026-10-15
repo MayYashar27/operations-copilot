@@ -247,6 +247,8 @@ export interface InvestigationRecord extends InvestigationSummary {
   result: (QuestionResult | (AgentInvestigation & { agent_id: string; date: string })) | null
   pattern_themes: PatternTheme[]
   narrative: string | null
+  /** Date context appended to the question before it was sent (null on older records). */
+  prompt_context: string | null
   trace: TraceStep[]
   error: { type: string; message: string } | null
 }

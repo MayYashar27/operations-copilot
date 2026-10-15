@@ -124,6 +124,24 @@ def langgraph_agent_runner(agent_id: str, date: str, lookback_start: str, screen
     }
 
 
+def date_context(report_date: Optional[str]) -> Optional[str]:
+    """Plain date facts the agent needs to resolve "today" or "this shift".
+
+    The existing system prompt has no notion of the current date, so this short
+    note is appended to the manager's question. It is stored on the record and
+    shown in the Technical view, so the exact input is always auditable.
+    """
+    from api import shift
+
+    days = shift.working_days()
+    if not days:
+        return None
+    lines = [f"Available data covers working days {days[0]} to {days[-1]}, 08:00-17:00."]
+    if report_date:
+        lines.insert(0, f"The manager is viewing the shift of {report_date}; treat 'today' or 'this shift' as that date.")
+    return "Context: " + " ".join(lines)
+
+
 def spawn_thread(work: Callable[[], None]) -> None:
     threading.Thread(target=work, daemon=True).start()
 
@@ -140,12 +158,14 @@ class InvestigationRunner:
         run_question: QuestionRunner = langgraph_question_runner,
         run_agent: AgentRunner = langgraph_agent_runner,
         spawn: Spawn = spawn_thread,
+        context: Callable[[Optional[str]], Optional[str]] = date_context,
     ):
         self.store = store
         self.reports_dir = reports_dir
         self.run_question = run_question
         self.run_agent = run_agent
         self.spawn = spawn
+        self.context = context
         self._lock = threading.Lock()
         self._running_id: Optional[str] = None
 
@@ -187,12 +207,15 @@ class InvestigationRunner:
                 self._running_id = None
 
     def start_question(self, question: str, report_date: Optional[str]) -> InvestigationRecord:
+        context = self.context(report_date)
         record = InvestigationRecord(
             id=new_id(), kind="question", origin="local", question=question.strip(),
-            report_date=report_date, status="running", created_at=now_iso(),
+            report_date=report_date, status="running", created_at=now_iso(), prompt_context=context,
         )
+        # The original question is stored as typed; the agent receives question + context.
+        prompt = f"{record.question}\n\n{context}" if context else record.question
         self._claim(record)
-        self.spawn(lambda: self._finish(record, lambda: self.run_question(record.question)))
+        self.spawn(lambda: self._finish(record, lambda: self.run_question(prompt)))
         return record
 
     def start_agent(self, agent_id: str, date: str) -> InvestigationRecord:

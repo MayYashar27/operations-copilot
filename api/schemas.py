@@ -291,6 +291,8 @@ class InvestigationRecord(BaseModel):
     result: Optional[Dict[str, Any]] = None
     pattern_themes: List[PatternTheme] = []
     narrative: Optional[str] = None       # the agent's final prose answer, if any
+    # Exact date context appended to the question before it was sent (audit).
+    prompt_context: Optional[str] = None
     trace: List[TraceStep] = []
     error: Optional[InvestigationError] = None
 

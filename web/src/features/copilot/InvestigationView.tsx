@@ -9,6 +9,7 @@ import { RequestChips } from '../../components/ui/RequestChip'
 import { formatDateShort, formatDateTime, formatDuration } from '../../lib/format'
 import { toolLabel } from '../../lib/signals'
 import { InvestigationBody } from '../agents/AgentSections'
+import { Derivation, RecordViews, RunMetadata } from './RecordViews'
 
 /** One investigation as a conversation: the question, then Copilot's answer. */
 export function InvestigationView({ record, onReuse }: { record: InvestigationRecord; onReuse: (question: string) => void }) {
@@ -29,11 +30,7 @@ export function InvestigationView({ record, onReuse }: { record: InvestigationRe
         {record.status === 'failed' && <Failed record={record} onReuse={onReuse} />}
         {record.status === 'completed' && record.result && (
           <>
-            {record.kind === 'agent'
-              ? <InvestigationBody investigation={record.result as AgentInvestigation} />
-              : <QuestionAnswer result={record.result as QuestionResult} themes={record.pattern_themes} />}
-            <Trace steps={record.trace} />
-            {record.narrative && <Narrative text={record.narrative} />}
+            <RecordViews record={record} technical={<TechnicalTab record={record} />} />
             <Actions record={record} onReuse={onReuse} />
           </>
         )}
@@ -210,8 +207,9 @@ function resultSummary(step: TraceStep): string {
   return (step.result_preview ?? '').slice(0, 200)
 }
 
-function Trace({ steps }: { steps: TraceStep[] }) {
-  const [open, setOpen] = useState(false)
+function Trace({ steps, defaultOpen = false }: { steps: TraceStep[]; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen)
+  const [expanded, setExpanded] = useState<number | null>(null)
   if (!steps.length) return null
   return (
     <div className="mt-4 rounded-[16px] ring-1 ring-line-soft">
@@ -234,6 +232,15 @@ function Trace({ steps }: { steps: TraceStep[] }) {
                   ))}
                 </p>
                 <p className="mt-1 line-clamp-2 text-[12px] text-ink-3 tabular">{resultSummary(step)}{step.result_truncated && ' (truncated)'}</p>
+                <button type="button" onClick={() => setExpanded(expanded === i ? null : i)} className="mt-1 text-[11.5px] font-semibold text-accent hover:underline">
+                  {expanded === i ? 'Hide raw result' : 'Show raw result'}
+                </button>
+                {expanded === i && (
+                  <pre className="scroll-soft mt-1.5 max-h-72 overflow-auto rounded-lg bg-ink px-3 py-2 text-[11px] leading-relaxed text-white/85">
+                    {step.result !== null && step.result !== undefined ? JSON.stringify(step.result, null, 2) : (step.result_preview ?? 'No result captured.')}
+                    {step.result_truncated && '\n… truncated at 4,000 characters when saved.'}
+                  </pre>
+                )}
               </div>
             </li>
           ))}
@@ -249,10 +256,14 @@ function Narrative({ text }: { text: string }) {
     <div className="mt-3 rounded-[16px] ring-1 ring-line-soft">
       <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open}
         className="flex w-full items-center gap-2 px-4 py-3 text-left text-[13px] font-semibold hover:text-accent">
-        <MessageSquareQuote className="size-4" /> Copilot’s written answer
+        <MessageSquareQuote className="size-4" /> Complete AI response <span className="font-normal text-ink-3">· raw Markdown, as returned</span>
         <ChevronDown className={`ml-auto size-4 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
-      {open && <p className="animate-fade px-4 pb-4 text-[13px] leading-relaxed whitespace-pre-wrap text-ink-2">{text}</p>}
+      {open && (
+        <pre className="scroll-soft mx-4 mb-4 max-h-[480px] animate-fade overflow-auto rounded-lg bg-subtle px-3 py-2.5 font-sans text-[12.5px] leading-relaxed whitespace-pre-wrap text-ink-2 ring-1 ring-line-soft">
+          {text}
+        </pre>
+      )}
     </div>
   )
 }
@@ -286,6 +297,21 @@ function Actions({ record, onReuse }: { record: InvestigationRecord; onReuse: (q
           <MessageSquareQuote className="size-4" /> Reuse question
         </button>
       )}
+    </div>
+  )
+}
+
+/** Everything stored for this record, for audit and technical review. */
+function TechnicalTab({ record }: { record: InvestigationRecord }) {
+  return (
+    <div className="space-y-3">
+      {record.kind === 'question' && <Derivation record={record} />}
+      {record.kind === 'agent'
+        ? <InvestigationBody investigation={record.result as AgentInvestigation} />
+        : <QuestionAnswer result={record.result as QuestionResult} themes={record.pattern_themes} />}
+      <Trace steps={record.trace} defaultOpen />
+      {record.narrative && <Narrative text={record.narrative} />}
+      <RunMetadata record={record} />
     </div>
   )
 }

@@ -117,6 +117,40 @@ def test_completed_investigation_is_persisted_and_reopened(workspace):
     assert reopened.get(f"/api/copilot/investigations/{created['id']}").json()["status"] == "completed"
 
 
+def test_question_is_stored_as_typed_and_agent_gets_date_context(workspace):
+    tmp_path, reports = workspace
+    received = []
+
+    def capturing_runner(prompt: str) -> dict:
+        received.append(prompt)
+        return fake_question_runner(prompt)
+
+    client, *_ = make(tmp_path, reports, run_question=capturing_runner)
+    created = client.post("/api/copilot/investigations",
+                          json={"question": "What happened today?", "report_date": DATE}).json()
+    record = client.get(f"/api/copilot/investigations/{created['id']}").json()
+
+    assert record["question"] == "What happened today?"
+    assert f"viewing the shift of {DATE}" in record["prompt_context"]
+    assert received == [f"What happened today?\n\n{record['prompt_context']}"]
+
+
+def test_reopening_never_calls_the_runner(workspace):
+    tmp_path, reports = workspace
+    calls = []
+
+    def counting_runner(prompt: str) -> dict:
+        calls.append(prompt)
+        return fake_question_runner(prompt)
+
+    client, *_ = make(tmp_path, reports, run_question=counting_runner)
+    created = client.post("/api/copilot/investigations", json={"question": "How many transfers today?"}).json()
+    for _ in range(3):
+        assert client.get(f"/api/copilot/investigations/{created['id']}").json()["status"] == "completed"
+    client.get("/api/copilot/investigations")
+    assert len(calls) == 1
+
+
 def test_failures_are_persisted_with_error(workspace):
     client, *_ = make(*workspace, run_question=failing_runner)
     created = client.post("/api/copilot/investigations", json={"question": "Will this fail?"}).json()
