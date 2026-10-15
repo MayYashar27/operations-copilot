@@ -40,7 +40,11 @@ export interface CopilotView {
 
 /** "Why…", "what caused…", "investigate…" ask for an explanation; "how many…" asks for facts. */
 export function questionType(question: string): 'causal' | 'factual' {
-  return /\b(why|cause[sd]?|causing|explain|investigate|what happened|drove|driv\w*|reason|root)\b/i.test(question) ? 'causal' : 'factual'
+  const q = question.trim()
+  if (/\b(why|cause[sd]?|causing|explain|investigate|what happened|reasons?|root cause)\b/i.test(q)) return 'causal'
+  // "Which X drove…" / "How many…" ask for facts; "What drove…" asks for an explanation.
+  if (/^(which|how many|how much|what (is|are|was|were))\b/i.test(q)) return 'factual'
+  return /\b(drove|driv\w*)\b/i.test(q) ? 'causal' : 'factual'
 }
 
 const human = (s: string) => s.replaceAll('_', ' ').replace(/^\w/, (c) => c.toUpperCase())
