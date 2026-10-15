@@ -41,8 +41,8 @@ function Derivation({ detail, view }: { detail: AgentDetail; view: ManagerView }
     ? [
         ['Key findings', `${inv.findings.length} saved investigation findings grouped into ${view.findings.length} themes. Theme = the earliest theme keyword in each finding title (transfers, documentation, handling time). The first finding in each theme is the headline.`],
         ['Observed facts', 'First readable supporting metric of each grouped finding, up to 3 per card. Raw field dumps are left to this view.'],
-        ['Interpretation', 'First sentence of the lead finding’s saved interpretation, labelled “not confirmed”.'],
-        ['Conclusion', `Leading sentences of the saved summary, plus the first 2 of ${inv.missing_evidence.length} saved missing-evidence items.`],
+        ['Interpretation', 'First sentence of the lead finding’s saved interpretation, shown only when it states a reading of the data. Speculative sentences (may, could, likely, suggests…) stay in this view.'],
+        ['Conclusion', `Leading sentences of the saved summary. The ${inv.missing_evidence.length} missing-evidence items and ${inv.hypotheses.length} hypotheses appear in this view only.`],
         ['Next steps', `First ${view.nextSteps.items.length} of ${inv.recommendations.length} saved recommendations, first sentence each, duplicates removed.`],
       ]
     : [

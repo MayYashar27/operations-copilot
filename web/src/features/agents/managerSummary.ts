@@ -38,7 +38,7 @@ export interface KeyFinding {
 export interface ManagerView {
   basis: 'investigation' | 'screening'
   findings: KeyFinding[]
-  conclusion: { established: string; toValidate: string[]; isTemplate: boolean }
+  conclusion: { established: string; isTemplate: boolean }
   nextSteps: { items: string[]; isTemplate: boolean; totalAvailable: number }
 }
 
@@ -109,7 +109,10 @@ const SIGNAL_THEME: Record<string, Theme> = {
   MISSING_DOCUMENTATION: 'documentation',
 }
 
-const ROUTING_CAVEAT = 'Routing has not been checked against policy, so unusual destinations are not confirmed errors.'
+const ROUTING_CAVEAT = 'Routing policy was not part of this review.'
+
+/** Interpretations that speculate are kept for the Technical view; plain readings are shown. */
+const SPECULATIVE = /\b(may|might|could|possibl\w*|likely|unlikely|suggests?|perhaps|appears?|seems?|potentially)\b/i
 
 const unique = <T>(items: T[]) => [...new Set(items)]
 
@@ -142,7 +145,10 @@ function fromInvestigation(detail: AgentDetail): KeyFinding[] {
       headlineSource: 'investigation' as const,
       aiNotes: [],
       observed,
-      interpretation: lead.interpretation ? { text: firstSentences(lead.interpretation, 1, 220), source: 'investigation' } : null,
+      interpretation: (() => {
+        const text = lead.interpretation ? firstSentences(lead.interpretation, 1, 220) : ''
+        return text && !SPECULATIVE.test(text) ? { text, source: 'investigation' as const } : null
+      })(),
       requestIds: unique(items.flatMap((f) => f.supporting_request_ids)),
       sources: { investigationFindings: items.length, ruleSignals: 0, aiObservations: 0 },
       caveat: theme === 'transfers' ? ROUTING_CAVEAT : undefined,
@@ -189,7 +195,6 @@ export function buildManagerView(detail: AgentDetail): ManagerView {
       findings: fromInvestigation(detail).slice(0, 4),
       conclusion: {
         established: firstSentences(inv.summary, 2, 300),
-        toValidate: inv.missing_evidence.slice(0, 2).map((m) => firstSentences(m, 1, 170)),
         isTemplate: false,
       },
       nextSteps: { items: recs.slice(0, 3), isTemplate: false, totalAvailable: inv.recommendations.length },
@@ -206,8 +211,7 @@ export function buildManagerView(detail: AgentDetail): ManagerView {
       established:
         signals + observations === 0
           ? 'Screening found no signals for this agent on this shift.'
-          : `Screening found ${signals} metric ${signals === 1 ? 'signal' : 'signals'} and ${observations} AI ${observations === 1 ? 'observation' : 'observations'} on this shift. No deep investigation was run, so nothing beyond these signals has been established.`,
-      toValidate: signals + observations ? ['Whether these observations reflect routing rules, case mix or note-taking practice rather than an individual issue.'] : [],
+          : `Screening found ${signals} metric ${signals === 1 ? 'signal' : 'signals'} and ${observations} ${observations === 1 ? 'observation' : 'observations'} from the AI review of notes on this shift. No deep investigation has been run for this agent.`,
       isTemplate: true,
     },
     nextSteps: { items: findings.map((f) => STANDARD_CHECKS[f.theme]), isTemplate: true, totalAvailable: 0 },

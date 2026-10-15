@@ -15,7 +15,7 @@ const THEME_ICONS: Record<Theme, LucideIcon> = {
 const SOURCE_LABEL: Record<KeyFinding['headlineSource'], { text: string; className: string }> = {
   investigation: { text: 'From AI investigation', className: 'bg-ai-bg text-ai-ink' },
   rule: { text: 'Metric signal', className: 'bg-rule-bg text-rule-ink' },
-  'ai-observation': { text: 'AI observation · needs validation', className: 'bg-ai-bg text-ai-ink' },
+  'ai-observation': { text: 'AI review of notes', className: 'bg-ai-bg text-ai-ink' },
 }
 
 /** The one-minute read: findings, the requests behind them, a conclusion, next steps. */
@@ -52,19 +52,6 @@ export function ManagerView({ detail, view }: { detail: AgentDetail; view: View 
         <section className="card p-5" aria-label="Conclusion">
           <SectionTitle n={3} title="Conclusion" inline />
           <p className="mt-3 text-[13.5px] leading-relaxed text-ink">{view.conclusion.established}</p>
-          {view.conclusion.toValidate.length > 0 && (
-            <div className="mt-4 rounded-[14px] bg-status-findings-bg/60 p-3.5 ring-1 ring-status-findings/20">
-              <p className="mb-1.5 text-[12px] font-semibold text-status-findings-ink">Still needs validation</p>
-              <ul className="space-y-1">
-                {view.conclusion.toValidate.map((item) => (
-                  <li key={item} className="flex gap-2 text-[12.5px] leading-relaxed text-ink-2">
-                    <span aria-hidden className="mt-[7px] size-1 shrink-0 rounded-full bg-status-findings" />{item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {view.conclusion.isTemplate && <TemplateNote>Standard wording: no deep investigation is saved for this agent.</TemplateNote>}
         </section>
 
         <section className="card p-5" aria-label="Recommended next steps">
@@ -118,6 +105,9 @@ function FindingCard({ finding, index, onShowRequests }: { finding: KeyFinding; 
       </div>
 
       <p className="mt-3 text-[14px] leading-snug font-semibold text-ink">{finding.headline}</p>
+      {finding.interpretation && (
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">{finding.interpretation.text}</p>
+      )}
 
       {finding.observed.length > 0 && (
         <div className="mt-3">
@@ -134,7 +124,7 @@ function FindingCard({ finding, index, onShowRequests }: { finding: KeyFinding; 
 
       {finding.aiNotes.length > 0 && (
         <div className="mt-3">
-          <p className="mb-1 text-[11px] font-semibold tracking-wide text-ai-ink uppercase">Also noted by AI · needs validation</p>
+          <p className="mb-1 text-[11px] font-semibold tracking-wide text-ai-ink uppercase">Also noted in the AI review of notes</p>
           <ul className="space-y-1">
             {finding.aiNotes.map((note) => (
               <li key={note} className="flex gap-2 text-[12.5px] leading-relaxed text-ink-2">
@@ -142,13 +132,6 @@ function FindingCard({ finding, index, onShowRequests }: { finding: KeyFinding; 
               </li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {finding.interpretation && (
-        <div className="mt-3 rounded-xl bg-ai-bg/50 px-3 py-2.5 ring-1 ring-ai/10">
-          <p className="text-[11px] font-semibold text-ai-ink">Possible interpretation · not confirmed</p>
-          <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-2">{finding.interpretation.text}</p>
         </div>
       )}
 

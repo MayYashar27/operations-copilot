@@ -70,14 +70,13 @@ export function Derivation({ record }: { record: InvestigationRecord }) {
   const type = questionType(record.question)
   const rows: [string, string][] = [
     ['Question type', type === 'causal'
-      ? 'Explanatory (why, cause, investigate…): shows root-cause status, conclusion and next steps.'
-      : 'Factual (how many, which…): shows the answer and evidence only, without a conclusion section.'],
-    ['Direct answer', `First ${type === 'causal' ? 2 : 3} of ${result.observed_facts.length} saved observed facts, first sentence each.`],
+      ? 'Explanatory (why, cause, investigate…): leads with where the change came from, then next steps.'
+      : 'Factual (how many, which…): shows the answer and evidence only.'],
+    ['Direct answer', `${type === 'causal' ? 'A lead sentence when one category holds at least half of a captured breakdown in the investigated window, then the first 2' : 'The first 3'} of ${result.observed_facts.length} saved observed facts. "Confirmed cause" appears only if the saved result confirms one (${result.confirmed_root_cause ? 'it does' : 'it does not'}).`],
     ['Key findings', `Up to ${type === 'causal' ? 3 : 2} of ${result.supported_patterns.length} saved supported patterns, excluding repeats of the answer.`],
     ['Supporting evidence', `Breakdowns and numbers read from ${record.trace.length} captured tool results (duplicates removed, truncated results skipped), plus ${record.pattern_themes.length} pattern-analysis themes.`],
-    ['Conclusion', type === 'causal'
-      ? `First of ${result.hypotheses.length} hypotheses (labelled not confirmed), first of ${result.missing_evidence.length} missing-evidence items, top 2 of ${result.recommendations.length} recommendations.`
-      : 'Not shown for factual questions.'],
+    ['Next steps', type === 'causal' ? `Top 2 of ${result.recommendations.length} saved recommendations.` : 'Not shown for factual questions.'],
+    ['Kept here only', `${result.hypotheses.length} hypotheses and ${result.missing_evidence.length} missing-evidence items appear in this view, not in the Manager view.`],
   ]
   return (
     <section className="rounded-[16px] bg-surface p-4 ring-1 ring-line-soft">

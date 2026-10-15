@@ -1,4 +1,4 @@
-import { CheckCircle2, CircleHelp, FileText, Lightbulb, MessageSquareText, Quote, Sparkles } from 'lucide-react'
+import { CheckCircle2, FileText, Lightbulb, MessageSquareText, Quote, Sparkles } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { formatNumber } from '../../lib/format'
 import type { Breakdown, CopilotView } from './copilotSummary'
@@ -9,12 +9,14 @@ export function CopilotManagerView({ view }: { view: CopilotView }) {
 
   sections.push(
     <Section key="answer" icon={MessageSquareText} title="Direct answer">
-      {view.directAnswer.isCausal && (
-        <p className={`mb-2.5 flex items-start gap-2 rounded-xl px-3 py-2 text-[13px] ${view.directAnswer.rootCause ? 'bg-status-clear-bg' : 'bg-frame'}`}>
-          {view.directAnswer.rootCause
-            ? <><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-status-clear" /><span><b>Confirmed cause:</b> {view.directAnswer.rootCause}</span></>
-            : <><CircleHelp className="mt-0.5 size-4 shrink-0 text-ink-3" /><span><b>Cause not confirmed.</b> <span className="text-ink-2">What the data shows:</span></span></>}
+      {view.directAnswer.rootCause && (
+        <p className="mb-2.5 flex items-start gap-2 rounded-xl bg-status-clear-bg px-3 py-2 text-[13px]">
+          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-status-clear" />
+          <span><b>Confirmed cause:</b> {view.directAnswer.rootCause}</span>
         </p>
+      )}
+      {view.directAnswer.lead && (
+        <p className="mb-2 text-[15px] leading-relaxed font-semibold text-ink">{view.directAnswer.lead}</p>
       )}
       <ul className="space-y-1.5">
         {view.directAnswer.lines.map((line) => (
@@ -23,6 +25,7 @@ export function CopilotManagerView({ view }: { view: CopilotView }) {
           </li>
         ))}
       </ul>
+      {view.directAnswer.note && <p className="mt-2.5 text-[12.5px] text-ink-3">{view.directAnswer.note}</p>}
     </Section>,
   )
 
@@ -69,20 +72,11 @@ export function CopilotManagerView({ view }: { view: CopilotView }) {
     )
   }
 
-  if (view.conclusion || view.nextSteps.length > 0) {
+  if (view.nextSteps.length > 0) {
     sections.push(
-      <Section key="conclusion" icon={Lightbulb} title="Conclusion and next steps">
-        {view.conclusion?.hypothesis && (
-          <div className="rounded-xl bg-ai-bg/50 px-3 py-2.5 ring-1 ring-ai/10">
-            <p className="text-[11px] font-semibold text-ai-ink">Possible explanation · Requires verification</p>
-            <p className="mt-0.5 text-[13px] leading-relaxed text-ink">{view.conclusion.hypothesis}</p>
-          </div>
-        )}
-        {view.conclusion?.needs && (
-          <p className="mt-2 text-[12.5px] leading-relaxed text-ink-2"><b className="text-status-findings-ink">To confirm it:</b> {view.conclusion.needs}</p>
-        )}
+      <Section key="next" icon={Lightbulb} title="Next steps">
         {view.nextSteps.length > 0 && (
-          <ol className="mt-3 space-y-2">
+          <ol className="space-y-2">
             {view.nextSteps.map((s, i) => (
               <li key={s} className="flex gap-3">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-2 text-[11.5px] font-bold text-white tabular">{i + 1}</span>

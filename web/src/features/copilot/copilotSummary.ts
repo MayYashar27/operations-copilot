@@ -25,14 +25,22 @@ export interface KeyNumber {
 
 export interface CopilotView {
   questionType: 'causal' | 'factual'
-  directAnswer: { rootCause: string | null; isCausal: boolean; lines: string[] }
+  directAnswer: {
+    /** Shown only when the saved result explicitly confirms a root cause. */
+    rootCause: string | null
+    isCausal: boolean
+    /** "The volume was concentrated in …": derived from captured breakdowns. */
+    lead: string | null
+    lines: string[]
+    /** One short neutral sentence, only when it matters for interpretation. */
+    note: string | null
+  }
   findings: string[]
   breakdowns: Breakdown[]
   numbers: KeyNumber[]
   themes: { theme: string; requestIds: number[]; confidence: string }[]
   /** Evidence items left out of the Manager view (all remain in Technical details). */
   hiddenEvidence: number
-  conclusion: { hypothesis: string | null; needs: string | null } | null
   nextSteps: string[]
   /** Saved documentation for requests, when the trace captured it. */
   requestDocs: Map<number, { subject: string | null; classification: string | null; documentation: string | null; time: string | null }>
@@ -162,41 +170,66 @@ function requestDocsFromTrace(trace: TraceStep[]): CopilotView['requestDocs'] {
   return docs
 }
 
+/**
+ * "The volume was concentrated in login issue requests: 40 of 45 (89%)."
+ * Only when one category holds at least half of a captured breakdown in the
+ * investigated window; otherwise no lead is shown and the facts speak alone.
+ */
+export function concentrationLead(breakdowns: Breakdown[], focus: string | null): string | null {
+  const candidates = breakdowns.filter((b) => b.kind === 'categories' && (b.window === focus || focus === null))
+  for (const b of candidates) {
+    const total = b.rows.reduce((sum, r) => sum + r.value, 0)
+    const top = [...b.rows].sort((x, y) => y.value - x.value)[0]
+    if (!top || total === 0 || top.value / total < 0.5) continue
+    const share = `${top.value} of ${total} (${Math.round((top.value / total) * 100)}%)`
+    const where = b.window ? `, ${b.window}` : ''
+    if (b.title.startsWith('Requests by classification')) return `The volume was concentrated in ${top.label.toLowerCase()} requests: ${share}${where}.`
+    if (b.title.startsWith('Transfers by destination')) return `Most transfers went to ${top.label.toLowerCase()}: ${share}${where}.`
+  }
+  return null
+}
+
 export function buildCopilotView(record: InvestigationRecord): CopilotView {
   const result = record.result as QuestionResult
   const type = questionType(record.question)
   const facts = result.observed_facts.map((f) => firstSentences(f, 1, 220))
-  const directLines = facts.slice(0, type === 'causal' ? 2 : 3)
+  const evidence = evidenceFromTrace(record.trace)
+  const focus = focusWindow(record.trace)
+
+  // Explanatory questions lead with where the change came from, when the captured
+  // data shows one dominant category. This states a pattern, never a cause.
+  const lead = type === 'causal' ? concentrationLead(evidence.breakdowns, focus) : null
+  // Skip facts that repeat the lead's own "X of Y" figure.
+  const leadFigure = lead?.match(/\d+ of \d+/)?.[0]
+  const directLines = facts
+    .filter((f) => !leadFigure || !f.includes(leadFigure))
+    .slice(0, type === 'causal' ? 2 : 3)
 
   const findings = result.supported_patterns
     .map((p) => firstSentences(p, 1, 200))
     .filter((p) => !directLines.includes(p))
     .slice(0, type === 'causal' ? 3 : 2)
 
-  const evidence = evidenceFromTrace(record.trace)
-  const focus = focusWindow(record.trace)
   // Keep the one-minute read: focus-window evidence first, a few items only.
   const breakdowns = [...evidence.breakdowns]
     .sort((a, b) => Number(b.window === focus) - Number(a.window === focus))
     .slice(0, type === 'causal' ? 2 : 3)
   const numbers = pairNumbers(evidence.numbers, focus).slice(0, 3)
   const hiddenEvidence = evidence.breakdowns.length - breakdowns.length + Math.max(0, pairNumbers(evidence.numbers, focus).length - numbers.length)
-  const showConclusion = type === 'causal' && (result.hypotheses.length > 0 || result.missing_evidence.length > 0)
+
+  // One neutral sentence (not a banner) so a concentration is not read as a root cause.
+  const note = type === 'causal' && !result.confirmed_root_cause
+    ? 'These figures show where the change came from; the data does not establish why it happened.'
+    : null
 
   return {
     questionType: type,
-    directAnswer: { rootCause: result.confirmed_root_cause, isCausal: type === 'causal', lines: directLines },
+    directAnswer: { rootCause: result.confirmed_root_cause, isCausal: type === 'causal', lead, lines: directLines, note },
     findings,
     breakdowns,
     numbers,
     hiddenEvidence,
     themes: record.pattern_themes.slice(0, 2).map((t) => ({ theme: firstSentences(t.theme, 1, 140), requestIds: t.request_ids, confidence: t.confidence })),
-    conclusion: showConclusion
-      ? {
-          hypothesis: result.hypotheses[0] ? firstSentences(result.hypotheses[0], 1, 240) : null,
-          needs: result.missing_evidence[0] ? firstSentences(result.missing_evidence[0], 1, 200) : null,
-        }
-      : null,
     nextSteps: type === 'causal' ? [...new Set(result.recommendations.map((r) => firstSentences(r, 1, 180)))].slice(0, 2) : [],
     requestDocs: requestDocsFromTrace(record.trace),
   }
