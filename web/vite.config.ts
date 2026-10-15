@@ -9,6 +9,7 @@ const API_TARGET = process.env.API_URL ?? 'http://127.0.0.1:8000'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    host: '127.0.0.1', // explicit IPv4: on Windows 'localhost' may bind to IPv6 only
     port: 5173,
     proxy: { '/api': { target: API_TARGET, changeOrigin: true } },
   },
