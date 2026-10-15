@@ -30,6 +30,8 @@ def client() -> TestClient:
 # ---------------------------------------------------------
 
 def test_demo_is_the_default_mode(monkeypatch):
+    # Test the code's default, not this machine's .env (which may say live).
+    monkeypatch.setattr("api.config.load_dotenv", lambda *args, **kwargs: None)
     monkeypatch.delenv("APP_MODE", raising=False)
     settings = load_settings()
     assert settings.app_mode == "demo"
