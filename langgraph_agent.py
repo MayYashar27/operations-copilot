@@ -29,6 +29,8 @@ from tools import (
     detect_agent_performance_signals as detect_agent_performance_signals_original,
     get_agent_request_evidence as get_agent_request_evidence_original,
     get_agent_documentation_screening as get_agent_documentation_screening_original,
+    get_agent_comparison as get_agent_comparison_original,
+    validate_agent_id,
     load_requests,
 )
 
@@ -56,6 +58,8 @@ Rules:
 12. If a pattern is only partially supported, describe it as a possible contributing factor rather than a confirmed cause.
 13. Do not infer customer impact beyond what the available data directly measures. For example, abandoned calls must not be assumed to belong to a specific request type unless verified.
 14. When the available evidence is insufficient to establish a root cause, explicitly state that the root cause is not confirmed and identify what additional evidence would be needed.
+15. Never guess identifiers such as agent IDs. Use only IDs returned by tools; get_agent_comparison lists every agent.
+16. If a tool returns an error, read it and correct the call or choose another tool. If the available tools cannot answer part of the question, say so plainly instead of estimating.
 
 Investigation strategy:
 - When investigating an unusual workload spike, first use quantitative
@@ -576,7 +580,12 @@ def get_agent_performance_tool(
     start_date: str,
     end_date: str,
 ) -> dict:
-    """Get an agent's performance metrics and team baseline."""
+    """Get one agent's performance metrics and team baseline.
+
+    agent_id must be an existing ID such as A01. To compare several or all
+    agents, use get_agent_comparison instead of calling this per agent.
+    """
+    validate_agent_id(agent_id)
     return get_agent_performance_original(
         agent_id, start_date, end_date
     )
@@ -588,7 +597,8 @@ def get_agent_daily_trends_tool(
     start_date: str,
     end_date: str,
 ) -> dict:
-    """Get daily performance trends for a specific agent."""
+    """Get daily performance trends for a specific agent (existing ID such as A01)."""
+    validate_agent_id(agent_id)
     return get_agent_daily_trends_original(
         agent_id, start_date, end_date
     )
@@ -600,7 +610,8 @@ def detect_agent_performance_signals_tool(
     start_date: str,
     end_date: str,
 ) -> dict:
-    """Detect changes and unusual performance signals for an agent."""
+    """Detect changes and unusual performance signals for an agent (existing ID such as A01)."""
+    validate_agent_id(agent_id)
     return detect_agent_performance_signals_original(
         agent_id, start_date, end_date
     )
@@ -621,7 +632,9 @@ def get_agent_request_evidence_tool(
 
     Use this to investigate transfer patterns, documentation quality,
     and differences between periods. Request a focused sample.
+    agent_id must be an existing ID such as A01.
     """
+    validate_agent_id(agent_id)
     return get_agent_request_evidence_original(
         agent_id=agent_id,
         start_date=start_date,
@@ -631,6 +644,25 @@ def get_agent_request_evidence_tool(
         transferred_to=transferred_to,
         limit=limit,
     )
+
+
+@tool("get_agent_comparison")
+def get_agent_comparison_tool(
+    start_date: str,
+    end_date: str,
+) -> dict:
+    """
+    Compare ALL agents over a date range (inclusive, YYYY-MM-DD).
+
+    Returns every scheduled agent's request count, transfer rate,
+    first-line resolution rate, average handling time and per-classification
+    requests/transfers, sorted by transfer rate, plus the team transfer rate
+    and the list of valid agent IDs.
+
+    Use this for questions about which agents have the highest or lowest
+    rates, and whether differences relate to request categories.
+    """
+    return get_agent_comparison_original(start_date, end_date)
 
 
 TOOLS = [
@@ -649,6 +681,7 @@ TOOLS = [
     get_agent_daily_trends_tool,
     detect_agent_performance_signals_tool,
     get_agent_request_evidence_tool,
+    get_agent_comparison_tool,
 ]
 
 TOOL_MAP = {
@@ -1109,9 +1142,24 @@ def execute_tools(state: AgentState) -> dict:
         tool_args = tool_call["args"]
         tool_call_id = tool_call["id"]
 
-        selected_tool = TOOL_MAP[tool_name]
-
-        result = selected_tool.invoke(tool_args)
+        # A failing tool call (e.g. an unknown agent ID) is returned to Claude
+        # as an error result so it can correct the call, instead of aborting
+        # the whole investigation. Other calls in the same batch still run.
+        try:
+            if tool_name not in TOOL_MAP:
+                raise ValueError(f"Unknown tool '{tool_name}'.")
+            result = TOOL_MAP[tool_name].invoke(tool_args)
+        except Exception as exc:
+            print(f"TOOL ERROR: {tool_name}: {exc}")
+            tool_messages.append(
+                ToolMessage(
+                    content=json.dumps({"error": str(exc), "tool": tool_name}, ensure_ascii=False),
+                    tool_call_id=tool_call_id,
+                    name=tool_name,
+                    status="error",
+                )
+            )
+            continue
 
         tool_messages.append(
             ToolMessage(

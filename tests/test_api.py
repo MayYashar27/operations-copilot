@@ -192,6 +192,7 @@ def test_broken_report_does_not_hide_other_reports(tmp_path):
 # ---------------------------------------------------------
 
 def test_read_endpoints_never_load_langgraph(client):
+    sys.modules.pop("langgraph_agent", None)  # other test files may have imported it
     for url in [
         "/api/config",
         "/api/reports",

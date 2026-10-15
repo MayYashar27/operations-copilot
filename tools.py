@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 DATA_DIR = Path(__file__).parent / "data"
@@ -1060,4 +1060,81 @@ def get_agent_documentation_screening(
             "(case and whitespace ignored), not semantic similarity. "
             "Short or repeated notes are screening signals, not proof of poor documentation."
         ),
+    }
+
+
+# ---------------------------------------------------------
+# Agent identity and cross-agent comparison
+# ---------------------------------------------------------
+
+def known_agent_ids() -> List[str]:
+    """Agent IDs that exist in the shift schedule, sorted (e.g. A01..A15)."""
+    return sorted({s["agent_id"] for s in load_json_file(AGENT_SHIFTS_FILE) if s.get("agent_id")})
+
+
+def validate_agent_id(agent_id: str) -> None:
+    """Reject identifiers that do not exist, and say which ones do."""
+    valid = known_agent_ids()
+    if agent_id not in valid:
+        raise ValueError(
+            f"Unknown agent_id '{agent_id}'. Valid agent IDs: {', '.join(valid)}. "
+            "To compare all agents at once, use get_agent_comparison."
+        )
+
+
+def get_agent_comparison(start_date: str, end_date: str) -> Dict[str, Any]:
+    """Compare every scheduled agent over an inclusive date range.
+
+    Per agent: requests, transfers, transfer rate, first-line resolution,
+    average handling time, and requests/transfers per classification.
+    Same formulas as get_agent_performance. Descriptive only: not a rating.
+    """
+    start = datetime.fromisoformat(start_date).date()
+    end = datetime.fromisoformat(end_date).date()
+    if start > end:
+        raise ValueError("start_date must be on or before end_date")
+
+    requests = [r for r in load_requests() if start <= parse_datetime(r["request_time"]).date() <= end]
+    scheduled = sorted({
+        s["agent_id"] for s in load_json_file(AGENT_SHIFTS_FILE)
+        if start <= datetime.fromisoformat(s["date"]).date() <= end
+    })
+
+    def rate(part: int, whole: int) -> Optional[float]:
+        return round(100 * part / whole, 2) if whole else None
+
+    agents = []
+    for agent_id in scheduled:
+        rows = [r for r in requests if r.get("agent_id") == agent_id]
+        transferred = [r for r in rows if r.get("status") == "transferred"]
+        resolved = sum(r.get("status") == "resolved" for r in rows)
+        handling = [r["handling_time_minutes"] for r in rows
+                    if isinstance(r.get("handling_time_minutes"), (int, float))]
+        by_classification: Dict[str, Dict[str, Any]] = {}
+        for r in rows:
+            entry = by_classification.setdefault(r["classification"], {"requests": 0, "transferred": 0})
+            entry["requests"] += 1
+            entry["transferred"] += r.get("status") == "transferred"
+        for entry in by_classification.values():
+            entry["transfer_rate_percent"] = rate(entry["transferred"], entry["requests"])
+        agents.append({
+            "agent_id": agent_id,
+            "handled_requests": len(rows),
+            "transferred_requests": len(transferred),
+            "transfer_rate_percent": rate(len(transferred), len(rows)),
+            "first_line_resolution_rate_percent": rate(resolved, len(rows)),
+            "average_handling_time_minutes": round(sum(handling) / len(handling), 2) if handling else None,
+            "by_classification": dict(sorted(by_classification.items())),
+        })
+
+    agents.sort(key=lambda a: (a["transfer_rate_percent"] is None, -(a["transfer_rate_percent"] or 0), a["agent_id"]))
+    team_transfers = sum(r.get("status") == "transferred" for r in requests)
+    return {
+        "start_date": start_date,
+        "end_date": end_date,
+        "valid_agent_ids": scheduled,
+        "team_requests": len(requests),
+        "team_transfer_rate_percent": rate(team_transfers, len(requests)),
+        "agents": agents,
+        "note": "Sorted by transfer rate. Descriptive signals, not performance ratings; small request counts make rates volatile.",
     }

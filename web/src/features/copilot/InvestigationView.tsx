@@ -190,6 +190,11 @@ function formatArg(key: string, value: unknown): string {
 }
 
 /** A short, readable summary of a tool result (key numbers first). */
+/** Tool calls that failed are recorded as {"error": "..."} and handed back to the agent. */
+function isToolError(step: TraceStep): boolean {
+  return Boolean(step.result && typeof step.result === 'object' && 'error' in (step.result as Record<string, unknown>))
+}
+
 function resultSummary(step: TraceStep): string {
   if (step.result && typeof step.result === 'object' && !Array.isArray(step.result)) {
     const entries = Object.entries(step.result as Record<string, unknown>)
@@ -225,7 +230,14 @@ function Trace({ steps, defaultOpen = false }: { steps: TraceStep[]; defaultOpen
             <li key={i} className="flex animate-fade gap-3 rounded-xl px-2 py-2 hover:bg-subtle">
               <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-[11px] font-bold text-accent tabular">{i + 1}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-[12.5px] font-semibold">{toolLabel(step.tool)} <span className="font-normal text-ink-3">· {step.tool}</span></p>
+                <p className="text-[12.5px] font-semibold">
+                  {toolLabel(step.tool)} <span className="font-normal text-ink-3">· {step.tool}</span>
+                  {isToolError(step) && (
+                    <span className="ml-2 rounded-full bg-status-review-bg px-2 py-px text-[10.5px] font-semibold text-status-review-ink">
+                      Error returned to the agent
+                    </span>
+                  )}
+                </p>
                 <p className="mt-1 flex flex-wrap gap-1">
                   {Object.entries(step.args).map(([k, v]) => (
                     <span key={k} className="rounded-md bg-frame px-1.5 py-0.5 text-[11px] text-ink-2 tabular">{formatArg(k, v)}</span>
@@ -238,7 +250,7 @@ function Trace({ steps, defaultOpen = false }: { steps: TraceStep[]; defaultOpen
                 {expanded === i && (
                   <pre className="scroll-soft mt-1.5 max-h-72 overflow-auto rounded-lg bg-ink px-3 py-2 text-[11px] leading-relaxed text-white/85">
                     {step.result !== null && step.result !== undefined ? JSON.stringify(step.result, null, 2) : (step.result_preview ?? 'No result captured.')}
-                    {step.result_truncated && '\n… truncated at 4,000 characters when saved.'}
+                    {step.result_truncated && '\n… truncated when saved (the agent received the full result).'}
                   </pre>
                 )}
               </div>

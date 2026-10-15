@@ -28,7 +28,7 @@ from api.schemas import InvestigationError, InvestigationRecord
 
 logger = logging.getLogger("operations_copilot.runner")
 
-MAX_TOOL_RESULT_CHARS = 4000
+MAX_TOOL_RESULT_CHARS = 16000  # fits a full all-agent comparison (~9k chars)
 GRAPH_RECURSION_LIMIT = 40   # caps Claude <-> tools round trips
 
 # A "question runner" takes a question and returns the fields to store.
@@ -89,14 +89,34 @@ def _date_range(trace: List[Dict[str, Any]]) -> Optional[Dict[str, str]]:
     return {"start": dates[0], "end": dates[-1]} if dates else None
 
 
-def langgraph_question_runner(question: str) -> Dict[str, Any]:
+class PartialRunError(Exception):
+    """A run that failed part-way. Carries what was captured before the failure."""
+
+    def __init__(self, cause: Exception, partial: Dict[str, Any]):
+        super().__init__(str(cause))
+        self.cause = cause
+        self.partial = partial
+
+
+def langgraph_question_runner(question: str, graph: Any = None) -> Dict[str, Any]:
     from langchain_core.messages import AIMessage, HumanMessage
     import langgraph_agent
 
-    state = langgraph_agent.graph.invoke(
-        {"messages": [HumanMessage(content=question)]},
-        config={"recursion_limit": GRAPH_RECURSION_LIMIT},
-    )
+    graph = graph or langgraph_agent.graph
+    # Stream the graph (same nodes, same result) so the latest state survives
+    # an exception: a failed run still records the tool calls it made.
+    state: Dict[str, Any] = {"messages": []}
+    try:
+        for state in graph.stream(
+            {"messages": [HumanMessage(content=question)]},
+            config={"recursion_limit": GRAPH_RECURSION_LIMIT},
+            stream_mode="values",
+        ):
+            pass
+    except Exception as exc:
+        trace = _trace_from_messages(state.get("messages", []))
+        raise PartialRunError(exc, {"trace": trace, "date_range": _date_range(trace)}) from exc
+
     result = state.get("investigation_result")
     patterns = state.get("pattern_analysis")
     final_ai = [m for m in state["messages"] if isinstance(m, AIMessage) and not m.tool_calls]
@@ -191,8 +211,11 @@ class InvestigationRunner:
                 data["status"] = "completed"
         except Exception as exc:  # any failure is recorded, never lost
             logger.exception("Investigation %s failed", record.id)
+            cause = exc.cause if isinstance(exc, PartialRunError) else exc
+            if isinstance(exc, PartialRunError):
+                data.update(exc.partial)  # keep the tool calls made before the failure
             data["status"] = "failed"
-            data["error"] = {"type": exc.__class__.__name__, "message": str(exc)[:500]}
+            data["error"] = {"type": cause.__class__.__name__, "message": str(cause)[:500]}
         finally:
             data["completed_at"] = now_iso()
             try:

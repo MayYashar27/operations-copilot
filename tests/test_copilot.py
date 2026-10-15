@@ -10,7 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api.config import PROJECT_ROOT, Settings
-from api.copilot_runner import InvestigationRunner, _date_range, _trace_from_messages
+from api.copilot_runner import MAX_TOOL_RESULT_CHARS, InvestigationRunner, _date_range, _trace_from_messages
 from api.copilot_store import JsonInvestigationStore
 from api.main import create_app
 
@@ -226,7 +226,7 @@ class _Msg:
 
 
 def test_trace_pairs_calls_with_results_and_truncates():
-    big = json.dumps({"rows": "x" * 5000})
+    big = json.dumps({"rows": "x" * (MAX_TOOL_RESULT_CHARS + 1000)})
     messages = [
         _Msg(tool_calls=[{"id": "1", "name": "count_requests", "args": {"start_time": "2026-08-25T12:00:00"}},
                          {"id": "2", "name": "get_request_details", "args": {"end_time": "2026-08-26T13:00:00"}}]),
@@ -235,11 +235,12 @@ def test_trace_pairs_calls_with_results_and_truncates():
     ]
     trace = _trace_from_messages(messages)
     assert trace[0]["result"] == {"request_count": 45}
-    assert trace[1]["result_truncated"] is True and len(trace[1]["result_preview"]) == 4000
+    assert trace[1]["result_truncated"] is True and len(trace[1]["result_preview"]) == MAX_TOOL_RESULT_CHARS
     assert _date_range(trace) == {"start": "2026-08-25", "end": "2026-08-26"}
 
 
 def test_demo_app_never_imports_langgraph(workspace):
+    sys.modules.pop("langgraph_agent", None)  # other test files may have imported it
     client, *_ = make(*workspace, mode="demo")
     client.get("/api/copilot/investigations")
     client.post("/api/copilot/investigations", json={"question": "What happened today?"})
