@@ -74,7 +74,7 @@ export function CopilotManagerView({ view }: { view: CopilotView }) {
       <Section key="conclusion" icon={Lightbulb} title="Conclusion and next steps">
         {view.conclusion?.hypothesis && (
           <div className="rounded-xl bg-ai-bg/50 px-3 py-2.5 ring-1 ring-ai/10">
-            <p className="text-[11px] font-semibold text-ai-ink">Most likely explanation · not confirmed</p>
+            <p className="text-[11px] font-semibold text-ai-ink">Possible explanation · Requires verification</p>
             <p className="mt-0.5 text-[13px] leading-relaxed text-ink">{view.conclusion.hypothesis}</p>
           </div>
         )}
