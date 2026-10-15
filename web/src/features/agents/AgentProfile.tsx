@@ -1,6 +1,6 @@
 import { Info, Loader2, Lock, MessageSquareText, Play, RotateCw, Sparkles } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAppContext } from '../../app/context'
 import { ApiError, apiPost } from '../../api/client'
 import type { AgentDetail, InvestigationRecord } from '../../api/types'
@@ -8,25 +8,20 @@ import { useApi } from '../../api/useApi'
 import { useElapsed, useInvestigation } from '../../api/useInvestigation'
 import { WorkspaceHeader } from '../../components/layout/Workspace'
 import { AgentMonogram } from '../../components/ui/AgentMonogram'
-import { Panel } from '../../components/ui/Panel'
-import { SourceTag } from '../../components/ui/SourceTag'
+import { SegmentedControl } from '../../components/ui/SegmentedControl'
 import { StatusBadge } from '../../components/ui/StatusBadge'
 import { EmptyState, ErrorState, Skeleton } from '../../components/ui/States'
 import { formatDateLong, formatDayMonth } from '../../lib/format'
 import { copilotLink } from '../../lib/questions'
 import { STATUS_META } from '../../lib/status'
-import { EvidenceColumns, InvestigationBody, MetricComparison, RequestEvidence, TrendPanel } from './AgentSections'
+import { MetricComparison, TrendPanel } from './AgentSections'
+import { buildManagerView } from './managerSummary'
+import { ManagerView } from './ManagerView'
+import { TechnicalView } from './TechnicalView'
 
 /** The full profile for one agent on the selected shift. */
 export function AgentProfile({ agentId, date }: { agentId: string; date: string }) {
   const detail = useApi<AgentDetail>(`/reports/${date}/agents/${agentId}`)
-  const [highlight, setHighlight] = useState<number | null>(null)
-
-  // Clicking a cited request ID scrolls to its documentation and highlights it.
-  const selectRequest = useCallback((id: number) => {
-    setHighlight(id)
-    document.getElementById(`req-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }, [])
 
   if (detail.status === 'loading') return <ProfileSkeleton />
   if (detail.status === 'error') {
@@ -71,20 +66,32 @@ export function AgentProfile({ agentId, date }: { agentId: string; date: string 
 
         <MetricComparison detail={d} />
         <TrendPanel detail={d} />
-        <EvidenceColumns detail={d} onSelect={selectRequest} active={highlight} />
-        <InvestigationPanel detail={d} date={date} onSelect={selectRequest} active={highlight} onUpdated={detail.reload} />
-        <RequestEvidence requests={d.evidence_requests} active={highlight} />
+        <InvestigationArea detail={d} date={date} onUpdated={detail.reload} />
       </div>
     </>
   )
 }
 
-/** The saved deep investigation, plus the (live-mode only) action to run a new one. */
-function InvestigationPanel({ detail, date, onSelect, active, onUpdated }: {
-  detail: AgentDetail; date: string; onSelect: (id: number) => void; active: number | null; onUpdated: () => void
-}) {
+/**
+ * The investigation area: one saved result, two views of it.
+ * Manager view (default) is a deterministic condensation; Technical details
+ * shows the full record. The live-mode action re-runs the existing workflow.
+ */
+function InvestigationArea({ detail, date, onUpdated }: { detail: AgentDetail; date: string; onUpdated: () => void }) {
   const { config } = useAppContext()
   const live = config?.live_investigations_enabled ?? false
+  const [params, setParams] = useSearchParams()
+  const tab: 'manager' | 'technical' = params.get('view') === 'technical' ? 'technical' : 'manager'
+  const setTab = (next: 'manager' | 'technical') =>
+    setParams((current) => {
+      const updated = new URLSearchParams(current)
+      if (next === 'technical') updated.set('view', 'technical')
+      else updated.delete('view')
+      return updated
+    }, { replace: true })
+
+  const view = useMemo(() => buildManagerView(detail), [detail])
+
   const [jobId, setJobId] = useState<string | null>(null)
   const [startError, setStartError] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
@@ -109,48 +116,48 @@ function InvestigationPanel({ detail, date, onSelect, active, onUpdated }: {
     }
   }
 
-  const action = live ? (
-    <button type="button" className="btn-primary" onClick={start} disabled={running}>
-      {running ? <Loader2 className="size-4 animate-spin" /> : detail.investigation ? <RotateCw className="size-4" /> : <Play className="size-4" />}
-      {running ? 'Investigating…' : detail.investigation ? 'Re-run investigation' : 'Run deep investigation'}
-    </button>
-  ) : (
-    <span title="Running new AI investigations is disabled in demo mode"
-      className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-frame px-3 text-[12.5px] font-semibold text-ink-3">
-      <Lock className="size-3.5" /> Demo: saved results only
-    </span>
-  )
-
   return (
-    <Panel
-      title={<span className="flex items-center gap-2">Deep investigation <SourceTag source="ai" label="AI · saved" /></span>}
-      description={detail.investigation
-        ? 'Saved result from the existing LangGraph workflow. Shown from disk; opening this page never re-runs the AI.'
-        : 'No deep investigation has been saved for this agent and shift.'}
-      actions={action}
-    >
+    <section aria-label="Investigation" className="space-y-4 pt-2">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-[18px] font-semibold tracking-[-0.02em]">Investigation</h2>
+          <p className="mt-0.5 text-[12.5px] text-ink-3">
+            {view.basis === 'investigation'
+              ? 'From the saved deep investigation · opened from disk, not re-run'
+              : 'From screening signals · no deep investigation is saved for this agent'}
+          </p>
+        </div>
+        <SegmentedControl label="Investigation view" value={tab} onChange={setTab}
+          options={[{ value: 'manager', label: 'Manager view' }, { value: 'technical', label: 'Technical details' }]} />
+        {live ? (
+          <button type="button" className="btn-secondary" onClick={start} disabled={running}>
+            {running ? <Loader2 className="size-4 animate-spin" /> : detail.investigation ? <RotateCw className="size-4" /> : <Play className="size-4" />}
+            {running ? 'Investigating…' : detail.investigation ? 'Re-run' : 'Run deep investigation'}
+          </button>
+        ) : (
+          <span title="Running new AI investigations is disabled in demo mode"
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-frame px-3 text-[12.5px] font-semibold text-ink-3">
+            <Lock className="size-3.5" /> Demo: saved results only
+          </span>
+        )}
+      </div>
+
       {running && (
-        <div className="mb-4 flex items-center gap-3 rounded-[14px] bg-accent-soft/60 p-3.5 text-[13px]">
+        <div className="flex items-center gap-3 rounded-[14px] bg-accent-soft/60 p-3.5 text-[13px]">
           <Sparkles className="size-4 animate-pulse text-accent" />
           Claude is analysing this agent’s requests, trends and screening signals… <span className="ml-auto text-ink-3 tabular">{elapsed}s</span>
         </div>
       )}
       {(startError || job.record?.status === 'failed') && (
-        <p className="mb-4 rounded-[14px] bg-status-review-bg p-3.5 text-[13px] text-status-review-ink">
+        <p className="rounded-[14px] bg-status-review-bg p-3.5 text-[13px] text-status-review-ink">
           {startError ?? `The investigation failed: ${job.record?.error?.message ?? 'unknown error'}`}
         </p>
       )}
-      {detail.investigation ? (
-        <InvestigationBody investigation={detail.investigation} onSelect={onSelect} active={active} />
-      ) : (
-        !running && (
-          <p className="text-[13px] leading-relaxed text-ink-3">
-            Deep investigations run automatically only when screening recommends one.
-            {live ? ' You can run one now; it uses paid AI calls.' : ' In demo mode, only saved investigations are shown.'}
-          </p>
-        )
-      )}
-    </Panel>
+
+      <div key={tab} className="animate-fade">
+        {tab === 'manager' ? <ManagerView detail={detail} view={view} /> : <TechnicalView detail={detail} view={view} />}
+      </div>
+    </section>
   )
 }
 
