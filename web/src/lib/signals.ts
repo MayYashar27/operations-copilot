@@ -78,6 +78,10 @@ const TOOL_LABELS: Record<string, string> = {
   get_agent_daily_trends: 'Read agent daily trends',
   detect_agent_performance_signals: 'Detected agent signals',
   get_agent_request_evidence: 'Read agent request evidence',
+  get_agent_comparison: 'Compared all agents',
+  get_daily_series: 'Read day-by-day figures',
+  detect_volume_anomalies: 'Searched for unusual hours',
+  get_capacity_context: 'Compared demand and staffing with typical',
 }
 
 export function toolLabel(name: string): string {

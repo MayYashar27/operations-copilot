@@ -30,6 +30,9 @@ from tools import (
     get_agent_request_evidence as get_agent_request_evidence_original,
     get_agent_documentation_screening as get_agent_documentation_screening_original,
     get_agent_comparison as get_agent_comparison_original,
+    get_daily_series as get_daily_series_original,
+    detect_volume_anomalies as detect_volume_anomalies_original,
+    get_capacity_context as get_capacity_context_original,
     validate_agent_id,
     load_requests,
 )
@@ -47,7 +50,7 @@ Rules:
 1. Answer in English.
 2. Base factual conclusions only on tool results.
 3. Never invent data.
-4. Before calling additional tools, check whether the current evidence is sufficient. Use the minimum number of tools necessary.
+4. Before calling additional tools, check whether the current evidence is sufficient. For a focused question, use the minimum number of tools necessary. For a broad or multi-day review, coverage comes first (see the multi-day strategy below).
 5. Deterministic calculations must be performed by tools.
 6. Clearly separate factual findings from recommendations.
 7. Do not state that an event caused an issue unless the data directly supports causation. When evidence is correlational, use language such as "suggests", "is associated with", or "may be related to".
@@ -60,8 +63,18 @@ Rules:
 14. When the available evidence is insufficient to establish a root cause, explicitly state that the root cause is not confirmed and identify what additional evidence would be needed.
 15. Never guess identifiers such as agent IDs. Use only IDs returned by tools; get_agent_comparison lists every agent.
 16. If a tool returns an error, read it and correct the call or choose another tool. If the available tools cannot answer part of the question, say so plainly instead of estimating.
+17. Compare periods fairly. When two periods have different numbers of working days, state the number of working days in each and compare per working day (compare_values with current_days and baseline_days, or get_daily_series). Never report a change in totals that disappears per working day.
+18. State scope and sample size. Every claim about an agent, a category or a trend names its period and the number of requests behind it. Words such as "consistently", "always", "throughout" or "across the period" require evidence covering that whole period; a single day is never a pattern. Rates marked low_sample are volatile: say so.
+19. Be complete. When asked which agents, hours or categories stand out, report every one outside the normal range, not only the largest.
+20. Take totals, shares and splits from tool results. Do not add up or regroup numbers yourself; if you must combine two numbers, use compare_values or name both operands.
+21. Monitor figures cover working hours (08:00-17:00) by default. When reporting them, state the window; request after-hours data only if the question asks for it.
 
 Investigation strategy:
+- When investigating an unusual workload spike or long waits, examine
+  BOTH sides: demand (request volume, classifications, request content)
+  and capacity (get_capacity_context: agents on shift and available agents
+  against the previous hour and the typical same hour). Either side, or
+  both, can explain an incident; neither alone proves a cause.
 - When investigating an unusual workload spike, first use quantitative
   evidence to determine whether the increase is concentrated in a
   specific request classification.
@@ -75,6 +88,14 @@ Investigation strategy:
 If semantic analysis does not identify a meaningful recurring pattern,
 do not invent one. Continue the investigation using operational evidence
 such as request volume, wait time, abandonment, and agent availability.
+
+Multi-day reviews and trends:
+- Start from day-level evidence: get_daily_series for each working day and
+  per-working-day averages, and detect_volume_anomalies for unusual hours.
+- Investigate each unusual hour found, including its capacity context.
+- Compare agents over the whole period with get_agent_comparison and list
+  every agent outside the normal range, then check signals for each.
+- Do not use one aggregated window to describe a period: it hides incidents.
 
 Evidence ladder:
 - Observed fact: directly returned by deterministic tools or explicitly stated in request content.
@@ -275,10 +296,12 @@ def count_requests(
     end_time: str,
 ) -> dict[str, Any]:
     """
-    Count service requests received within a specific time range.
+    Count service requests received within a specific time range
+    (start_time <= request time < end_time).
 
     Use this tool when you need to measure request volume
-    for a defined period.
+    for a defined period. Also returns working_days and, for several
+    days, requests_per_working_day: compare periods per working day.
     """
     print("\nTOOL: count_requests")
     print(
@@ -352,22 +375,29 @@ def get_classification_count(
 def compare_values(
     current: float,
     baseline: float,
+    current_days: Optional[int] = None,
+    baseline_days: Optional[int] = None,
 ) -> dict[str, Any]:
     """
     Compare a current numeric value to a baseline value.
 
     Use this tool when you need to calculate the absolute
     and percentage change between two previously retrieved metrics.
+    When the values are totals over periods of different length, pass
+    current_days and baseline_days (working days) to get the fair
+    per-day comparison as well.
     """
     print("\nTOOL: compare_values")
     print(
         f"ARGUMENTS: current={current}, "
-        f"baseline={baseline}"
+        f"baseline={baseline}, current_days={current_days}, baseline_days={baseline_days}"
     )
 
     result = compare_values_original(
         current=current,
         baseline=baseline,
+        current_days=current_days,
+        baseline_days=baseline_days,
     )
 
     print(f"RESULT: {result}")
@@ -403,24 +433,31 @@ def get_average_wait_time(
 def get_monitor_metrics(
     start_time: str,
     end_time: str,
+    include_after_hours: bool = False,
 ) -> dict[str, Any]:
     """
-    Summarize operational monitor metrics for a specific time range.
+    Summarize operational monitor metrics for start_time <= t < end_time.
 
     Use this tool when you need to understand call-center capacity
-    and real-time operational conditions, including agent availability,
-    peak agents on calls, answered calls, abandoned calls,
-    and monitor-based average wait time.
+    and real-time operational conditions: agents on shift, available
+    agents, peak agents on calls, answered and abandoned calls, and
+    monitor-based average wait time.
+
+    answered_calls and abandoned_calls are real totals for the window,
+    also over several days (per_day gives the breakdown).
+    Only working hours (08:00-17:00) count unless include_after_hours
+    is true; the output states the window applied.
     """
     print("\nTOOL: get_monitor_metrics")
     print(
         f"ARGUMENTS: start_time={start_time}, "
-        f"end_time={end_time}"
+        f"end_time={end_time}, include_after_hours={include_after_hours}"
     )
 
     result = get_monitor_metrics_original(
         start_time=start_time,
         end_time=end_time,
+        include_after_hours=include_after_hours,
     )
 
     print(f"RESULT: {result}")
@@ -489,6 +526,8 @@ def get_requests_by_time_bucket(
 
     Use this tool when you need to understand how request volume
     changed over time within a defined period and identify workload spikes.
+    Over several days, bucket labels start with the date. To find unusual
+    hours across days, prefer detect_volume_anomalies.
     """
     print("\nTOOL: get_requests_by_time_bucket")
     print(
@@ -661,8 +700,57 @@ def get_agent_comparison_tool(
 
     Use this for questions about which agents have the highest or lowest
     rates, and whether differences relate to request categories.
+    Results describe only the requested period (see period_label); rates
+    marked low_sample come from fewer than 20 requests and are volatile.
     """
     return get_agent_comparison_original(start_date, end_date)
+
+
+@tool("get_daily_series")
+def get_daily_series_tool(
+    start_date: str,
+    end_date: str,
+) -> dict:
+    """
+    One row per working day (08:00-17:00) in an inclusive date range:
+    requests, transfers, wait, abandoned and answered calls, available
+    agents and agents on shift, plus totals and per-working-day averages.
+
+    Use this for trends, multi-day reviews, and any comparison of periods
+    with different numbers of working days (compare per working day).
+    """
+    return get_daily_series_original(start_date, end_date)
+
+
+@tool("detect_volume_anomalies")
+def detect_volume_anomalies_tool(
+    start_date: str,
+    end_date: str,
+) -> dict:
+    """
+    Find unusual hours on every working day in an inclusive date range:
+    hours with at least 1.5 times that day's average hourly volume.
+
+    Use this first in broad or multi-day reviews to discover incidents
+    that aggregated totals would hide.
+    """
+    return detect_volume_anomalies_original(start_date, end_date)
+
+
+@tool("get_capacity_context")
+def get_capacity_context_tool(
+    start_time: str,
+    end_time: str,
+) -> dict:
+    """
+    Demand and capacity for a window within one day, next to the previous
+    window of the same length and the typical same window on other days:
+    requests, wait, agents on shift, available agents, abandoned calls.
+
+    Use this for spikes and long waits to see whether demand rose,
+    capacity (staffing) fell, or both. It does not prove a cause.
+    """
+    return get_capacity_context_original(start_time, end_time)
 
 
 TOOLS = [
@@ -682,6 +770,9 @@ TOOLS = [
     detect_agent_performance_signals_tool,
     get_agent_request_evidence_tool,
     get_agent_comparison_tool,
+    get_daily_series_tool,
+    detect_volume_anomalies_tool,
+    get_capacity_context_tool,
 ]
 
 TOOL_MAP = {
@@ -727,6 +818,10 @@ Rules:
 7. If evidence is missing to confirm a hypothesis, describe it in missing_evidence.
 8. Recommendations must be consistent with the uncertainty of the evidence.
 9. Do not recommend rollback, patching, or another corrective action that assumes a hypothesis is true unless the root cause has been confirmed.
+10. Every fact or pattern about an agent, a category or a trend states its period and the number of requests behind it. A finding from one day must say "on <date>", never "consistently" or "across the period".
+11. Words such as "all", "always", "consistently" or "throughout" are allowed only when the evidence covers every case or day they refer to.
+12. When periods with different numbers of working days are compared, use the per-working-day values from the evidence.
+13. Copy numbers from the evidence; do not add up or regroup them yourself.
 """
 
 DAILY_SUMMARY_PROMPT = """
