@@ -9,11 +9,14 @@ describes the code as it is in this repository; file and function names are real
 
 > Operations Copilot helps a service-center manager understand a shift, spot which
 > representatives need attention, and investigate "why" questions. A **LangGraph** agent
-> uses **Claude** to decide which of **16 deterministic Python tools** to call. The tools
-> compute every number; the model chooses what to look at, reads request notes, and files
-> a **structured result** that separates observed facts, patterns, hypotheses and missing
-> evidence. A **FastAPI** backend serves precomputed AI results to a **React** app, and only
-> runs new, paid AI investigations in a local live mode.
+> uses **Claude** to decide which of **19 deterministic Python tools** to call. The tools
+> compute every number; deterministic rules pre-fetch the evidence a question needs; the
+> model chooses what else to look at, reads request notes, and files a **structured result**
+> that separates observed facts, patterns, hypotheses and missing evidence, which
+> deterministic checks then compare with the evidence. A **FastAPI** backend serves
+> precomputed AI results to a **React** app, and only runs new, paid AI investigations in a
+> local live mode. An offline **evaluation suite** audits saved runs against an independent
+> re-implementation of every tool.
 
 ## 2. The architecture in plain language
 
@@ -36,8 +39,11 @@ ahead of time (scripts) or on explicit request (live mode). Page loads never cal
 
 | Module | Purpose |
 |---|---|
-| `tools.py` | All calculations. Time-window tools (`count_requests`, `get_requests_by_classification`, `get_monitor_metrics`…), per-agent KPIs (`get_agent_performance`, `get_agent_daily_trends`), rule-based signals (`detect_agent_performance_signals`), documentation screening, `get_agent_comparison`, and `validate_agent_id`. |
-| `langgraph_agent.py` | The `@tool` wrappers Claude sees; `SYSTEM_PROMPT`; Pydantic schemas (`InvestigationResult`, `PatternAnalysisResult`, `AgentInvestigationResult`, `DocumentationAnalysisResult`); the question graph (`graph`); the agent investigation graph (`agent_investigation_graph`); screening (`evaluate_agent_investigation_triggers`); the batch report (`run_daily_agent_performance_report`); the daily brief (`run_daily_summary`); a CLI (`main`). |
+| `tools.py` | All calculations. Time-window tools (`count_requests`, `get_requests_by_classification`, `get_monitor_metrics`…), per-agent KPIs (`get_agent_performance`, `get_agent_daily_trends`), rule-based signals (`detect_agent_performance_signals`), documentation screening, `get_agent_comparison`, day-level views (`get_daily_series`, `detect_volume_anomalies`, `get_capacity_context`), and `validate_agent_id`. |
+| `langgraph_agent.py` | The `@tool` wrappers Claude sees; `SYSTEM_PROMPT`; Pydantic schemas (`InvestigationResult`, `PatternAnalysisResult`, `AgentInvestigationResult`, `DocumentationAnalysisResult`); the question graph (`graph`) including `plan_evidence_node` and `check_answer_node`; the agent investigation graph (`agent_investigation_graph`); screening (`evaluate_agent_investigation_triggers`); the batch report (`run_daily_agent_performance_report`); the daily brief (`run_daily_summary`); a CLI (`main`). |
+| `evidence_planner.py` | `plan()`: reads the question's dates and intent and returns the evidence to pre-fetch; `drill_down_calls()` adds capacity context for each unusual hour. Pure functions, no AI. |
+| `answer_checks.py` | `check_answer()`: non-blocking warnings for numbers and IDs not found in the evidence, period-wide wording about agents, unequal-period comparisons, and confirmed root causes. |
+| `evals/` | Independent oracle (`oracle.py`), trace and claim graders, per-run audit checks, 30 scenarios with an objective grader, and their tests. |
 | `api/main.py` | FastAPI app factory (`create_app`) and read-only endpoints. |
 | `api/service.py`, `api/shift.py` | Build API responses from the saved report plus fresh deterministic numbers; split screening findings into rule signals and AI observations. |
 | `api/storage.py` | The only code that reads report files; validates their shape with Pydantic. |
@@ -52,26 +58,37 @@ ahead of time (scripts) or on explicit request (live mode). Page loads never cal
 1. **Definition.** Each tool is a Python function in `tools.py`. A thin wrapper in
    `langgraph_agent.py` decorates it with LangChain's `@tool`. LangChain turns the function
    signature into a JSON schema and the docstring into the description Claude reads.
-2. **Binding.** `model.bind_tools(TOOLS)` attaches all 16 schemas to every Claude call made by
+2. **Binding.** `model.bind_tools(TOOLS)` attaches all 19 schemas to every Claude call made by
    the `claude` node.
-3. **Selection.** Claude returns an `AIMessage` with `tool_calls` (name, arguments, id), often
+3. **Pre-fetch.** Before Claude's first turn, `plan_evidence_node` runs the calls chosen by
+   `evidence_planner.plan()` through the same `TOOL_MAP` and records them as an `AIMessage`
+   with `tool_calls` plus `ToolMessage` results, so they look exactly like Claude's own calls
+   in the conversation and the trace. No rule matched means nothing is added.
+4. **Selection.** Claude returns an `AIMessage` with `tool_calls` (name, arguments, id), often
    several at once. The choice is the model's, guided by the question, the tool descriptions
-   and the system prompt ("use the minimum number of tools", "never guess identifiers").
-4. **Execution.** `execute_tools` looks each call up in `TOOL_MAP`, runs it, and appends a
+   and the system prompt ("use the minimum number of tools for a focused question",
+   "never guess identifiers", "compare periods per working day").
+5. **Execution.** `execute_tools` looks each call up in `TOOL_MAP`, runs it, and appends a
    `ToolMessage` with the JSON result. If a call raises (for example an unknown agent ID),
    it returns `{"error": ...}` with `status="error"` instead of failing the graph.
-5. **Loop.** The graph routes back to `claude` with the results. This continues until Claude
-   answers without calling tools, or until the recursion limit (40) is reached.
+6. **Loop.** The graph routes back to `claude` with the results. This continues until Claude
+   answers without calling tools, or until the recursion limit (40) is reached. After the
+   structured answer, `check_answer_node` records non-blocking warnings.
+
+**Time windows.** Every tool counts `start <= t < end`. Monitor snapshots each describe the
+5 minutes starting at their timestamp (verified against the data generator), counters reset
+daily so window totals are summed per day, and operational figures use working hours
+(08:00–17:00) unless `include_after_hours` is set; excluded snapshots are counted in the output.
 
 ## 5. Deterministic code vs LLM reasoning
 
 | Deterministic | LLM |
 |---|---|
-| Every metric, rate, comparison and trend | Which tools to call and in what order |
+| Every metric, rate, comparison and trend | Which further tools to call and in what order |
 | Signal thresholds and escalation rules | Reading notes; finding recurring themes |
-| ID and evidence validation | Interpreting evidence; proposing hypotheses |
-| Access control, persistence and run tracking | Filling the structured output schema |
-| Manager-view summaries in the UI | Writing proportionate recommendations |
+| ID and evidence validation; answer checks | Interpreting evidence; proposing hypotheses |
+| Which evidence to pre-fetch for a question | Filling the structured output schema |
+| Access control, persistence, run tracking; Manager-view summaries | Writing proportionate recommendations |
 
 The rule of thumb: **anything that must be correct and reproducible is code; anything that
 requires judgement over unstructured text is the model**, and the model's output is constrained
@@ -80,7 +97,9 @@ by a schema and validated where possible.
 ## 6. One request, end to end
 
 Question: *"There was an unusually high workload on 2026-08-25 between 12:00 and 13:00.
-Investigate what happened and explain the likely cause."* (saved as an example).
+Investigate what happened and explain the likely cause."* (saved as an example, before the
+`plan_evidence` and `check_answer` nodes existed; today the run would start with a
+pre-fetched `get_capacity_context` for 12:00–13:00 and end with the answer checks).
 
 1. **UI.** The manager submits in Ask Copilot. `CopilotPage.tsx` posts to
    `POST /api/copilot/investigations` and navigates to the new record.
@@ -123,6 +142,8 @@ Investigate what happened and explain the likely cause."* (saved as an example).
 | Background thread + polling, one run at a time | Simple and enough for a single local user | No queue, no streaming, no horizontal scaling |
 | JSON files behind an interface | Zero infrastructure; history survives restarts | Not suitable for concurrent users; swap for a database later |
 | Date context appended to the question | The system prompt has no notion of "today"; stored for audit | The model's input differs slightly from what the user typed |
+| Deterministic pre-fetch by intent, not a fixed route | Guarantees day-level, anomaly and staffing evidence for questions that need it; independent rules combine (a multi-day staffing question gets both) | Keyword-based recognition can miss phrasings; Claude can still call any tool, and unmatched questions run as before |
+| Answer checks as warnings, not blockers | Surfaces untraceable numbers and risky wording without discarding a useful answer | Heuristic: false alarms are possible, and a clean check is not proof |
 
 ### How the project evolved
 
@@ -138,11 +159,20 @@ Investigate what happened and explain the likely cause."* (saved as an example).
   added `get_agent_comparison`, ID validation with a helpful message, recoverable tool errors, and
   partial traces on failure, plus regression tests with a scripted fake model. The same question
   then completed in a live run using the new tool.
+- **An offline AI quality audit** ([AI_QUALITY_AUDIT.md](AI_QUALITY_AUDIT.md)) checked every saved
+  run against an independent oracle. It found a tool contract bug (multi-day monitor totals were the
+  last day's counter: 53 instead of 628 abandoned calls) and reasoning failures (an unequal-period
+  "33% drop", a one-day rate presented as a period-wide pattern, a missed staffing cause, a broad
+  review that missed most planted issues). The remediation corrected the monitor semantics against
+  the data generator, added three day-level tools, prompt rules, deterministic pre-fetching and
+  answer checks, with regression tests for each finding. The reasoning fixes are **not yet
+  validated with live runs**.
 
 ## 8. Scalability and reliability improvements
 
-- **Evaluation:** turn `data/demo_ground_truth.json` into an automatic eval that scores whether the
-  agent's facts and hypotheses match the planted scenarios (example 2 shows a miss worth measuring).
+- **Evaluation:** run the 30 scenarios in `evals/scenarios/` against the live model (3 repetitions
+  each) to measure whether the remediation changed the agent's reasoning, and add them to CI with a
+  budget cap.
 - **Storage and jobs:** a database (PostgreSQL) behind `InvestigationStore`; a job queue with workers
   instead of one in-process thread; idempotent run IDs.
 - **Multi-user:** authentication, per-user history, rate limits and a cost budget per user before
@@ -163,17 +193,23 @@ it only fetched request notes after seeing that one category dominated. A fixed 
 either fetch everything or miss that path.
 
 **2. How do you stop the model from inventing numbers?**
-The model never computes numbers; the tools do. The system prompt requires facts to come from tool
-results. The final answer must fit `InvestigationResult`, which separates `observed_facts` from
-`hypotheses`, and `confirmed_root_cause` must be null without direct evidence. For agent
-investigations and documentation review, code rejects any result citing request IDs that are not in
-the evidence. Saved traces let a reviewer check each fact against its tool call.
+The tools compute the numbers, and the system prompt requires facts to come from tool results and
+forbids the model's own adding-up. That is an instruction, not a guarantee: the audit found the model
+occasionally summing or regrouping numbers in its prose (a 10-minute table that added up to 55 for a
+45-request hour). So three layers back it up: the final answer must fit `InvestigationResult`
+(facts separate from hypotheses, `confirmed_root_cause` null without direct evidence); for agent
+investigations and documentation review, code rejects results citing request IDs not in the
+evidence; and `answer_checks.py` flags any number or ID in an Ask Copilot answer that cannot be
+traced to a tool result. Saved traces let a reviewer check each fact against its tool call.
 
 **3. How does the agent decide which tools to call?**
-Claude receives all 16 tool schemas via `bind_tools`, plus the system prompt with an investigation
-strategy (check whether a spike is concentrated in one category first; read request details only
-when needed). It returns `tool_calls`; the graph executes them and loops. The routing after `tools`
-is deterministic: new request details trigger the `pattern_analysis` node before control returns to Claude.
+Two layers. First, deterministic rules in `evidence_planner.py` read the question's dates and
+intent and pre-fetch what it clearly needs: a multi-day question gets the day-level series and an
+anomaly search, a specific hour or a staffing question gets capacity context, and each unusual hour
+found gets its own. Then Claude receives all 19 tool schemas via `bind_tools`, plus the system
+prompt's strategy (check demand and staffing; for multi-day reviews start from day-level evidence),
+and decides what else to call. The routing after `tools` is deterministic: new request details
+trigger the `pattern_analysis` node before control returns to Claude.
 
 **4. Walk me through a failure you found and fixed.**
 A live question asked which agents had the highest transfer rates. No tool listed agents, so Claude
@@ -188,7 +224,10 @@ The tools are pure functions with normal unit tests. The API is tested with Fast
 and injected fakes (`create_app(settings, store, runner)`). For the LangGraph graph I monkeypatch the
 bound model with a scripted object that returns predetermined `AIMessage`s, so I can reproduce exact
 tool-call sequences, including bad ones, and assert what the model was shown on the next turn.
-56 tests run offline.
+140 project tests and 135 evaluation tests run offline. The evaluation suite also audits saved live
+runs: it replays every tool call against an independent re-implementation of the tools and checks
+the answers' numbers, IDs and claims. What offline tests cannot show is whether the model's
+reasoning is right; that needs live scenario runs with a budget.
 
 **6. Why is the Manager view built by TypeScript rather than by asking Claude to summarise?**
 Cost and trust. Summarising with another model call could overstate or drop caveats, and it would
@@ -216,7 +255,10 @@ build an evaluation set from real, reviewed incidents to tune thresholds and pro
 and cost monitoring; and validate the screening thresholds with the operations team.
 
 **10. What is the weakest part of the system today, and how would you measure it?**
-Hypothesis quality. In example 2 the agent saw near-zero agent availability but hypothesised a
-payment-system event, while the planted cause was a staffing shortage. I would build an eval from the
-generator's ground truth, score whether hypotheses mention the planted cause, and iterate on the
-investigation strategy in the prompt (for example, always checking capacity before demand).
+Open-ended reasoning. The offline audit showed the agent is reliable on focused questions but, on a
+broad 10-day review, compared unequal periods, generalised one day to a whole period and surfaced
+only 1 of 6 planted issues; in example 2 it missed a staffing shortage. I fixed the data-level
+causes (a monitor tool bug, missing staffing and day-level tools), added prompt rules,
+deterministic pre-fetching and answer checks. The measurement is the next step: the scenarios in
+`evals/scenarios/` with objective graders, run live a few times each, before claiming the
+reasoning improved.

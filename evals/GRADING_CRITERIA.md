@@ -10,6 +10,7 @@ saved runs; the paid phases will apply the same rules to new runs.
 | PASS | Verified against data recomputed by the independent oracle. |
 | FAIL | Contradicted by the data, or a required behaviour is missing. |
 | REVIEW | Needs a human judgement (wording, scope of a qualifier). Never counted automatically. |
+| STALE | The agent reported its tool's output correctly, but that tool's contract was corrected later, so the saved figure is outdated. Not an AI error; the run needs a new live run. |
 | NOT_EVALUABLE | The saved record does not contain what the check needs. |
 
 ## Severity of a failure

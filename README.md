@@ -97,12 +97,13 @@ flowchart LR
     end
 
     subgraph Agent["LangGraph (langgraph_agent.py)"]
-        G1["Question graph<br/>claude → tools → pattern_analysis → final_investigation"]
+        G1["Question graph<br/>plan_evidence → claude ⇄ tools → final_investigation → check_answer"]
         G2["Agent investigation graph<br/>collect_evidence → analyze_evidence"]
         SCR["Screening<br/>evaluate_agent_investigation_triggers"]
     end
 
-    TOOLS["tools.py<br/>16 deterministic tools"]
+    PLAN["evidence_planner.py<br/>answer_checks.py<br/>(deterministic, no AI)"]
+    TOOLS["tools.py<br/>19 deterministic tools"]
     DATA[("data/*.json<br/>synthetic, reproducible")]
     SAVED[("reports/ · investigations/<br/>saved AI results")]
     LLM["Anthropic Claude<br/>claude-sonnet-4-6"]
@@ -114,6 +115,8 @@ flowchart LR
     G1 <--> LLM
     G2 <--> LLM
     SCR <--> LLM
+    G1 --> PLAN
+    PLAN --> TOOLS
     G1 --> TOOLS
     G2 --> TOOLS
     SCR --> TOOLS
@@ -131,8 +134,11 @@ code. Only an explicit action in live mode starts a paid AI run.
 
 | Component | Responsibility |
 |---|---|
-| `tools.py` | All deterministic calculations over the synthetic data: counts, breakdowns, wait times, monitor metrics, per-agent KPIs, trends, rule-based signals, documentation screening, and agent comparison. No AI. |
+| `tools.py` | All deterministic calculations over the synthetic data: counts, breakdowns, wait times, monitor metrics, per-agent KPIs, trends, rule-based signals, documentation screening, agent comparison, day-level series, incident detection and capacity context. No AI. |
 | `langgraph_agent.py` | The AI layer: LangChain tool wrappers, the system prompt, Pydantic output schemas, the two LangGraph graphs, AI documentation review, screening rules, the daily screening report, and a CLI. |
+| `evidence_planner.py` | Deterministic pre-fetch rules: reads a question's dates and intent and decides which evidence to collect before Claude starts. No AI. |
+| `answer_checks.py` | Deterministic, non-blocking checks of a finished answer against the tool results. No AI. |
+| `evals/` | Offline evaluation suite: an independent oracle, graders, 30 scenarios and the audit behind [AI_QUALITY_AUDIT.md](AI_QUALITY_AUDIT.md). |
 | `api/` | FastAPI app: read-only endpoints, live endpoints behind safety checks, a background runner, and persistent investigation history (`copilot_store.py`). |
 | `web/` | React + TypeScript single-page app. `managerSummary.ts` and `copilotSummary.ts` build the concise Manager views from saved results without calling the AI. |
 | `scripts/` | `generate_report.py` (daily screening report, paid) and `generate_examples.py` (demo investigations, paid). |
@@ -163,32 +169,43 @@ Versions are the ones pinned in `requirements.txt` and `web/package.json`.
 
 ## The AI tools
 
-The agent can call 16 tools. Each is a thin LangChain `@tool` wrapper in
+The agent can call 19 tools. Each is a thin LangChain `@tool` wrapper in
 `langgraph_agent.py` around a plain Python function in `tools.py`, so all arithmetic is
 deterministic and unit-testable. The tool's docstring is what Claude reads to decide when
 to use it.
 
 | Tool | Inputs | Returns |
 |---|---|---|
-| `count_requests` | `start_time`, `end_time` | Number of requests in the window |
+| `count_requests` | `start_time`, `end_time` | Number of requests in the window, the working days it covers and, over several days, requests per working day |
 | `get_requests_by_classification` | `start_time`, `end_time` | Request counts per category (login, payment, technical, general information) |
 | `get_classification_count` | `start_time`, `end_time`, `classification` | Count for one category |
 | `get_requests_by_status` | `start_time`, `end_time` | Resolved vs transferred counts |
 | `get_transfers_by_destination` | `start_time`, `end_time` | Transfers per destination team |
 | `get_classification_status_breakdown` | `start_time`, `end_time`, `classification` | Statuses and transfer destinations for one category |
-| `get_requests_by_time_bucket` | `start_time`, `end_time`, `bucket_minutes` | Request counts per time bucket (spike shape) |
+| `get_requests_by_time_bucket` | `start_time`, `end_time`, `bucket_minutes` | Request counts per time bucket (spike shape); labels include the date when the window spans days |
 | `get_request_details` | `start_time`, `end_time`, optional `classification` | Request IDs, subjects and notes for semantic analysis |
 | `get_average_wait_time` | `start_time`, `end_time` | Average customer wait time |
-| `get_monitor_metrics` | `start_time`, `end_time` | Available agents, peak agents on calls, answered and abandoned calls |
-| `compare_values` | `current`, `baseline` | Absolute and percentage change |
+| `get_monitor_metrics` | `start_time`, `end_time`, optional `include_after_hours` | Agents on shift, available agents, peak agents on calls, answered and abandoned call totals (summed per day over several days), and the time window applied |
+| `compare_values` | `current`, `baseline`, optional `current_days`, `baseline_days` | Absolute and percentage change; with day counts, also the per-day comparison |
 | `get_agent_performance` | `agent_id`, `start_date`, `end_date` | One representative's KPIs plus the team baseline |
 | `get_agent_daily_trends` | `agent_id`, `start_date`, `end_date` | Per-day requests, transfer rate, resolution rate, handling time |
 | `detect_agent_performance_signals` | `agent_id`, `start_date`, `end_date` | Rule-based signals comparing earlier vs later periods and peers |
 | `get_agent_request_evidence` | `agent_id`, dates, optional filters, `limit` | Request-level evidence for one representative |
-| `get_agent_comparison` | `start_date`, `end_date` | Every representative's KPIs and per-category transfers, sorted by transfer rate, plus the list of valid agent IDs |
+| `get_agent_comparison` | `start_date`, `end_date` | Every representative's KPIs and per-category transfers, sorted by transfer rate, the period covered, `low_sample` flags, and the list of valid agent IDs |
+| `get_daily_series` | `start_date`, `end_date` | One row per working day (requests, transfers, wait, abandoned and answered calls, agents on shift, available agents), totals and per-working-day averages |
+| `detect_volume_anomalies` | `start_date`, `end_date` | Unusual hours on every working day in the range (the same rule as the Overview) |
+| `get_capacity_context` | `start_time`, `end_time` (one day) | Demand and staffing in the window next to the previous window and the typical same window on other days |
 
 The four per-agent tools validate `agent_id` against the real roster (`A01`–`A15`). An
 unknown ID returns an error that lists the valid IDs, so the agent can correct itself.
+Rates from fewer than 20 requests are marked `low_sample`.
+
+**Time windows.** Every tool counts `start <= t < end`. Monitor snapshots are taken every
+5 minutes and each describes the 5 minutes starting at its timestamp, which matches how the
+data generator applies incidents. Operational monitor figures use working hours only
+(08:00–17:00, the schedule every request and shift falls in); the 17:00 snapshot covers
+17:00–17:05 after closing and is excluded unless `include_after_hours` is set. Excluded
+snapshots are counted in the output, never dropped silently.
 
 ---
 
@@ -198,13 +215,15 @@ unknown ID returns an error that lists the valid IDs, so the agent can correct i
 
 ```mermaid
 flowchart TD
-    START([Question + date context]) --> C["claude<br/>Claude with 16 tools bound"]
+    START([Question + date context]) --> PE["plan_evidence<br/>fixed rules pre-fetch day-level,<br/>anomaly and staffing evidence (no AI)"]
+    PE --> C["claude<br/>Claude with 19 tools bound"]
     C -- "tool calls" --> T["tools<br/>run each requested tool"]
     C -- "no tool calls" --> F["final_investigation<br/>structured InvestigationResult"]
     T -- "new request details fetched" --> P["pattern_analysis<br/>recurring themes in request notes"]
     T -- "otherwise" --> C
     P --> C
-    F --> END([Saved record])
+    F --> CA["check_answer<br/>non-blocking warnings (no AI)"]
+    CA --> END([Saved record])
 ```
 
 1. **Request in.** `POST /api/copilot/investigations` checks that live mode is on, an API
@@ -213,25 +232,40 @@ flowchart TD
 2. **Date context.** The question is stored exactly as typed. The agent receives it plus one
    line such as *"The manager is viewing the shift of 2026-09-07; treat 'today' as that date.
    Available data covers 2026-08-25 to 2026-09-07."* This line is saved for audit.
-3. **Interpretation and tool choice.** The `claude` node sends the system prompt and the
-   conversation to Claude, which has the 16 tools bound (`bind_tools`). Claude decides which
-   tools to call, often several in parallel, based on the question and the tool descriptions.
-   The system prompt sets the rules: base facts only on tool results, never invent data or
-   identifiers, separate facts from hypotheses, and never claim causation without direct evidence.
-4. **Tool execution.** The `tools` node runs each requested tool. Results go back to Claude as
+3. **Evidence pre-fetch (deterministic).** `plan_evidence` reads the question's scope (explicit
+   dates, ranges, "today", "yesterday", "last N working days", "this week") and intent (broad
+   review, change, staffing, spike, cause, agent focus). Independent rules add evidence:
+   a multi-day question gets the day-level series and an anomaly search; a broad review also
+   gets the all-agent comparison; a specific hour or a staffing question gets capacity
+   context; every unusual hour found gets its own capacity context. The calls appear in the
+   trace like any other, and the plan and its reasons are saved. When no rule matches, nothing
+   is pre-fetched and the run proceeds exactly as before.
+4. **Interpretation and tool choice.** The `claude` node sends the system prompt and the
+   conversation to Claude, which has the 19 tools bound (`bind_tools`). Claude decides which
+   further tools to call, often several in parallel. The system prompt sets the rules: base
+   facts only on tool results, never invent data or identifiers, separate facts from
+   hypotheses, never claim causation without direct evidence, compare periods per working day,
+   state the period and sample size of every claim about an agent, report every outlier, and
+   check both demand and staffing for incidents.
+5. **Tool execution.** The `tools` node runs each requested tool. Results go back to Claude as
    tool messages. **If a tool fails** (for example an invalid agent ID), the error is returned
    to Claude as an error result instead of stopping the run, and the other calls still run.
-5. **Pattern analysis.** When the agent fetches request notes, a separate structured call
+6. **Pattern analysis.** When the agent fetches request notes, a separate structured call
    (`PatternAnalysisResult`) groups them into recurring themes, each with supporting request
    IDs and a confidence level. The themes are fed back to Claude as evidence, not as causes.
-6. **Final answer.** When Claude stops calling tools, `final_investigation` makes one
+7. **Final answer.** When Claude stops calling tools, `final_investigation` makes one
    structured call that files an `InvestigationResult`: `observed_facts`,
    `supported_patterns`, `hypotheses`, `confirmed_root_cause` (null unless directly
    proven), `missing_evidence` and `recommendations`.
-7. **Persistence and display.** The runner saves the result, the pattern themes, the final
-   prose answer, the date range examined and a trace of every tool call with its arguments and
-   result. The UI polls until the run finishes. The Manager view is built from this saved
-   record by deterministic code; the Technical view shows all of it.
+8. **Answer checks (deterministic, non-blocking).** `check_answer` compares the answer with
+   the tool results and records warnings: numbers not found in the evidence, unknown IDs,
+   period-wide wording about an agent, totals compared across unequal periods, and a confirmed
+   root cause. The answer is never changed or blocked; the warnings appear in the Technical view.
+9. **Persistence and display.** The runner saves the result, the pattern themes, the final
+   prose answer, the date range examined, the pre-fetch plan, the answer checks and a trace of
+   every tool call with its arguments and result. The UI polls until the run finishes. The
+   Manager view is built from this saved record by deterministic code; the Technical view
+   shows all of it.
 
 ![Technical details view: how the Manager view was derived from the saved record](docs/screenshots/copilot-technical.png)
 
@@ -244,7 +278,9 @@ flowchart TD
 | Claude or network failure mid-run | The record is saved as `failed` with the error type and message, and keeps the tool calls made before the failure. |
 | Server restart during a run | On startup, any record still `running` is marked `failed` ("Interrupted"). |
 | Duplicate submissions | The button locks while a run is active, and the server allows one run at a time (HTTP 409 otherwise). |
-| Hallucinated evidence | The agent investigation and the documentation review both reject results that cite request IDs not present in the evidence, or a different agent or date. |
+| Hallucinated evidence | The agent investigation and the documentation review both reject results that cite request IDs not present in the evidence, or a different agent or date. Ask Copilot answers get non-blocking warnings for numbers and IDs not found in the tool results. |
+| A pre-fetched tool fails | Recorded as an error result like any tool error; the run continues. |
+| Multi-day monitor windows | Totals are summed per day (counters reset daily), restricted to working hours, and the output states the window applied. |
 | Large tool results | Saved traces keep up to 16,000 characters per result; the agent itself always receives the full result. The three committed examples were saved under an earlier 4,000-character limit, so their request-detail results are shortened in the trace. |
 | Missing or corrupt saved files | The API returns clear 404, 500 or 503 responses without file paths; a corrupt history file is skipped. |
 
@@ -252,11 +288,12 @@ flowchart TD
 
 | Deterministic (Python / TypeScript) | LLM (Claude) |
 |---|---|
-| Every count, rate, average, comparison and trend | Choosing which tools to call, and in what order |
+| Every count, rate, average, comparison and trend | Choosing further tools to call, and in what order |
 | Signal thresholds and the escalation rules | Reading request notes and spotting recurring themes |
 | Validating IDs and cited evidence | Interpreting the evidence and proposing hypotheses |
-| The Manager-view summaries in the UI | Structuring the findings into the output schema |
-| Access control, persistence and run tracking | Writing recommendations proportionate to the evidence |
+| Which evidence to pre-fetch (`evidence_planner.py`) | Structuring the findings into the output schema |
+| Answer checks (`answer_checks.py`) | Writing recommendations proportionate to the evidence |
+| The Manager-view summaries in the UI; access control, persistence and run tracking | |
 
 ---
 
@@ -347,6 +384,12 @@ therefore separates rule-based metric signals from AI-only observations.
 All outputs below come from real runs of the agent on the synthetic data. The first three
 are committed in `investigations/examples/` and open in the app without an API key.
 
+> **These runs predate the 2026-10-26 fixes** (corrected monitor windows, day-level tools,
+> new prompt rules, evidence pre-fetching). They are kept exactly as the agent wrote them.
+> Examples 1 and 2 quote monitor figures that the corrected tool now computes differently
+> (see each example), and none of the answers has been regenerated yet. The evaluation suite
+> lists every saved figure that changed (`python -m evals.run_phase0`).
+
 **1. "There was an unusually high workload on 2026-08-25 between 12:00 and 13:00. Investigate what happened and explain the likely cause."**
 13 tool calls (counts, classifications, time buckets, monitor metrics, wait times, request
 details, comparisons). Manager view:
@@ -359,12 +402,18 @@ details, comparisons). Manager view:
 > Root cause: not confirmed. Hypothesis (Technical view): an application release around 12:00
 > introduced a login defect. Missing evidence: deployment and release logs.
 
+The saved answer also reports 24 abandoned calls and 1.54 available agents for the hour; the
+corrected monitor window gives 26 and 1.42. Needs a new live run.
+
 **2. "There was an unusually high workload on 2026-08-27 between 15:00 and 16:00. Investigate what happened and explain the likely cause."**
 45 vs 20 requests (+125%). Payment requests were the largest category (16), average wait
-12.49 minutes, and available agents averaged 0.77. The agent's leading hypothesis was a payment
-system event. The scenario planted in the generator for this hour was a **staffing shortage**:
-the low agent availability was in the facts, but the hypothesis pointed elsewhere. It is kept
-as an honest example of why hypotheses are labelled as unconfirmed.
+12.49 minutes, and available agents averaged 0.77 (the saved figure; the corrected monitor
+window gives 0.33, with 8 agents on shift instead of the usual 12). The agent's leading
+hypothesis was a payment system event. The scenario planted in the generator for this hour was
+a **staffing shortage**: the low agent availability was in the facts, but the hypothesis pointed
+elsewhere. It is kept as an honest example of why hypotheses are labelled as unconfirmed. Since
+then, staffing figures are available to the agent and pre-fetched for questions like this one;
+whether the agent now reaches the staffing hypothesis has **not yet been verified with a live run**.
 
 **3. "On 2026-09-07, how many requests were transferred, to which destinations, and which request classifications were most often transferred?"**
 7 tool calls. 200 requests; 61 transferred (30.5%); destinations: technical support 35,
@@ -452,20 +501,28 @@ python langgraph_agent.py                     # CLI: ask a question or build a d
 ## Running the tests
 
 ```bash
-python -m pytest -q          # backend: 56 tests, no API key or network needed
+python -m pytest -q                # backend: 140 tests, no API key or network needed
+python -m pytest evals/tests -q    # evaluation suite: 135 tests, offline
+python -m evals.run_phase0         # audit the saved runs (writes evals/results/)
 cd web
-npm run lint                 # oxlint
-npm run build                # TypeScript strict type-check + production build
+npm run lint                       # oxlint
+npm run build                      # TypeScript strict type-check + production build
 ```
 
 The backend tests never call Claude. The LangGraph tests replace the model with a scripted
 fake, which lets them reproduce exact agent behaviour, including the invented-ID failure above.
+They prove what the agent is given and how the workflow behaves, **not** that Claude reasons
+correctly: that needs live runs (see [AI_QUALITY_AUDIT.md](AI_QUALITY_AUDIT.md)).
 
 | Test file | Covers |
 |---|---|
 | `tests/test_api.py` | Read-only endpoints, demo default, bad input (404/422), corrupt files, response shapes, rule vs AI separation, cited-request evidence |
 | `tests/test_copilot.py` | Live-mode safety gates (demo, missing key, remote client, proxy headers), one run at a time, persistence, reopening without re-running, failures, interrupted runs, trace capture |
 | `tests/test_agent_tools.py` | Agent comparison correctness, agent ID validation, tool-error recovery, the exact failing question end to end, partial traces on failure |
+| `tests/test_day_level_tools.py` | Monitor windows against the raw data (hourly, daily, multi-day, midnight-crossing, working-hours clipping), unequal periods, multi-day buckets, the three new tools, low-sample flags |
+| `tests/test_agent_phase_b.py` | 19 tools bound, backward-compatible arguments, prompt rules for each audit finding, a multi-day run with the new tools |
+| `tests/test_agent_phase_c.py` | Evidence planner (scope, relative dates, intents, fallback), pre-fetch and drill-down in the graph, answer checks, saving and loading records |
+| `evals/tests/` | Independent oracle vs tools, monitoring rule boundaries, graders, scenario validity |
 
 ---
 
@@ -490,6 +547,10 @@ fake, which lets them reproduce exact agent behaviour, including the invented-ID
 .
 ├── langgraph_agent.py        # AI layer: tools, prompts, schemas, LangGraph graphs, screening, CLI
 ├── tools.py                  # deterministic data tools (no AI)
+├── evidence_planner.py       # deterministic pre-fetch rules for Ask Copilot (no AI)
+├── answer_checks.py          # deterministic, non-blocking answer checks (no AI)
+├── AI_QUALITY_AUDIT.md       # offline audit of the saved AI runs, and its remediation status
+├── evals/                    # evaluation suite: oracle, graders, scenarios, tests
 ├── generate_demo_data.py     # seeded synthetic data generator
 ├── app.py                    # original Streamlit prototype (superseded by web/)
 ├── agent.py                  # original agent prototype: Anthropic SDK tool loop (reference only)
@@ -524,8 +585,18 @@ fake, which lets them reproduce exact agent behaviour, including the invented-ID
 
 - **Synthetic data only.** Thresholds and prompts were tuned on generated data and have not
   been validated against real operations.
-- **No formal evaluation set.** The generator's planted scenarios (`data/demo_ground_truth.json`)
-  could become an automatic evaluation of the agent's conclusions; example 2 shows why that matters.
+- **AI reasoning fixes not yet validated live.** The audit's tool and data issues are fixed and
+  tested. The reasoning issues (unequal periods, one day generalised to a period, missed
+  staffing cause, incomplete broad reviews) now have prompt rules, pre-fetched evidence and
+  answer checks, but whether Claude's answers improved can only be shown by live runs of the
+  scenarios in `evals/scenarios/`. None has been run yet.
+- **Saved AI examples predate the fixes.** Examples 1 and 2 quote monitor figures that are now
+  computed differently; they need new live runs and are flagged, not edited.
+- **Answer checks are heuristics.** They catch numbers and IDs not found in the evidence and
+  risky wording; a warning is a prompt to look, and a clean check is not proof of correctness.
+- **Monitor and shift data disagree slightly.** The synthetic monitor reports 12 agents on
+  shift from 08:00, while 70 of 150 shifts start at 09:00; the generator builds the two files
+  independently.
 - **JSON storage and a single worker.** Fine for one local user. A shared deployment would need a
   database behind the existing `InvestigationStore` interface, a job queue, authentication and
   per-user history.

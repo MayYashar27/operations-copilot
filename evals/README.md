@@ -11,15 +11,15 @@ Nothing here changes the application. The code only reads `data/`,
 ## Offline by construction
 
 `safety.py` blocks every outbound network connection for the whole process
-and replaces any API key with a placeholder before the agent module is
-imported. An accidental model call cannot connect, and could not
+(only loopback stays open, which the local test client needs) and replaces
+any API key with a placeholder before the agent module is imported. An accidental model call cannot connect, and could not
 authenticate if it did. No step in Phase 0 calls the model.
 
 ## Run it
 
 ```bash
 python -m evals.run_phase0                    # audit saved runs -> evals/results/
-python -m pytest evals/tests -q               # 130 tests + 2 pinned known issues
+python -m pytest evals/tests -q               # 135 tests
 python -m evals.ai_grader.build_requests      # optional: build (not send) AI-grader requests
 ```
 
@@ -49,4 +49,15 @@ audits only the 3 committed examples; tests that need a local run skip.
 If the evaluation called `tools.py` to get the right answer, a bug in a
 tool would make the agent and the grader wrong in the same way. The oracle
 is written separately from the raw data, and `tests/test_tools_vs_oracle.py`
-shows the two agree everywhere except the two pinned known issues.
+shows the two agree. Phase 0 pinned two tool contract issues as expected
+failures; both were fixed on 2026-10-26 and are now ordinary tests.
+
+## Tool contract versions
+
+The monitor and time-bucket contracts changed on 2026-10-26 (half-open
+windows matching the generator, per-day totals, working hours, dated
+multi-day labels). Runs saved earlier are replayed against the legacy
+contract they were produced under (`oracle.REPLAY_LEGACY`), so replay checks
+stay faithful, and `run_phase0` lists every saved figure that the corrected
+tools now compute differently. Those answers are marked STALE and need a new
+live run; they are never edited.

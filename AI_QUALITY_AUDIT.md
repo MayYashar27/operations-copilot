@@ -6,16 +6,41 @@ report (2026-09-07), and the deterministic monitoring rules.
 for every evaluation process. All checks are reproducible with
 `python -m evals.run_phase0` and `python -m pytest evals/tests`.
 **Model under audit:** `claude-sonnet-4-6`, as recorded in the runs.
-**Status:** findings only. Nothing in the application was changed or fixed.
+**Status:** the findings below describe the saved runs as they were. A remediation followed;
+its status is in the next section.
+
+---
+
+## 0. Remediation status (2026-10-26)
+
+| Finding | What changed | Status |
+|---|---|---|
+| H1 multi-day abandoned calls | `get_monitor_metrics` now counts `start <= t < end`, matching the generator (each snapshot covers the 5 minutes starting at its timestamp), sums counters per day, and uses working hours (08:00–17:00) unless after-hours data is requested. 10 days = 628 (634 with the after-hours 17:00 snapshots) | **Fixed and tested** against the raw data |
+| M2 merged multi-day buckets | Multi-day bucket labels include the date | **Fixed and tested** |
+| H2 unequal periods | Tools report working days; `compare_values` compares per day; new `get_daily_series`; prompt rule; pre-fetch for multi-day questions; answer check for totals over unequal periods | Tools fixed; **reasoning not yet validated live** |
+| H3 one day generalised to a period | `low_sample` flags and `period_label` in agent tools; prompt and final-answer rules; answer check for period-wide wording | **Reasoning not yet validated live** |
+| M1 staffing missed | `agents_on_shift` exposed; new `get_capacity_context`; prompt requires demand and staffing; pre-fetch for spike and staffing questions | Evidence now available; **reasoning not yet validated live** |
+| M2/M3 broad reviews | New `detect_volume_anomalies`; multi-day strategy in the prompt; pre-fetch of series, anomalies, all-agent comparison and capacity per unusual hour | **Reasoning not yet validated live** |
+| M5, low findings | Prompt rule against the model's own arithmetic; answer check for untraceable numbers | **Not yet validated live** |
+| H4 invented ID | Fixed earlier | Fixed |
+
+Saved runs R1, R2 and R8 contain monitor figures produced by the pre-fix tool. They are kept
+unchanged and marked STALE by `python -m evals.run_phase0`; they need new live runs.
+
+**Changes to figures in this report:** under the corrected rule, the R8 week windows are 416 and
+217 abandoned calls (this report first said 417 and 217, using a different boundary
+convention); the 10-day total is 628 in working hours.
 
 ---
 
 ## 1. Summary
 
 **Reliable today**
-- **Tools are correct.** All 79 saved tool results that could be compared
-  match an independent recomputation from the raw data. The 2 truncated
-  results were rebuilt.
+- **Tools do what their code says.** All 79 saved tool results that could be
+  compared match an independent recomputation of the same contract from the
+  raw data. The 2 truncated results were rebuilt. This proves faithful traces
+  and correct implementations, not that every contract is meaningful: two
+  contracts were not (see H1 and M2).
 - **No invented identifiers or numbers in completed runs.** Of the 1,008
   numbers in the answers, 919 appear directly in tool results and 69 are
   one-step calculations from numbers stated beside them. None is
@@ -38,7 +63,8 @@ for every evaluation process. All checks are reproducible with
   volume drop" caused by comparing 6 working days with 4).
 - **Multi-day monitor figures are silently wrong.** For multi-day windows,
   the monitor tool returns a counter difference that looks like a total.
-  The agent reported 53 abandoned calls for 10 days; the true figure is 634.
+  The agent reported 53 abandoned calls for 10 days; the true figure is 628 in working hours
+  (634 including the after-closing 17:00 snapshots).
 - **Generalisation beyond the evidence.** Examples: "A04 transfers payment
   and login at or near 100% across the period" (true for 9 requests on one
   day, 35–41% before), and "Technical Support dominant across all four
@@ -58,7 +84,8 @@ that involves monitor data. Most issues have a clear, testable fix (section 7).
 
 | Area | Result | Verdict |
 |---|---|---|
-| Tool correctness (replay vs oracle) | 79/79 match, 2 rebuilt | PASS |
+| Replay fidelity (saved results vs the tool contract in force when they were saved) | 79/79 match, 2 rebuilt | PASS |
+| Tool semantics (does the contract give the number a manager means?) | 2 issues: multi-day monitor totals, merged multi-day buckets | **FAIL** at audit time; fixed since (§0) |
 | Tool arguments | 0 invalid; 7 warnings (3 calls the tool cannot answer, 4 multi-day windows with misleading semantics) | PASS with warnings |
 | Tool selection (required tools per question) | 32/32 checks on 7 runs; 1 run not evaluable (trace lost) | PASS |
 | Numbers in answers | 919 direct, 69 derived, 20 not auto-verified (to review), 0 unsupported | PASS (surface level) |
@@ -103,13 +130,14 @@ contract**, or the **trace**.
 
 **H1. Multi-day abandoned-call figures are wrong (R8-2, R8-3).**
 "Total abandoned calls across the full period: 53"; "Week 1: 63, Week 2: 52".
-- **Truth:** 634 total; 417 and 217 by week.
+- **Truth (corrected rule, §0):** 628 total in working hours; 416 and 217 by week.
 - **What went wrong:** monitor counters reset every day, and
   `get_monitor_metrics` returns last-minus-first across days, which is
   simply the last day's count.
 - **Cause:** tool contract. The tool returns a plausible number for a
   window it cannot answer, with no warning. The agent had no way to know.
-  Pinned by `test_multi_day_abandoned_calls_change_is_a_total` (xfail).
+  Pinned at audit time by an xfail test; fixed since, and now covered by
+  `tests/test_day_level_tools.py` and `evals/tests/test_tools_vs_oracle.py`.
 
 **H2. A spurious "33% volume drop" is the first warning sign (R8-1).**
 - **Truth:** "Week 1" has 6 working days and "Week 2" has 4. Per working
@@ -160,7 +188,7 @@ The same question now completes (R6) and is covered by a regression test.
 - **Consequence:** a staffing recommendation rests on that claim.
 - **Causes:**
   - Tool contract: hourly buckets over several days merge by HH:MM label.
-    Pinned by an xfail test.
+    Pinned by an xfail test at audit time; fixed since (labels carry the date).
   - Model reasoning.
 
 **M3. A second outlier is silently dropped (R8-4).**
@@ -256,9 +284,11 @@ Fewer managers read it, but it is still shown to them.
 
 ---
 
-## 7. Recommended improvements (not implemented; each needs approval)
+## 7. Recommended improvements (as written at audit time)
 
-Ordered by impact on the failures above.
+Ordered by impact on the failures above. Items 1–6 were implemented on 2026-10-26 (see §0;
+item 6 as `answer_checks.py`). Item 7 is partly open (token usage and model messages are still
+not stored), and item 8 is open.
 
 1. **Make multi-day monitor windows safe (H1).**
    - `get_monitor_metrics` should either sum per-day changes or refuse
@@ -321,8 +351,8 @@ No budget is assumed. The pilot runs only on explicit approval.
 
 ```bash
 python -m evals.run_phase0          # writes evals/results/phase0_results.json and manual_review.md
-python -m pytest evals/tests -q     # 130 passed, 2 xfailed (the pinned tool issues)
-python -m pytest -q                 # the project's own 56 tests, unchanged
+python -m pytest evals/tests -q     # 135 passed (at audit time: 130 passed, 2 xfailed)
+python -m pytest -q                 # the project's tests: 140 (56 at audit time)
 ```
 
 Items for human review, 12 in total, are listed in
