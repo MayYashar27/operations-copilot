@@ -6,7 +6,9 @@ checks below are an auditor's reading of each answer, written as code so the
 verdicts are reproducible: every check quotes the claim it tests and
 recomputes the truth from data with the independent oracle.
 
-Verdicts: PASS, FAIL, REVIEW (needs a human judgement), NOT_EVALUABLE.
+Verdicts: PASS, FAIL, REVIEW (needs a human judgement), NOT_EVALUABLE, and
+STALE (the agent reported its tool's output correctly, but that tool's
+contract was corrected afterwards, so the saved number is outdated).
 Severity: critical > high > medium > low > info.
 """
 
@@ -114,9 +116,14 @@ def run_spike_0825(r):
                             "and the root cause is correctly left unconfirmed."}
 
     def abandoned():
-        m = oracle.get_monitor_metrics(*window)
-        return {"verdict": "PASS" if m["abandoned_calls_change"] == 24 else "FAIL",
-                "evidence": f"single-day window, counter difference = {m['abandoned_calls_change']}"}
+        then = oracle.legacy_get_monitor_metrics(*window)["abandoned_calls_change"]
+        now = oracle.get_monitor_metrics(*window)["abandoned_calls"]
+        if now == 24:
+            return {"verdict": "PASS", "evidence": "matches the data"}
+        return {"verdict": "STALE" if then == 24 else "FAIL",
+                "evidence": f"The agent correctly reported what the tool returned then ({then}). Under the "
+                            f"corrected half-open monitor window the hour has {now} abandoned calls. Not an AI "
+                            "error; the saved answer needs a new live run."}
 
     return [
         check(r, "R1-1", "10-minute volume table in the narrative", "| 12:10–12:20 | 17 |", table, "medium", "numerical"),

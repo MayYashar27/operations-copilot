@@ -60,6 +60,7 @@ def test_argument_validation():
                                                    "end_date": "2026-09-07"})[0]["level"] == "error"
     assert validate_args("count_requests", {"start_time": "2026-09-08T08:00:00",
                                             "end_time": "2026-09-08T17:00:00"})[0]["level"] == "error"
-    warn = validate_args("get_monitor_metrics", {"start_time": "2026-08-25 08:00", "end_time": "2026-09-07 17:00"})
-    assert [w["level"] for w in warn] == ["warning"]
+    multi_day = {"start_time": "2026-08-25 08:00", "end_time": "2026-09-07 17:00"}
+    assert [w["level"] for w in validate_args("get_monitor_metrics", multi_day, legacy=True)] == ["warning"]
+    assert validate_args("get_monitor_metrics", multi_day) == []  # valid under the fixed tool
     assert validate_args("count_requests", {"start_time": "2026-08-25T12:00:00", "end_time": "2026-08-25T13:00:00"}) == []

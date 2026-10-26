@@ -55,10 +55,10 @@ def grade(scenario: Dict[str, Any], record: Dict[str, Any]) -> Dict[str, Any]:
     answer = _fields(record, ["observed_facts", "supported_patterns", "hypotheses", "missing_evidence", "recommendations"])
     numbers = [n["value"] for n in claims.extract_numbers(answer)]
     for fact in scenario.get("facts", []):
-        expected = resolve(fact["oracle"])
+        accepted = [resolve(fact["oracle"])] + [resolve(spec) for spec in fact.get("also_accept", [])]
         if fact.get("must_appear"):
-            found = any(abs(v - float(expected)) <= 0.051 for v in numbers)
-            add(f"fact stated: {fact['name']} = {expected}", found, critical=True)
+            found = any(abs(v - float(e)) <= 0.051 for v in numbers for e in accepted)
+            add(f"fact stated: {fact['name']} = {' or '.join(str(e) for e in accepted)}", found, critical=True)
 
     for concept in scenario.get("concepts", []):
         text = _fields(record, concept["fields"]).lower()

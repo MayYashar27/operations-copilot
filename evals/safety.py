@@ -18,18 +18,49 @@ _original_connect_ex = socket.socket.connect_ex
 _original_create_connection = socket.create_connection
 
 
-def _refuse(*_args, **_kwargs):
-    raise NetworkBlocked(
-        "Network access is disabled during Phase 0 evaluation. "
+LOOPBACK = {"127.0.0.1", "::1", "localhost"}
+
+
+def _is_loopback(address) -> bool:
+    host = address[0] if isinstance(address, tuple) and address else address
+    return isinstance(host, str) and host in LOOPBACK
+
+
+def _refuse_message():
+    return NetworkBlocked(
+        "Network access is disabled during offline evaluation. "
         "No API calls are allowed."
     )
 
 
+def _guarded_connect(self, address):
+    if not _is_loopback(address):
+        raise _refuse_message()
+    return _original_connect(self, address)
+
+
+def _guarded_connect_ex(self, address):
+    if not _is_loopback(address):
+        raise _refuse_message()
+    return _original_connect_ex(self, address)
+
+
+def _guarded_create_connection(address, *args, **kwargs):
+    if not _is_loopback(address):
+        raise _refuse_message()
+    return _original_create_connection(address, *args, **kwargs)
+
+
 def block_network() -> None:
-    """Make every outbound socket connection fail for this process."""
-    socket.socket.connect = _refuse
-    socket.socket.connect_ex = _refuse
-    socket.create_connection = _refuse
+    """Make every outbound connection fail, except loopback.
+
+    Loopback stays open because asyncio (used by FastAPI's test client) talks
+    to itself over a local socket pair on Windows. Nothing on loopback can
+    reach the Anthropic API.
+    """
+    socket.socket.connect = _guarded_connect
+    socket.socket.connect_ex = _guarded_connect_ex
+    socket.create_connection = _guarded_create_connection
 
 
 def unblock_network() -> None:

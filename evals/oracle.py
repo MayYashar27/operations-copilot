@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 
 CLASSIFICATIONS = ("general_information", "login_issue", "payment_issue", "technical_issue")
+LOW_SAMPLE = 20  # rates from fewer requests are flagged low_sample
 DESTINATIONS = ("back_office", "billing", "supervisor", "technical_support")
 
 
@@ -119,21 +120,43 @@ def get_average_wait_time(start_time, end_time):
             "average_wait_time_minutes": _avg(waits), "request_count": len(waits)}
 
 
+@lru_cache(maxsize=None)
+def increments() -> Dict[str, Dict[str, int]]:
+    """Calls in each snapshot's own 5-minute interval (counters reset at each day's first snapshot)."""
+    out: Dict[str, Dict[str, int]] = {}
+    last: Dict[date, dict] = {}
+    for s in snapshots():
+        prev = last.get(s["_t"].date())
+        out[s["timestamp"]] = {
+            "answered": s["answered_calls"] - (prev["answered_calls"] if prev else 0),
+            "abandoned": s["abandoned_calls"] - (prev["abandoned_calls"] if prev else 0),
+        }
+        last[s["_t"].date()] = s
+    return out
+
+
 def get_monitor_metrics(start_time, end_time):
-    """Snapshot window is start <= timestamp <= end (inclusive end, as the tool does)."""
+    """Half-open window start <= timestamp < end; each snapshot covers [t, t+5 min)."""
     start, end = _dt(start_time), _dt(end_time)
-    rows = [s for s in snapshots() if start <= s["_t"] <= end]
+    rows = [s for s in snapshots() if start <= s["_t"] < end]
     if not rows:
         return {"start_time": start_time, "end_time": end_time, "snapshot_count": 0,
                 "message": "No monitor data found for this period."}
+    inc = increments()
+    answered = sum(inc[s["timestamp"]]["answered"] for s in rows)
+    abandoned = sum(inc[s["timestamp"]]["abandoned"] for s in rows)
+    on_shift = [s["agents_on_shift"] for s in rows]
     return {
         "start_time": start_time, "end_time": end_time,
         "snapshot_count": len(rows),
         "average_monitor_wait_time_minutes": _avg([s["average_wait_time_minutes"] for s in rows]),
         "average_available_agents": _avg([s["available_agents"] for s in rows]),
         "peak_agents_on_calls": max(s["agents_on_calls"] for s in rows),
-        "answered_calls_change": rows[-1]["answered_calls"] - rows[0]["answered_calls"],
-        "abandoned_calls_change": rows[-1]["abandoned_calls"] - rows[0]["abandoned_calls"],
+        "average_agents_on_shift": _avg(on_shift),
+        "min_agents_on_shift": min(on_shift),
+        "answered_calls": answered, "abandoned_calls": abandoned,
+        "answered_calls_change": answered, "abandoned_calls_change": abandoned,
+        "working_days": len({s["_t"].date() for s in rows}),
     }
 
 
@@ -156,14 +179,20 @@ def get_transfers_by_destination(start_time, end_time):
             "transfer_destinations": dict(Counter(r["transferred_to"] for r in rows))}
 
 
-def get_requests_by_time_bucket(start_time, end_time, bucket_minutes=5):
-    """Buckets are labelled HH:MM-HH:MM, so labels repeat across days and merge."""
+def get_requests_by_time_bucket(start_time, end_time, bucket_minutes=5, dated_labels=None):
+    """Buckets labelled HH:MM-HH:MM; over several days the label starts with the date.
+
+    dated_labels=False reproduces the contract before the 2026-10-26 fix, when
+    multi-day labels repeated each day and merged.
+    """
     start, end = _dt(start_time), _dt(end_time)
     step = timedelta(minutes=int(bucket_minutes))
     counts: Dict[str, int] = {}
+    if dated_labels is None:
+        dated_labels = start.date() != (end - timedelta(microseconds=1)).date()
 
     def label(t0: datetime) -> str:
-        return f"{t0:%H:%M}-{t0 + step:%H:%M}"
+        return f"{t0:%Y-%m-%d %H:%M}-{t0 + step:%H:%M}" if dated_labels else f"{t0:%H:%M}-{t0 + step:%H:%M}"
 
     t = start
     while t < end:
@@ -205,6 +234,7 @@ def _summary(rows: List[dict], hours: float) -> Dict[str, Any]:
     destinations = Counter(r["transferred_to"] for r in transferred if r["transferred_to"])
     return {
         "handled_requests": len(rows),
+        "low_sample": len(rows) < LOW_SAMPLE,
         "scheduled_hours": round(hours, 2),
         "requests_per_scheduled_hour": round(len(rows) / hours, 2) if hours else None,
         "transferred_requests": len(transferred),
@@ -342,10 +372,12 @@ def get_agent_comparison(start_date, end_date):
             entry["transferred"] += r["status"] == "transferred"
         for entry in by_class.values():
             entry["transfer_rate_percent"] = _pct(entry["transferred"], entry["requests"])
+            entry["low_sample"] = entry["requests"] < LOW_SAMPLE
         transferred = sum(r["status"] == "transferred" for r in own)
         agents.append({
             "agent_id": agent_id,
             "handled_requests": len(own),
+            "low_sample": len(own) < LOW_SAMPLE,
             "transferred_requests": transferred,
             "transfer_rate_percent": _pct(transferred, len(own)),
             "first_line_resolution_rate_percent": _pct(sum(r["status"] == "resolved" for r in own), len(own)),
@@ -359,6 +391,33 @@ def get_agent_comparison(start_date, end_date):
         "team_transfer_rate_percent": _pct(sum(r["status"] == "transferred" for r in rows), len(rows)),
         "agents": agents,
     }
+
+
+def legacy_get_monitor_metrics(start_time, end_time):
+    """The monitor contract before the 2026-10-26 fix: inclusive end, last-minus-first counters."""
+    start, end = _dt(start_time), _dt(end_time)
+    rows = [s for s in snapshots() if start <= s["_t"] <= end]
+    if not rows:
+        return {"start_time": start_time, "end_time": end_time, "snapshot_count": 0,
+                "message": "No monitor data found for this period."}
+    return {
+        "start_time": start_time, "end_time": end_time,
+        "snapshot_count": len(rows),
+        "average_monitor_wait_time_minutes": _avg([s["average_wait_time_minutes"] for s in rows]),
+        "average_available_agents": _avg([s["available_agents"] for s in rows]),
+        "peak_agents_on_calls": max(s["agents_on_calls"] for s in rows),
+        "answered_calls_change": rows[-1]["answered_calls"] - rows[0]["answered_calls"],
+        "abandoned_calls_change": rows[-1]["abandoned_calls"] - rows[0]["abandoned_calls"],
+    }
+
+
+def legacy_get_requests_by_time_bucket(start_time, end_time, bucket_minutes=5):
+    return get_requests_by_time_bucket(start_time, end_time, bucket_minutes, dated_labels=False)
+
+
+# The date the monitor and time-bucket contracts changed. Saved runs created
+# earlier are replayed against the legacy contract they were produced under.
+CONTRACT_CHANGE_DATE = "2026-10-26"
 
 
 REPLAY: Dict[str, Callable[..., Dict[str, Any]]] = {
@@ -378,6 +437,12 @@ REPLAY: Dict[str, Callable[..., Dict[str, Any]]] = {
     "detect_agent_performance_signals": detect_agent_performance_signals,
     "get_agent_request_evidence": get_agent_request_evidence,
     "get_agent_comparison": get_agent_comparison,
+}
+
+REPLAY_LEGACY: Dict[str, Callable[..., Dict[str, Any]]] = {
+    **REPLAY,
+    "get_monitor_metrics": legacy_get_monitor_metrics,
+    "get_requests_by_time_bucket": legacy_get_requests_by_time_bucket,
 }
 
 
@@ -401,27 +466,32 @@ def daily_monitor_totals() -> Dict[str, Dict[str, int]]:
 
 
 def abandoned_calls_between(start_time: str, end_time: str) -> int:
-    """True abandoned calls over a multi-day window: sum of per-day increases."""
+    """True abandoned calls in start <= t < end: the sum of each snapshot interval's calls.
+
+    Note the generator's 17:00 snapshot covers 17:00-17:05, after closing, so a
+    continuous multi-day window includes it while 08:00-17:00 day windows do not.
+    """
     start, end = _dt(start_time), _dt(end_time)
-    by_day: Dict[date, List[dict]] = defaultdict(list)
-    for s in snapshots():
-        if start <= s["_t"] <= end:
-            by_day[s["_t"].date()].append(s)
-    total = 0
-    for rows in by_day.values():
-        # A day that starts at its first snapshot counts the calls already on it.
-        first = rows[0]
-        day_start = min(x["_t"] for x in snapshots() if x["_t"].date() == first["_t"].date())
-        base = 0 if first["_t"] == day_start else first["abandoned_calls"]
-        total += rows[-1]["abandoned_calls"] - base
-    return total
+    inc = increments()
+    return sum(inc[s["timestamp"]]["abandoned"] for s in snapshots() if start <= s["_t"] < end)
 
 
 def counters_reset_inside(start_time: str, end_time: str) -> bool:
     """True when a monitor window spans more than one day (cumulative counters reset)."""
     start, end = _dt(start_time), _dt(end_time)
-    days = {s["_t"].date() for s in snapshots() if start <= s["_t"] <= end}
+    days = {s["_t"].date() for s in snapshots() if start <= s["_t"] < end}
     return len(days) > 1
+
+
+def daily_abandoned_in_hours(day: str) -> int:
+    """Abandoned calls during working hours (08:00-17:00) of one day."""
+    return abandoned_calls_between(f"{day}T08:00:00", f"{day}T17:00:00")
+
+
+def get_daily_series_total_abandoned(start_date: str, end_date: str) -> int:
+    """Sum of working-hours abandoned calls over the working days in a range."""
+    return sum(daily_abandoned_in_hours(d.isoformat()) for d in data_dates()
+               if _d(start_date) <= d <= _d(end_date))
 
 
 def agents_on_shift(start_time: str, end_time: str) -> Optional[float]:

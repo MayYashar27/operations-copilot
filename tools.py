@@ -9,6 +9,24 @@ DATA_DIR = Path(__file__).parent / "data"
 REQUESTS_FILE = DATA_DIR / "requests.json"
 MONITOR_FILE = DATA_DIR / "monitor_snapshots.json"
 
+WORKDAY_START = "08:00:00"
+WORKDAY_END = "17:00:00"
+
+# Agent rates from fewer requests than this are flagged as low-sample.
+# Same minimum the performance-signal rules use.
+LOW_SAMPLE_REQUESTS = 20
+
+# Monitor snapshots are taken every 5 minutes. Each snapshot describes the
+# 5 minutes STARTING at its timestamp (the generator applies an incident to
+# the snapshots whose hour is the incident hour), so a window counts the
+# snapshots with start <= timestamp < end: the same half-open rule as the
+# request tools. answered/abandoned counters are cumulative within a day and
+# reset each morning, so window totals are summed per day.
+MONITOR_INTERVAL_RULE = (
+    "Snapshots with start <= timestamp < end; each covers the 5 minutes starting "
+    "at its timestamp. Call counts are summed per day (counters reset daily)."
+)
+
 # Loads data from a JSON file and converts it into Python objects.
 
 def load_json_file(file_path: Path) -> List[Dict[str, Any]]:
@@ -68,11 +86,19 @@ def count_requests(
         if start <= parse_datetime(request["request_time"]) < end
     ]
 
-    return {
+    result = {
         "start_time": start_time,
         "end_time": end_time,
-        "request_count": len(matching_requests)
+        "request_count": len(matching_requests),
     }
+
+    # Periods of different length are only comparable per working day.
+    working_days = len({request["request_time"][:10] for request in matching_requests})
+    result["working_days"] = working_days
+    if working_days > 1:
+        result["requests_per_working_day"] = round(len(matching_requests) / working_days, 2)
+
+    return result
 
 # Counts requests by classification within a specific time range.
 def get_requests_by_classification(
@@ -139,22 +165,63 @@ def get_average_wait_time(
         "request_count": len(wait_times)
     }
 
+# Adds per-snapshot call increments to monitor snapshots.
+def monitor_snapshots_with_increments() -> List[Dict[str, Any]]:
+    """Snapshots in time order, each with the calls answered/abandoned in its own interval.
+
+    Counters are cumulative within a day and start from zero each morning, so a
+    snapshot's increment is its counter minus the previous snapshot of the same day.
+    """
+    snapshots = sorted(load_monitor_snapshots(), key=lambda s: s["timestamp"])
+    previous: Dict[str, Dict[str, Any]] = {}
+    rows = []
+    for snapshot in snapshots:
+        day = snapshot["timestamp"][:10]
+        before = previous.get(day, {"answered_calls": 0, "abandoned_calls": 0})
+        rows.append({
+            **snapshot,
+            "answered_in_interval": snapshot["answered_calls"] - before["answered_calls"],
+            "abandoned_in_interval": snapshot["abandoned_calls"] - before["abandoned_calls"],
+        })
+        previous[day] = snapshot
+    return rows
+
+
+def _monitor_summary(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
+    on_shift = [r["agents_on_shift"] for r in rows if isinstance(r.get("agents_on_shift"), (int, float))]
+    return {
+        "snapshot_count": len(rows),
+        "average_monitor_wait_time_minutes": round(
+            sum(r["average_wait_time_minutes"] for r in rows) / len(rows), 2
+        ),
+        "average_available_agents": round(
+            sum(r["available_agents"] for r in rows) / len(rows), 2
+        ),
+        "peak_agents_on_calls": max(r["agents_on_calls"] for r in rows),
+        "average_agents_on_shift": round(sum(on_shift) / len(on_shift), 2) if on_shift else None,
+        "min_agents_on_shift": min(on_shift) if on_shift else None,
+        "answered_calls": sum(r["answered_in_interval"] for r in rows),
+        "abandoned_calls": sum(r["abandoned_in_interval"] for r in rows),
+    }
+
+
 # Summarizes operational monitor metrics for a specific time range.
 def get_monitor_metrics(
     start_time: str,
     end_time: str
 ) -> Dict[str, Any]:
-    """Return operational monitor data for a given time range."""
+    """Return operational monitor data for start_time <= t < end_time.
+
+    Works for any window, including several days: calls are summed per day.
+    """
 
     start = parse_datetime(start_time)
     end = parse_datetime(end_time)
 
-    snapshots = load_monitor_snapshots()
-
     matching_snapshots = [
         snapshot
-        for snapshot in snapshots
-        if start <= parse_datetime(snapshot["timestamp"]) <= end
+        for snapshot in monitor_snapshots_with_increments()
+        if start <= parse_datetime(snapshot["timestamp"]) < end
     ]
 
     if not matching_snapshots:
@@ -165,55 +232,46 @@ def get_monitor_metrics(
             "message": "No monitor data found for this period."
         }
 
-    average_wait_time = sum(
-        snapshot["average_wait_time_minutes"]
-        for snapshot in matching_snapshots
-    ) / len(matching_snapshots)
+    summary = _monitor_summary(matching_snapshots)
+    by_day: Dict[str, List[Dict[str, Any]]] = {}
+    for snapshot in matching_snapshots:
+        by_day.setdefault(snapshot["timestamp"][:10], []).append(snapshot)
 
-    average_available_agents = sum(
-        snapshot["available_agents"]
-        for snapshot in matching_snapshots
-    ) / len(matching_snapshots)
-
-    peak_agents_on_calls = max(
-        snapshot["agents_on_calls"]
-        for snapshot in matching_snapshots
-    )
-
-    first_snapshot = matching_snapshots[0]
-    last_snapshot = matching_snapshots[-1]
-
-    answered_calls_change = (
-        last_snapshot["answered_calls"]
-        - first_snapshot["answered_calls"]
-    )
-
-    abandoned_calls_change = (
-        last_snapshot["abandoned_calls"]
-        - first_snapshot["abandoned_calls"]
-    )
-
-    return {
+    result = {
         "start_time": start_time,
         "end_time": end_time,
-        "snapshot_count": len(matching_snapshots),
-        "average_monitor_wait_time_minutes": round(
-            average_wait_time, 2
-        ),
-        "average_available_agents": round(
-            average_available_agents, 2
-        ),
-        "peak_agents_on_calls": peak_agents_on_calls,
-        "answered_calls_change": answered_calls_change,
-        "abandoned_calls_change": abandoned_calls_change
+        **summary,
+        # Earlier names for the same totals, kept for saved records and the UI.
+        "answered_calls_change": summary["answered_calls"],
+        "abandoned_calls_change": summary["abandoned_calls"],
+        "working_days": len(by_day),
+        "interval_rule": MONITOR_INTERVAL_RULE,
     }
+    if len(by_day) > 1:
+        result["per_day"] = [
+            {
+                "date": day,
+                "answered_calls": sum(r["answered_in_interval"] for r in rows),
+                "abandoned_calls": sum(r["abandoned_in_interval"] for r in rows),
+                "average_available_agents": round(sum(r["available_agents"] for r in rows) / len(rows), 2),
+            }
+            for day, rows in by_day.items()
+        ]
+        result["abandoned_calls_per_working_day"] = round(summary["abandoned_calls"] / len(by_day), 2)
+    return result
 
 # Compares a current value to a baseline and calculates the absolute and percentage change.
 def compare_values(
     current: float,
-    baseline: float
+    baseline: float,
+    current_days: Optional[int] = None,
+    baseline_days: Optional[int] = None,
 ) -> Dict[str, Any]:
-    """Compare a current value to a baseline value."""
+    """Compare a current value to a baseline value.
+
+    When both day counts are given, also compares the values per day, which is
+    the fair comparison for totals over periods of different length.
+    """
 
     absolute_change = current - baseline
 
@@ -222,7 +280,7 @@ def compare_values(
     else:
         percentage_change = (absolute_change / baseline) * 100
 
-    return {
+    result = {
         "current": current,
         "baseline": baseline,
         "absolute_change": absolute_change,
@@ -232,6 +290,28 @@ def compare_values(
             else None
         )
     }
+
+    if current_days is None and baseline_days is None:
+        return result
+    if not current_days or not baseline_days or current_days < 0 or baseline_days < 0:
+        raise ValueError("Provide both current_days and baseline_days as positive numbers of days.")
+
+    current_per_day = current / current_days
+    baseline_per_day = baseline / baseline_days
+    per_day_change = current_per_day - baseline_per_day
+    result.update({
+        "current_days": current_days,
+        "baseline_days": baseline_days,
+        "current_per_day": round(current_per_day, 2),
+        "baseline_per_day": round(baseline_per_day, 2),
+        "per_day_absolute_change": round(per_day_change, 2),
+        "per_day_percentage_change": (
+            round(per_day_change / baseline_per_day * 100, 2) if baseline_per_day else None
+        ),
+        "note": "Totals cover different numbers of days; use the per-day comparison."
+        if current_days != baseline_days else "Equal periods; per-day and total comparisons agree.",
+    })
+    return result
 
 # Counts requests by status within a specific time range.
 def get_requests_by_status(
@@ -309,6 +389,10 @@ def get_requests_by_time_bucket(
 
     requests = load_requests()
 
+    # Over several days, HH:MM labels would repeat and merge different days.
+    spans_days = start.date() != (end - timedelta(microseconds=1)).date()
+    label_format = "%Y-%m-%d %H:%M" if spans_days else "%H:%M"
+
     buckets: Dict[str, int] = {}
 
     current_bucket_start = start
@@ -319,7 +403,7 @@ def get_requests_by_time_bucket(
         )
 
         bucket_label = (
-            f"{current_bucket_start.strftime('%H:%M')}-"
+            f"{current_bucket_start.strftime(label_format)}-"
             f"{current_bucket_end.strftime('%H:%M')}"
         )
 
@@ -346,7 +430,7 @@ def get_requests_by_time_bucket(
             )
 
             bucket_label = (
-                f"{bucket_start.strftime('%H:%M')}-"
+                f"{bucket_start.strftime(label_format)}-"
                 f"{bucket_end.strftime('%H:%M')}"
             )
 
@@ -586,7 +670,7 @@ def get_daily_metrics(date: str) -> Dict[str, Any]:
         "average_wait_time_minutes": wait_time_result[
             "average_wait_time_minutes"
         ],
-        "abandoned_calls": monitor_result["abandoned_calls_change"],
+        "abandoned_calls": monitor_result.get("abandoned_calls"),
         "average_available_agents": monitor_result[
             "average_available_agents"
         ],
@@ -628,6 +712,7 @@ def get_agent_performance(agent_id: str, start_date: str, end_date: str) -> Dict
                 destinations[dest] = destinations.get(dest, 0) + 1
         return {
             "handled_requests": count,
+            "low_sample": count < LOW_SAMPLE_REQUESTS,
             "scheduled_hours": round(hours, 2),
             "requests_per_scheduled_hour": round(count / hours, 2) if hours else None,
             "transferred_requests": len(transfers),
@@ -649,10 +734,18 @@ def get_agent_performance(agent_id: str, start_date: str, end_date: str) -> Dict
         "agent_id": agent_id,
         "start_date": start_date,
         "end_date": end_date,
+        "period_label": _period_label(start_date, end_date, len({s["date"] for s in agent_shifts})),
         "agent": summarize(agent_requests, agent_hours),
         "team_baseline": team,
         "comparison_note": "Team rates are request-weighted; requests/hour uses scheduled shift hours. These are descriptive signals, not employee performance ratings.",
     }
+
+
+def _period_label(start_date: str, end_date: str, working_days: int) -> str:
+    """States the period a result covers, so one day is never read as a whole period."""
+    days = "1 working day" if working_days == 1 else f"{working_days} working days"
+    span = start_date if start_date == end_date else f"{start_date} to {end_date}"
+    return f"{span} ({days}). Rates describe only this period."
 
 
 def get_agent_daily_trends(
@@ -1117,9 +1210,11 @@ def get_agent_comparison(start_date: str, end_date: str) -> Dict[str, Any]:
             entry["transferred"] += r.get("status") == "transferred"
         for entry in by_classification.values():
             entry["transfer_rate_percent"] = rate(entry["transferred"], entry["requests"])
+            entry["low_sample"] = entry["requests"] < LOW_SAMPLE_REQUESTS
         agents.append({
             "agent_id": agent_id,
             "handled_requests": len(rows),
+            "low_sample": len(rows) < LOW_SAMPLE_REQUESTS,
             "transferred_requests": len(transferred),
             "transfer_rate_percent": rate(len(transferred), len(rows)),
             "first_line_resolution_rate_percent": rate(resolved, len(rows)),
@@ -1129,12 +1224,168 @@ def get_agent_comparison(start_date: str, end_date: str) -> Dict[str, Any]:
 
     agents.sort(key=lambda a: (a["transfer_rate_percent"] is None, -(a["transfer_rate_percent"] or 0), a["agent_id"]))
     team_transfers = sum(r.get("status") == "transferred" for r in requests)
+    working_days = len({r["request_time"][:10] for r in requests})
     return {
         "start_date": start_date,
         "end_date": end_date,
+        "period_label": _period_label(start_date, end_date, working_days),
+        "working_days": working_days,
+        "low_sample_threshold": LOW_SAMPLE_REQUESTS,
         "valid_agent_ids": scheduled,
         "team_requests": len(requests),
         "team_transfer_rate_percent": rate(team_transfers, len(requests)),
         "agents": agents,
-        "note": "Sorted by transfer rate. Descriptive signals, not performance ratings; small request counts make rates volatile.",
+        "note": "Sorted by transfer rate. Descriptive signals, not performance ratings; "
+                "rates marked low_sample (fewer than 20 requests) are volatile.",
+    }
+
+
+# ---------------------------------------------------------
+# Day-level views: fair comparisons, incident discovery, capacity
+# ---------------------------------------------------------
+
+def _data_working_days(start_date: str, end_date: str) -> List[str]:
+    """Dates between start_date and end_date (inclusive) that have any requests."""
+    start = datetime.fromisoformat(start_date).date().isoformat()
+    end = datetime.fromisoformat(end_date).date().isoformat()
+    return sorted({r["request_time"][:10] for r in load_requests() if start <= r["request_time"][:10] <= end})
+
+
+def get_daily_series(start_date: str, end_date: str) -> Dict[str, Any]:
+    """One row per working day (08:00-17:00), plus totals and per-working-day averages.
+
+    Use for trends and for comparing periods of different length.
+    """
+    if datetime.fromisoformat(start_date) > datetime.fromisoformat(end_date):
+        raise ValueError("start_date must be on or before end_date")
+    days = _data_working_days(start_date, end_date)
+    requests = load_requests()
+    rows = []
+    for day in days:
+        start, end = f"{day}T{WORKDAY_START}", f"{day}T{WORKDAY_END}"
+        day_requests = [r for r in requests if start <= r["request_time"] < end]
+        transferred = sum(r["status"] == "transferred" for r in day_requests)
+        waits = [r["wait_time_minutes"] for r in day_requests]
+        monitor = get_monitor_metrics(start, end)
+        rows.append({
+            "date": day,
+            "requests": len(day_requests),
+            "transferred": transferred,
+            "transfer_rate_percent": round(100 * transferred / len(day_requests), 2) if day_requests else None,
+            "average_wait_time_minutes": round(sum(waits) / len(waits), 2) if waits else None,
+            "requests_by_classification": dict(sorted(
+                {c: sum(r["classification"] == c for r in day_requests)
+                 for c in {r["classification"] for r in day_requests}}.items())),
+            "abandoned_calls": monitor.get("abandoned_calls"),
+            "answered_calls": monitor.get("answered_calls"),
+            "average_available_agents": monitor.get("average_available_agents"),
+            "average_agents_on_shift": monitor.get("average_agents_on_shift"),
+            "min_agents_on_shift": monitor.get("min_agents_on_shift"),
+        })
+
+    def per_day(field: str) -> Optional[float]:
+        values = [row[field] for row in rows if row[field] is not None]
+        return round(sum(values) / len(values), 2) if values else None
+
+    return {
+        "start_date": start_date,
+        "end_date": end_date,
+        "working_days": len(rows),
+        "days": rows,
+        "totals": {
+            "requests": sum(row["requests"] for row in rows),
+            "transferred": sum(row["transferred"] for row in rows),
+            "abandoned_calls": sum(row["abandoned_calls"] or 0 for row in rows),
+        },
+        "per_working_day": {
+            "requests": per_day("requests"),
+            "transferred": per_day("transferred"),
+            "abandoned_calls": per_day("abandoned_calls"),
+            "average_available_agents": per_day("average_available_agents"),
+        },
+        "note": "Compare periods using per_working_day values; totals depend on how many days a period has.",
+    }
+
+
+def detect_volume_anomalies(
+    start_date: str,
+    end_date: str,
+    threshold_multiplier: float = 1.5,
+) -> Dict[str, Any]:
+    """Unusual hours on every working day in a date range (same rule as the Overview)."""
+    days = _data_working_days(start_date, end_date)
+    anomalies = []
+    for day in days:
+        result = detect_hourly_volume_anomalies(day, threshold_multiplier)
+        for anomaly in result["anomalies"]:
+            anomalies.append({"date": day, **anomaly,
+                              "day_average_hourly_volume": result["average_hourly_volume"]})
+    anomalies.sort(key=lambda a: -a["ratio_to_daily_hourly_average"])
+    return {
+        "start_date": start_date,
+        "end_date": end_date,
+        "working_days_checked": len(days),
+        "threshold_multiplier": threshold_multiplier,
+        "anomalies": anomalies,
+        "rule": "An hour is unusual when its requests are at least threshold_multiplier times "
+                "that day's average hourly volume (08:00-17:00).",
+    }
+
+
+def get_capacity_context(start_time: str, end_time: str) -> Dict[str, Any]:
+    """Demand and capacity in a window, next to the previous window and the typical day.
+
+    Use for spikes and long waits: shows whether demand rose, capacity fell, or both.
+    "Typical" is the mean of the same clock window on the other working days.
+    """
+    start, end = parse_datetime(start_time), parse_datetime(end_time)
+    if start >= end:
+        raise ValueError("start_time must be before end_time")
+    if start.date() != (end - timedelta(microseconds=1)).date():
+        raise ValueError("get_capacity_context takes a window within one day; use get_daily_series for several days.")
+
+    def snapshot_of(window_start: datetime, window_end: datetime) -> Dict[str, Any]:
+        s, e = window_start.isoformat(), window_end.isoformat()
+        monitor = get_monitor_metrics(s, e)
+        return {
+            "start_time": s,
+            "end_time": e,
+            "requests": count_requests(s, e)["request_count"],
+            "average_wait_time_minutes": get_average_wait_time(s, e)["average_wait_time_minutes"],
+            "average_agents_on_shift": monitor.get("average_agents_on_shift"),
+            "min_agents_on_shift": monitor.get("min_agents_on_shift"),
+            "average_available_agents": monitor.get("average_available_agents"),
+            "peak_agents_on_calls": monitor.get("peak_agents_on_calls"),
+            "abandoned_calls": monitor.get("abandoned_calls"),
+        }
+
+    length = end - start
+    window = snapshot_of(start, end)
+    day_open = start.replace(hour=int(WORKDAY_START[:2]), minute=0, second=0, microsecond=0)
+    previous = snapshot_of(start - length, start) if start - length >= day_open else None
+
+    others = [d for d in _data_working_days("0001-01-01", "9999-12-31") if d != start.date().isoformat()]
+    typical_rows = []
+    for day in others:
+        shift = datetime.fromisoformat(day).date() - start.date()
+        typical_rows.append(snapshot_of(start + shift, end + shift))
+
+    def mean_of(field: str) -> Optional[float]:
+        values = [row[field] for row in typical_rows if row[field] is not None]
+        return round(sum(values) / len(values), 2) if values else None
+
+    fields = ("requests", "average_wait_time_minutes", "average_agents_on_shift",
+              "average_available_agents", "abandoned_calls")
+    typical = {field: mean_of(field) for field in fields}
+    versus_typical = {
+        field: round(window[field] - typical[field], 2)
+        for field in fields if window[field] is not None and typical[field] is not None
+    }
+    return {
+        "window": window,
+        "previous_window": previous,
+        "typical_same_window": {**typical, "days": len(typical_rows)},
+        "difference_from_typical": versus_typical,
+        "reading_guide": "Demand side: requests vs typical. Capacity side: agents on shift and "
+                         "available agents vs typical. Both can contribute; neither proves a cause.",
     }

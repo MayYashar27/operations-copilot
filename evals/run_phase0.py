@@ -69,13 +69,15 @@ def tool_selection(record: Dict[str, Any], spec: Dict[str, Any]) -> List[Dict[st
 def audit_run(record: Dict[str, Any]) -> Dict[str, Any]:
     spec = RUNS.get(record["id"])
     trace = record.get("trace") or []
+    legacy = trace_checks.is_legacy(record)
     steps, full_results = [], []
     for i, step in enumerate(trace):
-        replay = trace_checks.replay_step(step)
+        replay = trace_checks.replay_step(step, legacy=legacy)
         full_results.append(replay["full_result"])
         steps.append({"index": i, "tool": step["tool"], "args": step.get("args"),
-                      "arg_issues": trace_checks.validate_args(step["tool"], step.get("args") or {}),
-                      "replay": replay["status"], "replay_detail": replay["detail"]})
+                      "arg_issues": trace_checks.validate_args(step["tool"], step.get("args") or {}, legacy=legacy),
+                      "replay": replay["status"], "replay_detail": replay["detail"],
+                      "stale_under_current_tools": trace_checks.stale_fields(step) if legacy else {}})
 
     themes = record.get("pattern_themes") or []
     question_numbers = [n["value"] for n in claims.extract_numbers(record.get("question", ""))]
@@ -95,6 +97,10 @@ def audit_run(record: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "id": record["id"], "file": record["_file"], "label": spec["label"] if spec else record["id"],
         "question": record.get("question"), "status": record.get("status"), "planted": spec and spec["planted"],
+        "tool_contract": "legacy (before 2026-10-26 fix)" if legacy else "current",
+        "stale_tool_results": [{"step": s["index"], "tool": s["tool"], "args": s["args"],
+                                "changed": s["stale_under_current_tools"]}
+                               for s in steps if s["stale_under_current_tools"]],
         "completeness": trace_checks.completeness(record),
         "steps": steps,
         "tool_selection": tool_selection(record, spec) if spec else [],
@@ -201,6 +207,7 @@ def main() -> int:
     verdicts = Counter(c["verdict"] for a in audits for c in a["targeted_claims"])
     severities = Counter(c["severity"] for a in audits for c in a["targeted_claims"] if c["verdict"] == "FAIL")
     replays = Counter(s["replay"] for a in audits for s in a["steps"])
+    stale = {a["label"]: len(a["stale_tool_results"]) for a in audits if a["stale_tool_results"]}
     arg_errors = sum(i["level"] == "error" for a in audits for s in a["steps"] for i in s["arg_issues"])
     arg_warnings = sum(i["level"] == "warning" for a in audits for s in a["steps"] for i in s["arg_issues"])
     numbers = Counter()
@@ -211,6 +218,7 @@ def main() -> int:
     print(f"Runs audited: {len(audits)} ({sum(a['status'] == 'completed' for a in audits)} completed)")
     print(f"Tool calls replayed: {sum(replays.values())}  {dict(replays)}")
     print(f"Argument errors: {arg_errors}  warnings: {arg_warnings}")
+    print(f"Saved tool results that changed under the fixed tools (runs need a new live run): {stale}")
     print(f"Numbers in answers: {dict(numbers)}")
     print(f"Targeted claim checks: {dict(verdicts)}  failures by severity: {dict(severities)}")
     print(f"Monitoring report: {report['agents_with_ai_findings']} agents with AI findings, "

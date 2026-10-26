@@ -129,18 +129,20 @@
       "question": "How many calls were abandoned on 2026-08-27?",
       "required_tools": [["get_monitor_metrics"]],
       "facts": [
-        {"name": "abandoned that day", "oracle": {"fn": "daily_monitor_totals", "args": {}, "path": "2026-08-27.abandoned_calls"}, "must_appear": true}
+        {"name": "abandoned that day (08:00-17:00)", "oracle": {"fn": "daily_abandoned_in_hours", "args": {"day": "2026-08-27"}, "path": ""}, "must_appear": true,
+         "also_accept": [{"fn": "daily_monitor_totals", "args": {}, "path": "2026-08-27.abandoned_calls"}]}
       ],
-      "expected_behaviour": "A single-day window. Note that a 08:00-17:00 window misses calls counted in the 08:00 snapshot; the full-day total is the end-of-day counter.",
+      "expected_behaviour": "A single-day window. Working hours (08:00-17:00) give one figure; the end-of-day counter also includes the 17:00-17:05 snapshot after closing. Either is acceptable if stated.",
       "root_cause_null": true
     },
     {
       "id": "S12", "category": "counting", "date_context": "2026-09-07",
       "question": "How many calls were abandoned in total between 2026-08-25 and 2026-09-07?",
-      "planted_truth": "Trap for the multi-day monitor issue: the true total is the sum of daily totals.",
+      "planted_truth": "Trap for the multi-day monitor issue fixed on 2026-10-26: 634 over the continuous window, or 628 summing 08:00-17:00 per day (the difference is the after-closing 17:00 snapshots).",
       "required_tools": [["get_monitor_metrics"]],
       "facts": [
-        {"name": "true 10-day total", "oracle": {"fn": "abandoned_calls_between", "args": {"start_time": "2026-08-25 08:00", "end_time": "2026-09-07 17:00"}, "path": ""}, "must_appear": true}
+        {"name": "true 10-day total", "oracle": {"fn": "abandoned_calls_between", "args": {"start_time": "2026-08-25 08:00", "end_time": "2026-09-07 17:00"}, "path": ""}, "must_appear": true,
+         "also_accept": [{"fn": "get_daily_series_total_abandoned", "args": {"start_date": "2026-08-25", "end_date": "2026-09-07"}, "path": ""}]}
       ],
       "must_not": [{"pattern": "\\b53\\b", "fields": ["observed_facts"], "why": "53 is the last day's counter, the saved run R8 error"}],
       "expected_behaviour": "Query each day separately and add, or state that a multi-day total cannot be read from one window.",

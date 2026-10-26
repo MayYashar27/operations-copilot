@@ -20,8 +20,12 @@ def _parse(value: Any) -> Optional[datetime]:
         return None
 
 
-def validate_args(tool: str, args: Dict[str, Any]) -> List[Dict[str, str]]:
-    """Return argument problems. level is 'error' (invalid) or 'warning' (valid but risky)."""
+def validate_args(tool: str, args: Dict[str, Any], legacy: bool = False) -> List[Dict[str, str]]:
+    """Return argument problems. level is 'error' (invalid) or 'warning' (valid but risky).
+
+    legacy=True adds the warnings that applied to the tool contract before the
+    2026-10-26 fix (multi-day monitor and bucket windows).
+    """
     issues: List[Dict[str, str]] = []
 
     def add(level: str, message: str) -> None:
@@ -54,15 +58,15 @@ def validate_args(tool: str, args: Dict[str, Any]) -> List[Dict[str, str]]:
     if "bucket_minutes" in args and int(args["bucket_minutes"]) <= 0:
         add("error", "bucket_minutes must be positive")
 
-    if tool == "get_monitor_metrics" and "start_time" in args \
+    if legacy and tool == "get_monitor_metrics" and "start_time" in args \
             and oracle.counters_reset_inside(args["start_time"], args["end_time"]):
-        add("warning", "multi-day monitor window: answered/abandoned counters are cumulative per day, "
-                       "so *_change fields are NOT totals for the window")
-    if tool == "get_requests_by_time_bucket" and "start_time" in args:
+        add("warning", "multi-day monitor window under the pre-fix contract: *_change fields were "
+                       "NOT totals for the window")
+    if legacy and tool == "get_requests_by_time_bucket" and "start_time" in args:
         s, e = _parse(args["start_time"]), _parse(args["end_time"])
         if s and e and s.date() != e.date():
-            add("warning", "multi-day bucket window: HH:MM labels repeat each day, so buckets are "
-                           "summed across days (totals, not averages)")
+            add("warning", "multi-day bucket window under the pre-fix contract: HH:MM labels merged "
+                           "all days (totals, not averages)")
     if tool == "detect_agent_performance_signals" and "start_date" in args:
         if len(oracle.working_days(args["start_date"], args["end_date"])) < 4:
             add("warning", "window has fewer than four working days; the tool can only return insufficient_data")
@@ -90,11 +94,35 @@ def _as_obj(result: Any) -> Any:
     return result
 
 
-def replay_step(step: Dict[str, Any]) -> Dict[str, Any]:
-    """Recompute one saved tool call. Returns the full result the agent actually saw."""
+def is_legacy(record: Dict[str, Any]) -> bool:
+    """Saved before the monitor/time-bucket contract fix."""
+    return str(record.get("created_at") or "")[:10] < oracle.CONTRACT_CHANGE_DATE
+
+
+def stale_fields(step: Dict[str, Any]) -> Dict[str, Any]:
+    """Fields of a legacy tool result whose value changes under the current contract."""
+    tool, args = step["tool"], step.get("args") or {}
+    if tool not in ("get_monitor_metrics", "get_requests_by_time_bucket"):
+        return {}
+    try:
+        old, new = oracle.REPLAY_LEGACY[tool](**args), oracle.REPLAY[tool](**args)
+    except Exception:
+        return {}
+    if tool == "get_requests_by_time_bucket":
+        return {} if old["request_counts"] == new["request_counts"] else {
+            "request_counts": "labels now include the date (multi-day window); counts are no longer merged"}
+    return {k: {"saved": old[k], "now": new[k]} for k in old if k in new and not _close(old[k], new[k])}
+
+
+def replay_step(step: Dict[str, Any], legacy: bool = False) -> Dict[str, Any]:
+    """Recompute one saved tool call. Returns the full result the agent actually saw.
+
+    legacy=True replays against the tool contract that was in force before the
+    2026-10-26 fix, which is what produced runs saved before that date.
+    """
     tool, args = step["tool"], step.get("args") or {}
     try:
-        expected = oracle.REPLAY[tool](**args)
+        expected = (oracle.REPLAY_LEGACY if legacy else oracle.REPLAY)[tool](**args)
     except Exception as exc:  # the real tool would also have raised
         return {"status": "tool_error_expected", "detail": f"{type(exc).__name__}: {exc}", "full_result": None}
 

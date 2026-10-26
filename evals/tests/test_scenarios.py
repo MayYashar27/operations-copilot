@@ -25,8 +25,9 @@ def test_scenario_references_are_valid(scenario):
     for group in scenario.get("required_tools", []):
         assert all(tool in oracle.REPLAY for tool in group), group
     for fact in scenario.get("facts", []):
-        value = resolve(fact["oracle"])
-        assert isinstance(value, (int, float)) and not isinstance(value, bool), (fact, value)
+        for spec in [fact["oracle"]] + fact.get("also_accept", []):
+            value = resolve(spec)
+            assert isinstance(value, (int, float)) and not isinstance(value, bool), (fact, value)
 
 
 def saved(name):
