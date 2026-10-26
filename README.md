@@ -245,7 +245,7 @@ flowchart TD
 | Server restart during a run | On startup, any record still `running` is marked `failed` ("Interrupted"). |
 | Duplicate submissions | The button locks while a run is active, and the server allows one run at a time (HTTP 409 otherwise). |
 | Hallucinated evidence | The agent investigation and the documentation review both reject results that cite request IDs not present in the evidence, or a different agent or date. |
-| Large tool results | Saved traces keep up to 16,000 characters per result; the agent itself always receives the full result. |
+| Large tool results | Saved traces keep up to 16,000 characters per result; the agent itself always receives the full result. The three committed examples were saved under an earlier 4,000-character limit, so their request-detail results are shortened in the trace. |
 | Missing or corrupt saved files | The API returns clear 404, 500 or 503 responses without file paths; a corrupt history file is skipped. |
 
 ### Deterministic code vs LLM reasoning
