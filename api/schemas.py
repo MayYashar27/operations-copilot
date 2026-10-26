@@ -262,6 +262,26 @@ class TraceStep(BaseModel):
     result_truncated: bool = False
 
 
+class PlannedCall(BaseModel):
+    tool: str
+    args: Dict[str, Any]
+
+
+class EvidencePlan(BaseModel):
+    """What the deterministic planner recognised and collected before Claude started."""
+    scope: Dict[str, Any] = {}
+    intents: List[str] = []
+    reasons: List[str] = []
+    executed: List[PlannedCall] = []
+
+
+class AnswerCheck(BaseModel):
+    """A non-blocking warning about the finished answer."""
+    kind: str
+    message: str
+    excerpt: str = ""
+
+
 class PatternTheme(BaseModel):
     theme: str
     request_ids: List[int]
@@ -295,6 +315,11 @@ class InvestigationRecord(BaseModel):
     prompt_context: Optional[str] = None
     trace: List[TraceStep] = []
     error: Optional[InvestigationError] = None
+    # Evidence the workflow collected before Claude started (evidence_planner.py).
+    # None on records created before pre-fetching existed.
+    evidence_plan: Optional[EvidencePlan] = None
+    # Non-blocking warnings from answer_checks.py. None on older records.
+    answer_checks: Optional[List[AnswerCheck]] = None
 
 
 class InvestigationSummary(BaseModel):

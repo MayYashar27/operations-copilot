@@ -9,7 +9,7 @@ import { RequestChips } from '../../components/ui/RequestChip'
 import { formatDateShort, formatDateTime, formatDuration } from '../../lib/format'
 import { toolLabel } from '../../lib/signals'
 import { InvestigationBody } from '../agents/AgentSections'
-import { Derivation, RecordViews, RunMetadata } from './RecordViews'
+import { AnswerChecks, Derivation, EvidencePlanPanel, RecordViews, RunMetadata } from './RecordViews'
 
 /** One investigation as a conversation: the question, then Copilot's answer. */
 export function InvestigationView({ record, onReuse }: { record: InvestigationRecord; onReuse: (question: string) => void }) {
@@ -318,9 +318,11 @@ function TechnicalTab({ record }: { record: InvestigationRecord }) {
   return (
     <div className="space-y-3">
       {record.kind === 'question' && <Derivation record={record} />}
+      {record.kind === 'question' && <AnswerChecks record={record} />}
       {record.kind === 'agent'
         ? <InvestigationBody investigation={record.result as AgentInvestigation} />
         : <QuestionAnswer result={record.result as QuestionResult} themes={record.pattern_themes} />}
+      {record.kind === 'question' && <EvidencePlanPanel record={record} />}
       <Trace steps={record.trace} defaultOpen />
       {record.narrative && <Narrative text={record.narrative} />}
       <RunMetadata record={record} />

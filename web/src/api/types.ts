@@ -251,4 +251,21 @@ export interface InvestigationRecord extends InvestigationSummary {
   prompt_context: string | null
   trace: TraceStep[]
   error: { type: string; message: string } | null
+  /** Evidence the workflow collected before Claude started (null on older records). */
+  evidence_plan?: EvidencePlan | null
+  /** Non-blocking warnings about the finished answer (null on older records). */
+  answer_checks?: AnswerCheck[] | null
+}
+
+export interface EvidencePlan {
+  scope: Record<string, unknown>
+  intents: string[]
+  reasons: string[]
+  executed: { tool: string; args: Record<string, unknown> }[]
+}
+
+export interface AnswerCheck {
+  kind: 'unverified_number' | 'unknown_identifier' | 'scope_wording' | 'unequal_periods' | 'confirmed_root_cause' | string
+  message: string
+  excerpt: string
 }

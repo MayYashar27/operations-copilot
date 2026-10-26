@@ -1267,7 +1267,7 @@ def get_agent_comparison(start_date: str, end_date: str) -> Dict[str, Any]:
 # Day-level views: fair comparisons, incident discovery, capacity
 # ---------------------------------------------------------
 
-def _data_working_days(start_date: str, end_date: str) -> List[str]:
+def list_working_days(start_date: str, end_date: str) -> List[str]:
     """Dates between start_date and end_date (inclusive) that have any requests."""
     start = datetime.fromisoformat(start_date).date().isoformat()
     end = datetime.fromisoformat(end_date).date().isoformat()
@@ -1281,7 +1281,7 @@ def get_daily_series(start_date: str, end_date: str) -> Dict[str, Any]:
     """
     if datetime.fromisoformat(start_date) > datetime.fromisoformat(end_date):
         raise ValueError("start_date must be on or before end_date")
-    days = _data_working_days(start_date, end_date)
+    days = list_working_days(start_date, end_date)
     requests = load_requests()
     rows = []
     for day in days:
@@ -1336,7 +1336,7 @@ def detect_volume_anomalies(
     threshold_multiplier: float = 1.5,
 ) -> Dict[str, Any]:
     """Unusual hours on every working day in a date range (same rule as the Overview)."""
-    days = _data_working_days(start_date, end_date)
+    days = list_working_days(start_date, end_date)
     anomalies = []
     for day in days:
         result = detect_hourly_volume_anomalies(day, threshold_multiplier)
@@ -1387,7 +1387,7 @@ def get_capacity_context(start_time: str, end_time: str) -> Dict[str, Any]:
     day_open = start.replace(hour=int(WORKDAY_START[:2]), minute=0, second=0, microsecond=0)
     previous = snapshot_of(start - length, start) if start - length >= day_open else None
 
-    others = [d for d in _data_working_days("0001-01-01", "9999-12-31") if d != start.date().isoformat()]
+    others = [d for d in list_working_days("0001-01-01", "9999-12-31") if d != start.date().isoformat()]
     typical_rows = []
     for day in others:
         shift = datetime.fromisoformat(day).date() - start.date()

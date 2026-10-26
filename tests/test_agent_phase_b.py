@@ -98,7 +98,10 @@ def test_graph_runs_a_multi_day_review_with_the_new_tools(monkeypatch):
     monkeypatch.setattr(langgraph_agent, "model_with_tools", model)
     monkeypatch.setattr(langgraph_agent, "final_investigation_model", FixedResult())
 
-    outcome = langgraph_question_runner("What were the warning signs over the last 10 working days?")
+    # A question no pre-fetch rule matches, so only the model's own calls appear
+    # (pre-fetching is tested in test_agent_phase_c.py).
+    outcome = langgraph_question_runner("Summarise what the data shows.")
+    assert outcome["evidence_plan"]["executed"] == []
 
     assert [s["tool"] for s in outcome["trace"]] == [
         "get_daily_series", "detect_volume_anomalies", "get_capacity_context", "get_capacity_context"]

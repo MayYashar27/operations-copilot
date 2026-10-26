@@ -85,6 +85,15 @@ def _close(a: Any, b: Any, tol: float = 0.011) -> bool:
     return a == b
 
 
+def _covers(saved: Any, expected: Any, tol: float = 0.011) -> bool:
+    """Every value in a saved result matches; fields added to a tool later are ignored."""
+    if isinstance(saved, dict) and isinstance(expected, dict):
+        return all(k in expected and _covers(v, expected[k], tol) for k, v in saved.items())
+    if isinstance(saved, list) and isinstance(expected, list):
+        return len(saved) == len(expected) and all(_covers(x, y, tol) for x, y in zip(saved, expected))
+    return _close(saved, expected, tol)
+
+
 def _as_obj(result: Any) -> Any:
     if isinstance(result, str):
         try:
@@ -135,7 +144,7 @@ def replay_step(step: Dict[str, Any], legacy: bool = False) -> Dict[str, Any]:
         return {"status": "unverifiable", "detail": "saved result is not structured", "full_result": expected}
 
     shared = [k for k in saved if k in expected]
-    differing = [k for k in shared if not _close(saved[k], expected[k])]
+    differing = [k for k in shared if not _covers(saved[k], expected[k])]
     if differing:
         return {"status": "mismatch", "detail": f"fields differ from independent recomputation: {differing}",
                 "full_result": saved}

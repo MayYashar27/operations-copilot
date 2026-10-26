@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.tools import tool
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -34,8 +34,12 @@ from tools import (
     detect_volume_anomalies as detect_volume_anomalies_original,
     get_capacity_context as get_capacity_context_original,
     validate_agent_id,
+    known_agent_ids,
+    list_working_days,
     load_requests,
 )
+import answer_checks
+import evidence_planner
 
 
 load_dotenv()
@@ -238,6 +242,8 @@ class AgentState(MessagesState):
     pattern_analysis: Optional[PatternAnalysisResult]
     analyzed_request_ids: Optional[List[int]]
     investigation_result: Optional[InvestigationResult]
+    evidence_plan: Optional[Dict[str, Any]]           # deterministic pre-fetch (evidence_planner.py)
+    answer_checks: Optional[List[Dict[str, str]]]     # non-blocking warnings (answer_checks.py)
 
 class AgentInvestigationState(TypedDict):
     agent_id: str
@@ -1346,6 +1352,90 @@ def final_investigation_node(state: AgentState) -> dict:
         "investigation_result": response
     }
 
+def _prefetch_messages(calls: List[Dict[str, Any]], prefix: str, reason: str) -> List[Any]:
+    """Run planned tool calls and record them like tool calls Claude made."""
+    ids = [f"{prefix}_{i}" for i in range(len(calls))]
+    messages: List[Any] = [AIMessage(
+        content=f"Evidence collected automatically by the workflow before the investigation "
+                f"(deterministic, not chosen by Claude): {reason}",
+        tool_calls=[{"name": c["tool"], "args": c["args"], "id": i, "type": "tool_call"}
+                    for c, i in zip(calls, ids)],
+    )]
+    for c, call_id in zip(calls, ids):
+        try:
+            result = TOOL_MAP[c["tool"]].invoke(c["args"])
+            messages.append(ToolMessage(content=json.dumps(result, ensure_ascii=False, default=str),
+                                        tool_call_id=call_id, name=c["tool"]))
+        except Exception as exc:
+            messages.append(ToolMessage(content=json.dumps({"error": str(exc), "tool": c["tool"]}),
+                                        tool_call_id=call_id, name=c["tool"], status="error"))
+    return messages
+
+
+def plan_evidence_node(state: AgentState) -> dict:
+    """Collect evidence the question needs before Claude starts (no AI).
+
+    evidence_planner.plan reads the question's scope and intents. If unusual
+    hours are found, each gets its demand and staffing context. Claude then
+    continues as usual and can call any other tool.
+    """
+    print("\nNODE: Plan evidence")
+    question = next((m.content for m in state["messages"] if isinstance(m, HumanMessage)), "")
+    evidence_plan = evidence_planner.plan(_text_content(question), list_working_days("0001-01-01", "9999-12-31"))
+    if not evidence_plan["calls"]:
+        return {"evidence_plan": {**evidence_plan, "executed": []}}
+
+    messages = _prefetch_messages(evidence_plan["calls"], "prefetch", " ".join(evidence_plan["reasons"]))
+    executed = list(evidence_plan["calls"])
+    if evidence_plan["drill_into_anomalies"]:
+        anomalies = next((json.loads(m.content) for m in messages
+                          if isinstance(m, ToolMessage) and m.name == "detect_volume_anomalies"
+                          and m.status != "error"), None)
+        planned = {json.dumps(c, sort_keys=True) for c in executed}
+        drill = [c for c in evidence_planner.drill_down_calls(anomalies)
+                 if json.dumps(c, sort_keys=True) not in planned]
+        if drill:
+            messages += _prefetch_messages(drill, "prefetch_drill",
+                                           "demand and staffing context for each unusual hour found.")
+            executed += drill
+    print(f"PRE-FETCHED: {[c['tool'] for c in executed]}")
+    return {"messages": messages, "evidence_plan": {**evidence_plan, "executed": executed}}
+
+
+def _text_content(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(b.get("text", "") for b in content if isinstance(b, dict))
+    return ""
+
+
+def check_answer_node(state: AgentState) -> dict:
+    """Non-blocking deterministic checks on the finished answer (answer_checks.py)."""
+    print("\nNODE: Check answer")
+    calls: Dict[str, Dict[str, Any]] = {}
+    for message in state["messages"]:
+        for call in getattr(message, "tool_calls", None) or []:
+            calls[call["id"]] = {"tool": call["name"], "args": call.get("args", {}), "result": None}
+        if isinstance(message, ToolMessage) and message.tool_call_id in calls:
+            try:
+                calls[message.tool_call_id]["result"] = json.loads(_text_content(message.content))
+            except ValueError:
+                pass
+    question = next((m.content for m in state["messages"] if isinstance(m, HumanMessage)), "")
+    final_ai = [m for m in state["messages"] if isinstance(m, AIMessage) and not m.tool_calls]
+    result = state.get("investigation_result")
+    warnings = answer_checks.check_answer(
+        result.model_dump() if result is not None else None,
+        _text_content(final_ai[-1].content) if final_ai else None,
+        list(calls.values()),
+        question=_text_content(question),
+        known_agents=known_agent_ids(),
+    )
+    print(f"ANSWER CHECKS: {len(warnings)} warning(s)")
+    return {"answer_checks": warnings}
+
+
 def route_after_tools(state: AgentState) -> str:
     """
     Run pattern analysis when the current request set
@@ -1538,7 +1628,11 @@ graph_builder.add_node(
     final_investigation_node,
 )
 
-graph_builder.add_edge(START, "claude")
+graph_builder.add_node("plan_evidence", plan_evidence_node)
+graph_builder.add_node("check_answer", check_answer_node)
+
+graph_builder.add_edge(START, "plan_evidence")
+graph_builder.add_edge("plan_evidence", "claude")
 
 graph_builder.add_conditional_edges(
     "claude",
@@ -1565,8 +1659,10 @@ graph_builder.add_edge(
 
 graph_builder.add_edge(
     "final_investigation",
-    END,
+    "check_answer",
 )
+
+graph_builder.add_edge("check_answer", END)
 
 graph = graph_builder.compile()
 

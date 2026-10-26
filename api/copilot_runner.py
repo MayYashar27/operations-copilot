@@ -128,6 +128,8 @@ def langgraph_question_runner(question: str, graph: Any = None) -> Dict[str, Any
         "trace": trace,
         "date_range": _date_range(trace),
         "model": getattr(langgraph_agent.model, "model", None),
+        "evidence_plan": state.get("evidence_plan"),
+        "answer_checks": state.get("answer_checks") or [],
     }
 
 
