@@ -135,10 +135,18 @@ def increments() -> Dict[str, Dict[str, int]]:
     return out
 
 
-def get_monitor_metrics(start_time, end_time):
-    """Half-open window start <= timestamp < end; each snapshot covers [t, t+5 min)."""
+def _working_hours(t: datetime) -> bool:
+    return 8 <= t.hour < 17  # operating day 08:00-17:00; the 17:00 snapshot covers 17:00-17:05
+
+
+def get_monitor_metrics(start_time, end_time, include_after_hours=False):
+    """Half-open window start <= timestamp < end; each snapshot covers [t, t+5 min).
+
+    Working hours only unless include_after_hours.
+    """
     start, end = _dt(start_time), _dt(end_time)
-    rows = [s for s in snapshots() if start <= s["_t"] < end]
+    rows = [s for s in snapshots() if start <= s["_t"] < end
+            and (include_after_hours or _working_hours(s["_t"]))]
     if not rows:
         return {"start_time": start_time, "end_time": end_time, "snapshot_count": 0,
                 "message": "No monitor data found for this period."}
@@ -465,15 +473,16 @@ def daily_monitor_totals() -> Dict[str, Dict[str, int]]:
     return totals
 
 
-def abandoned_calls_between(start_time: str, end_time: str) -> int:
+def abandoned_calls_between(start_time: str, end_time: str, include_after_hours: bool = False) -> int:
     """True abandoned calls in start <= t < end: the sum of each snapshot interval's calls.
 
-    Note the generator's 17:00 snapshot covers 17:00-17:05, after closing, so a
-    continuous multi-day window includes it while 08:00-17:00 day windows do not.
+    Working hours only by default: the generator's 17:00 snapshot covers
+    17:00-17:05, after closing.
     """
     start, end = _dt(start_time), _dt(end_time)
     inc = increments()
-    return sum(inc[s["timestamp"]]["abandoned"] for s in snapshots() if start <= s["_t"] < end)
+    return sum(inc[s["timestamp"]]["abandoned"] for s in snapshots()
+               if start <= s["_t"] < end and (include_after_hours or _working_hours(s["_t"])))
 
 
 def counters_reset_inside(start_time: str, end_time: str) -> bool:

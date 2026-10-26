@@ -27,6 +27,11 @@ MONITOR_INTERVAL_RULE = (
     "at its timestamp. Call counts are summed per day (counters reset daily)."
 )
 
+# The operating day is 08:00-17:00: all requests fall inside it and every
+# shift ends at 17:00. The 17:00 snapshot covers 17:00-17:05, after closing,
+# so operational figures exclude it unless after-hours data is asked for.
+WORKING_HOURS_WINDOW = f"working hours {WORKDAY_START[:5]}-{WORKDAY_END[:5]} each day"
+
 # Loads data from a JSON file and converts it into Python objects.
 
 def load_json_file(file_path: Path) -> List[Dict[str, Any]]:
@@ -205,32 +210,48 @@ def _monitor_summary(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
+def _in_working_hours(timestamp: str) -> bool:
+    return WORKDAY_START <= timestamp[11:19] < WORKDAY_END
+
+
 # Summarizes operational monitor metrics for a specific time range.
 def get_monitor_metrics(
     start_time: str,
-    end_time: str
+    end_time: str,
+    include_after_hours: bool = False,
 ) -> Dict[str, Any]:
     """Return operational monitor data for start_time <= t < end_time.
 
     Works for any window, including several days: calls are summed per day.
+    By default only working hours (08:00-17:00) count; snapshots outside them
+    are reported as excluded, or included when include_after_hours is True.
     """
 
     start = parse_datetime(start_time)
     end = parse_datetime(end_time)
 
-    matching_snapshots = [
+    in_window = [
         snapshot
         for snapshot in monitor_snapshots_with_increments()
         if start <= parse_datetime(snapshot["timestamp"]) < end
     ]
+    matching_snapshots = (
+        in_window if include_after_hours
+        else [s for s in in_window if _in_working_hours(s["timestamp"])]
+    )
+    excluded = len(in_window) - len(matching_snapshots)
+    applied = "all snapshots, including after hours" if include_after_hours else WORKING_HOURS_WINDOW
 
     if not matching_snapshots:
-        return {
+        result = {
             "start_time": start_time,
             "end_time": end_time,
             "snapshot_count": 0,
             "message": "No monitor data found for this period."
         }
+        if excluded:
+            result.update({"time_window_applied": applied, "after_hours_snapshots_excluded": excluded})
+        return result
 
     summary = _monitor_summary(matching_snapshots)
     by_day: Dict[str, List[Dict[str, Any]]] = {}
@@ -245,6 +266,8 @@ def get_monitor_metrics(
         "answered_calls_change": summary["answered_calls"],
         "abandoned_calls_change": summary["abandoned_calls"],
         "working_days": len(by_day),
+        "time_window_applied": applied,
+        "after_hours_snapshots_excluded": excluded,
         "interval_rule": MONITOR_INTERVAL_RULE,
     }
     if len(by_day) > 1:

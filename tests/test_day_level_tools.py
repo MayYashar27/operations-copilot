@@ -9,6 +9,12 @@ STARTING at its timestamp (an incident is applied to the snapshots whose hour
 is the incident hour); answered/abandoned are cumulative within a day and
 start from zero each morning. A window therefore counts the snapshots with
 start <= timestamp < end.
+
+Operating schedule, verified against the generator (WORK_START_HOUR = 8,
+WORK_END_HOUR = 17) and the data: every request falls between 08:00 and
+17:00 and every shift ends at 17:00. The 17:00 snapshot covers 17:00-17:05,
+after closing, so operational figures use working hours only, unless
+after-hours data is explicitly requested.
 """
 
 import json
@@ -39,10 +45,15 @@ def _increments():
 INC = _increments()
 
 
-def raw(start, end):
+def in_hours(timestamp):
+    return "08:00:00" <= timestamp[11:19] < "17:00:00"
+
+
+def raw(start, end, after_hours=False):
     """Expected monitor figures for start <= t < end, from the raw snapshots."""
     s, e = datetime.fromisoformat(start), datetime.fromisoformat(end)
-    rows = [x for x in SNAPSHOTS if s <= datetime.fromisoformat(x["timestamp"]) < e]
+    rows = [x for x in SNAPSHOTS if s <= datetime.fromisoformat(x["timestamp"]) < e
+            and (after_hours or in_hours(x["timestamp"]))]
     return {
         "snapshot_count": len(rows),
         "answered_calls": sum(INC[x["timestamp"]][0] for x in rows),
@@ -78,27 +89,70 @@ def test_every_working_day_matches_raw_snapshots(day):
     assert hours == tools.get_monitor_metrics(f"{day}T08:00:00", f"{day}T17:00:00")["abandoned_calls"]
 
 
+def daily_window_sum(field, days):
+    return sum(tools.get_monitor_metrics(f"{d}T08:00:00", f"{d}T17:00:00")[field] for d in days)
+
+
 def test_multi_day_total_is_the_sum_of_days_not_the_last_days_counter():
     """Regression (audit R8-2): the old tool returned 53 for ten days."""
     result = tools.get_monitor_metrics("2026-08-25 08:00", "2026-09-07 17:00")
-    assert result["abandoned_calls"] == raw("2026-08-25 08:00", "2026-09-07 17:00")["abandoned_calls"] == 634
+    assert result["abandoned_calls"] == raw("2026-08-25 08:00", "2026-09-07 17:00")["abandoned_calls"] == 628
     assert result["working_days"] == 10
     assert sum(d["abandoned_calls"] for d in result["per_day"]) == result["abandoned_calls"]
     assert result["abandoned_calls"] != SNAPSHOTS[-1]["abandoned_calls"]
 
 
-def test_week_windows_are_real_totals():
-    """Regression (audit R8-3): the old tool returned 63 and 52."""
-    assert tools.get_monitor_metrics("2026-08-25 08:00", "2026-09-01 17:00")["abandoned_calls"] == 416
-    assert tools.get_monitor_metrics("2026-09-02 08:00", "2026-09-07 17:00")["abandoned_calls"] == 217
+@pytest.mark.parametrize("start, end, days", [
+    ("2026-08-25 08:00", "2026-09-07 17:00", DAYS),
+    ("2026-08-25 08:00", "2026-09-01 17:00", DAYS[:6]),   # audit R8-3 'week 1' (the old tool said 63)
+    ("2026-09-02 08:00", "2026-09-07 17:00", DAYS[6:]),   # audit R8-3 'week 2' (the old tool said 52)
+    ("2026-08-24 00:00", "2026-09-08 00:00", DAYS),       # midnight to midnight, weekends included
+])
+def test_multi_day_totals_equal_the_sum_of_daily_operational_windows(start, end, days):
+    result = tools.get_monitor_metrics(start, end)
+    for field in ("abandoned_calls", "answered_calls"):
+        assert result[field] == daily_window_sum(field, days), field
+    assert result["time_window_applied"] == "working hours 08:00-17:00 each day"
+
+
+def test_daily_series_and_monitor_totals_agree():
+    series = tools.get_daily_series("2026-08-25", "2026-09-07")
+    assert series["totals"]["abandoned_calls"] == tools.get_monitor_metrics(
+        "2026-08-25 08:00", "2026-09-07 17:00")["abandoned_calls"]
+
+
+def test_after_hours_snapshots_are_excluded_visibly_not_silently():
+    result = tools.get_monitor_metrics("2026-08-25 08:00", "2026-09-07 17:00")
+    assert result["after_hours_snapshots_excluded"] == 9   # the 17:00 snapshots of the first nine days
+    explicit = tools.get_monitor_metrics("2026-08-25 08:00", "2026-09-07 17:00", include_after_hours=True)
+    assert explicit["abandoned_calls"] == raw("2026-08-25 08:00", "2026-09-07 17:00", after_hours=True)["abandoned_calls"] == 634
+    assert explicit["after_hours_snapshots_excluded"] == 0
+    assert explicit["time_window_applied"] == "all snapshots, including after hours"
+
+
+def test_after_hours_only_window_says_what_was_excluded():
+    result = tools.get_monitor_metrics("2026-08-25T17:00:00", "2026-08-25T18:00:00")
+    assert result["snapshot_count"] == 0 and result["after_hours_snapshots_excluded"] == 1
+    assert tools.get_monitor_metrics("2026-08-25T17:00:00", "2026-08-25T18:00:00",
+                                     include_after_hours=True)["snapshot_count"] == 1
+
+
+def test_working_day_windows_exclude_no_in_hours_activity():
+    """The schedule check behind clipping: requests and shifts all fall inside 08:00-17:00."""
+    assert all("08:00:00" <= r["request_time"][11:19] < "17:00:00" for r in REQUESTS)
+    shifts = json.loads((DATA / "agent_shifts.json").read_text())
+    assert all(s["shift_end"].endswith("17:00:00") and s["shift_start"][11:] >= "08:00:00" for s in shifts)
+    for day in DAYS:  # a full-day window drops only the 17:00 closing snapshot
+        assert tools.get_monitor_metrics(f"{day}T00:00:00", f"{day}T23:59:59")["after_hours_snapshots_excluded"] == 1
 
 
 def test_midnight_crossing_window():
     assert_matches_raw("2026-08-25T16:00:00", "2026-08-26T09:00:00")
     result = tools.get_monitor_metrics("2026-08-25T16:00:00", "2026-08-26T09:00:00")
     assert [d["date"] for d in result["per_day"]] == ["2026-08-25", "2026-08-26"]
-    # 25 Aug 16:00 to 17:05 (the 17:00 snapshot covers 17:00-17:05) plus 26 Aug from opening
-    assert result["snapshot_count"] == 13 + 12
+    # 25 Aug 16:00-16:55 plus 26 Aug 08:00-08:55; the 17:00 closing snapshot is excluded and reported
+    assert result["snapshot_count"] == 12 + 12
+    assert result["after_hours_snapshots_excluded"] == 1
 
 
 def test_window_end_is_exclusive_and_start_inclusive():
