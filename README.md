@@ -15,6 +15,7 @@ deterministic data tools and separates facts from hypotheses.
 ## Contents
 
 - [The problem](#the-problem)
+- [Why it matters](#why-it-matters)
 - [What it does](#what-it-does)
 - [Architecture](#architecture)
 - [Technology stack](#technology-stack)
@@ -44,6 +45,22 @@ Dashboards answer the first question but not the "why". A general chatbot can an
 "why", but it may invent numbers. This project combines the two: **deterministic code
 computes every number**, an **LLM agent decides which numbers to look at and interprets
 them**, and every claim is traceable to the tool call that produced it.
+
+## Why it matters
+
+- **From "what" to "why" in one place.** A manager can ask a question in plain language and get
+  an investigation built on the underlying records, instead of a dashboard to interpret alone.
+- **Checkable numbers.** Calculations are done by deterministic, unit-tested tools, and the agent
+  is instructed to base every figure on their results. The saved trace shows each tool call and
+  its output, so any number in an answer can be checked against its source.
+- **Evidence before conclusions.** Answers are structured to separate observed facts from
+  hypotheses and to name the missing evidence; the root-cause field stays empty unless the
+  evidence directly confirms one.
+- **Fair attention to people.** Performance screening uses fixed, explainable rules and links
+  every finding to the requests behind it. Results are prompts for a manager's review, not
+  ratings, and the AI cannot escalate anyone on its own.
+- **Auditable and safe to share.** Every investigation keeps a full trace of tool calls, and
+  demo mode lets anyone explore the results without an API key or any AI cost.
 
 ## What it does
 
@@ -216,6 +233,8 @@ flowchart TD
    result. The UI polls until the run finishes. The Manager view is built from this saved
    record by deterministic code; the Technical view shows all of it.
 
+![Technical details view: how the Manager view was derived from the saved record](docs/screenshots/copilot-technical.png)
+
 ### Error handling and edge cases
 
 | Case | Behaviour |
@@ -267,23 +286,38 @@ destinations, daily trends, and documentation statistics (missing notes, notes u
 words, identical repeated notes).
 
 **Rule-based signals** (`detect_agent_performance_signals`, `evaluate_agent_investigation_triggers`).
-The lookback window is split into earlier and later halves of working days:
+The lookback window's working days are split into an earlier and a later half:
 
-- Transfer rate at least 15 points above peers in the later period.
-- Transfer rate rising by at least 15 points between periods.
-- Average handling time changing by 20% or more, and faster handling combined with more transfers.
-- Many short notes (at least 40% of five or more requests under six words), or two or more missing notes.
-- Transfers concentrated on one destination (at least 75% of four or more transfers).
-- Fewer than four working days gives `insufficient_data`.
+- Transfer rate at least 15 points above peers in the later period (both the representative and
+  the peers need at least 20 requests in that period).
+- Transfer rate rising by at least 15 points between periods, and average handling time changing
+  by 20% or more in either direction. Both rules need at least 20 requests in each period;
+  a 20% drop in handling time together with a 15-point rise in transfers is a separate signal.
+- Many short notes on the screened day: at least five requests, at least three notes under six
+  words, and at least 40% of the day's notes under six words. Two or more missing notes is a
+  separate signal.
+- Transfers concentrated on one destination on the screened day: at least four transfers, with
+  one destination receiving at least three of them and at least 75%.
+- With fewer than four scheduled working days in the lookback, the trend signals above are
+  skipped (the performance check reports `insufficient_data`); the day's documentation and
+  transfer checks still run. The representative's overall status is `insufficient_data` only
+  when they handled no requests on the screened day.
 
 **AI documentation review** (`analyze_agent_documentation`): Claude reads every note from
 the day and reports documentation gaps with supporting request IDs. Its prompt says that
 short or repeated notes are not problems by themselves. A finding citing an unknown request
 ID is rejected.
 
-**Escalation is deterministic.** Only specific combinations of rule-based signals produce the
-status `investigation`, which triggers a deep investigation. An AI observation alone cannot
-escalate a representative.
+**Escalation is deterministic.** Only these combinations of rule-based signals produce the
+status `investigation`, which triggers a deep investigation:
+
+- faster handling combined with more transfers;
+- a rising transfer rate together with a high rate versus peers, many short notes, or missing notes;
+- many short notes when at least 70% of the day's notes are short, or when notes are also missing;
+- concentrated transfers together with a rising transfer rate or a high rate versus peers.
+
+Any other signal, including an AI documentation observation, gives `findings`; no signal at all
+gives `screened`. An AI observation alone cannot escalate a representative.
 
 **Deep investigation** (`agent_investigation_graph`): a deterministic node collects
 performance, daily trends and every request of the day, then one structured Claude call returns
@@ -294,6 +328,10 @@ request IDs are validated against the evidence.
 **In the UI**, each representative has a **Manager view** that groups overlapping findings into
 two to four themes, shows measured facts first, and links every finding to the requests behind
 it, plus a **Technical details** view with the complete saved record and how the summary was derived.
+
+| Agents directory and team comparison | Representative profile |
+|---|---|
+| ![Agents directory](docs/screenshots/agents.png) | ![Agent profile](docs/screenshots/agent-detail.png) |
 
 **Current scope and limits.** The committed report covers one day (2026-09-07, 15
 representatives: 2 recommended for a deep review, 13 with findings). Thresholds are exploratory
