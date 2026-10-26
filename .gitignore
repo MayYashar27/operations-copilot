@@ -1,21 +1,32 @@
-# Secrets
+# Secrets: never commit real credentials
 .env
+.env.*
+!.env.example
 
 # Python
 .venv/
+venv/
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Frontend
 node_modules/
 web/dist/
 
-# Visual Studio workspace files
+# Editors and OS files
 .vs/
+.vscode/
+.idea/
 slnx.sqlite
 ProjectSettings.json
 VSWorkspaceState.json
 operations-agent/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
 
 # Local report backups made by scripts/generate_report.py
 reports/backups/
