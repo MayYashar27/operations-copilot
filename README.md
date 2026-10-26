@@ -121,6 +121,9 @@ code. Only an explicit action in live mode starts a paid AI run.
 | `scripts/` | `generate_report.py` (daily screening report, paid) and `generate_examples.py` (demo investigations, paid). |
 | `generate_demo_data.py` | Generates the synthetic dataset. Seeded, so it reproduces the committed data byte-for-byte. |
 | `app.py` | The original Streamlit prototype, superseded by `web/`. Kept for reference; it runs the agent but does not render structured results. |
+| `agent.py` | The original agent prototype, retained for reference: a hand-written tool-use loop on the Anthropic SDK (up to 5 steps) over three early tools. Those tools were later replaced in `tools.py`, so this file no longer runs as-is; the current agent is `langgraph_agent.py`. |
+| `app_old.py` | An early script that called the tools directly and printed their output for the 25 Aug spike. Retained for reference. |
+| `data backup/`, `data/*_old.json`, `data/monitor.json` | Earlier versions of the synthetic dataset, retained for reference. The application reads only `requests.json`, `monitor_snapshots.json` and `agent_shifts.json`. |
 
 ---
 
@@ -451,6 +454,9 @@ fake, which lets them reproduce exact agent behaviour, including the invented-ID
 ├── tools.py                  # deterministic data tools (no AI)
 ├── generate_demo_data.py     # seeded synthetic data generator
 ├── app.py                    # original Streamlit prototype (superseded by web/)
+├── agent.py                  # original agent prototype: Anthropic SDK tool loop (reference only)
+├── app_old.py                # early tool-testing script (reference only)
+├── data backup/              # earlier versions of the synthetic data (reference only)
 ├── api/
 │   ├── main.py               # FastAPI app and read-only endpoints
 │   ├── service.py            # builds responses from saved reports + tools
@@ -466,7 +472,7 @@ fake, which lets them reproduce exact agent behaviour, including the invented-ID
 │   ├── features/agents/      # Agents directory, profiles, managerSummary.ts
 │   ├── features/copilot/     # Ask Copilot, history, copilotSummary.ts
 │   └── components/           # layout, charts, shared UI
-├── data/                     # synthetic requests, monitor snapshots, shifts
+├── data/                     # synthetic requests, monitor snapshots, shifts (+ older *_old.json versions)
 ├── reports/                  # saved daily screening report (AI output)
 ├── investigations/examples/  # saved example investigations (AI output)
 ├── scripts/                  # paid generation scripts
@@ -495,8 +501,12 @@ fake, which lets them reproduce exact agent behaviour, including the invented-ID
 ## Background
 
 This project is inspired by my experience managing a large-scale military reserve service
-center with more than 100 representatives. To keep it shareable, it models a generic
-customer-support desk with synthetic data. No real organizational, operational or personal
-information from that role is included.
+center with more than 100 representatives. Running a team of that size meant handling sudden
+surges in demand, keeping answers consistent across representatives, monitoring performance,
+and deciding quickly where to intervene. Those are the questions this tool is built to answer.
+
+To keep the project shareable, it models a generic customer-support desk with synthetic data.
+It contains no real names, units, locations, procedures, systems, schedules or records from that
+role, and no confidential or operationally restricted information.
 
 Built by May Yashar.

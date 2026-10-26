@@ -126,7 +126,11 @@ Investigate what happened and explain the likely cause."* (saved as an example).
 
 ### How the project evolved
 
-- **v1:** a hand-rolled tool-use loop with the Anthropic SDK (removed; in git history).
+- **v1 (`agent.py`, retained for reference):** a hand-written tool-use loop on the Anthropic SDK,
+  capped at 5 steps, over three early tools. It shows the mechanics LangGraph later took over:
+  call the model, run each `tool_use` block, send back `tool_result`s, repeat. Its tools were
+  replaced as `tools.py` grew, so it no longer runs as-is. `app_old.py` is the matching early
+  script that called tools directly.
 - **v2:** LangGraph with structured outputs, pattern analysis, agent screening and a Streamlit prototype (`app.py`).
 - **v3:** FastAPI + React, saved results, demo/live modes, investigation history, Manager/Technical views.
 - **A real bug from live testing:** a question comparing all agents failed because no tool listed
