@@ -12,6 +12,9 @@ failure modes found in the Phase 0 audit:
                       which needs evidence for the whole period
 - unequal_periods:    totals compared across periods with different numbers
                       of working days
+- category_count:     "N login_issue requests" where no tool returned N for
+                      that classification (e.g. an hour's total attributed to
+                      its largest category)
 - confirmed_root_cause: the answer states a confirmed cause
 
 A warning is a prompt to look, not a verdict: a flagged number can still be
@@ -38,6 +41,16 @@ _NUMBER = re.compile(r"(?<![\w.])[-−+]?(\d{1,3}(?:,\d{3})+|\d+)(\.\d+)?")
 _AGENT = re.compile(r"\bA\d{2,3}\b")
 _SCOPE = re.compile(r"\b(consistently|always|across the (?:analysis |whole |entire )?period|throughout|every day|persistent(?:ly)?)\b", re.I)
 _REQUEST_ID = re.compile(r"(?:ID|#|Req\.?|request)\s*#?\s*(\d{5,6})\b", re.I)
+CLASSIFICATIONS = {
+    "login_issue": r"login(?:_issue| issue)?",
+    "payment_issue": r"payment(?:_issue| issue)?",
+    "technical_issue": r"technical(?:_issue| issue)?",
+    "general_information": r"general(?:_information| information)",
+}
+_CATEGORY_COUNT = [
+    (name, re.compile(rf"\b(\d[\d,]*)(?:\s+of\s+(?:the\s+)?(\d[\d,]*))?\s+(?:{alias})\s+requests\b", re.I))
+    for name, alias in CLASSIFICATIONS.items()
+]
 SMALL = 12   # small integers (counts, rankings) are too easy to match to mean anything
 MAX_NUMBER_WARNINGS = 8
 
@@ -59,9 +72,30 @@ class _Evidence:
         values: List[float] = []
         self.request_ids: Set[int] = set()
         self.agent_ids: Set[str] = set()
+        self.class_counts: Dict[str, Set[float]] = {}
         for result in results:
             self._walk(result, values)
+            self._collect_class_counts(result)
         self.values = sorted({abs(v) for v in values})
+
+    def _collect_class_counts(self, obj: Any) -> None:
+        """Numbers a tool reported FOR a classification: breakdown values keyed by
+        the classification, and every count in a result filtered to one."""
+        if isinstance(obj, dict):
+            tagged = obj.get("classification") or obj.get("classification_filter")
+            if tagged in CLASSIFICATIONS:
+                numbers: List[float] = []
+                self._walk(obj, numbers)
+                self.class_counts.setdefault(tagged, set()).update(numbers)
+            for key, value in obj.items():
+                if key in CLASSIFICATIONS:
+                    numbers = []
+                    self._walk(value, numbers)
+                    self.class_counts.setdefault(key, set()).update(numbers)
+                self._collect_class_counts(value)
+        elif isinstance(obj, (list, tuple)):
+            for value in obj:
+                self._collect_class_counts(value)
 
     def _walk(self, obj: Any, out: List[float]) -> None:
         if isinstance(obj, bool) or obj is None:
@@ -184,6 +218,21 @@ def check_answer(result: Optional[Dict[str, Any]], narrative: Optional[str],
                                  "message": "About an agent: check that the evidence covers the whole period, "
                                             "not one day or a low-sample rate.",
                                  "excerpt": sentence.strip()[:240]})
+
+    for field, text in texts.items():
+        for name, pattern in _CATEGORY_COUNT:
+            known_counts = evidence.class_counts.get(name)
+            if not known_counts:
+                continue  # nothing to compare against
+            for m in pattern.finditer(text):
+                stated = float((m.group(2) or m.group(1)).replace(",", ""))
+                if stated not in known_counts:
+                    warnings.append({
+                        "kind": "category_count",
+                        "message": f"{int(stated)} is stated as a count of {name} requests, but no tool "
+                                   f"returned that count for {name}.",
+                        "excerpt": text[max(0, m.start() - 60): m.end() + 60].strip()[:240],
+                    })
 
     warnings += _unequal_period_comparisons(steps)
 

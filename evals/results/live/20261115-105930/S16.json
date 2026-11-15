@@ -1,0 +1,1093 @@
+{
+  "scenario": "S16",
+  "category": "per_agent",
+  "question": "Has A04's transfer behaviour changed over the last two weeks?",
+  "date_context": "2026-09-07",
+  "prompt_sent": "Has A04's transfer behaviour changed over the last two weeks?\n\nContext: The manager is viewing the shift of 2026-09-07; treat 'today' or 'this shift' as that date. Available data covers working days 2026-08-25 to 2026-09-07, 08:00-17:00.",
+  "duration_seconds": 102.4,
+  "usage": {
+    "claude-sonnet-4-6": {
+      "output_tokens": 4510,
+      "input_token_details": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0,
+        "cache_creation": 0,
+        "cache_read": 0
+      },
+      "total_tokens": 53203,
+      "input_tokens": 48693
+    }
+  },
+  "cost_usd": 0.2137,
+  "outcome": {
+    "result": {
+      "observed_facts": [
+        "A04's transfer rate in the earlier period (2026-08-25 to 2026-08-31, 5 working days, 62 requests) was 33.87%, with 21 transfers.",
+        "A04's transfer rate in the later period (2026-09-01 to 2026-09-07, 5 working days, 66 requests) was 57.58%, with 38 transfers \u2014 a rise of 23.71 percentage points.",
+        "The peer baseline transfer rate in the later period was 23.13% across 934 requests, placing A04 34.45 percentage points above peers.",
+        "On 2026-09-07, A04 transferred 8 of 9 requests, producing a transfer rate of 88.89% and a first-line resolution rate of 11.11%.",
+        "On 2026-09-02, A04's transfer rate was 66.67% (12 of 18 requests).",
+        "On 2026-09-04, A04's transfer rate was 56.25% (9 of 16 requests).",
+        "On 2026-09-01, A04's transfer rate was 36.36% (4 of 11 requests), close to the earlier-period average.",
+        "In the earlier period, A04's daily transfer rates ranged from 25.0% (2026-08-25) to 42.86% (2026-08-26).",
+        "In the later period, A04's payment_issue transfer rate was 60.0% across 25 requests (the only non-low-sample classification result); the peer rate for the same category was 22.67%.",
+        "All other per-classification transfer rates for A04 in both periods are flagged as low-sample and are indicative only.",
+        "A04's average handling time was 6.58 minutes in the earlier period and 6.81 minutes in the later period.",
+        "The peer average handling time in the later period was 6.95 minutes.",
+        "In the 30-request sample of A04's later-period transfers, documentation follows a uniform template: 'Customer [brief description]. Escalated to [destination] for follow-up.' No attempt-before-transfer information is recorded.",
+        "The same templated documentation pattern is present across all 21 earlier-period transferred requests.",
+        "In the later-period sample, a login_issue / 'Password reset request' (request 80014) was transferred to billing; a general_information / 'Operating hours' query (request 70077) was transferred to technical_support; a payment_issue / 'Billing inquiry' (request 90112) was transferred to technical_support.",
+        "In the earlier-period sample, a technical_issue / 'Browser problem' (request 30054) was transferred to billing; a login_issue / 'Incorrect password' (request 30022) was transferred to billing.",
+        "Team-level transfer destination volumes (not A04-specific) were broadly stable between periods: technical_support (120 vs. 141), billing (79 vs. 58), back_office (42 vs. 41), supervisor (22 vs. 14).",
+        "In A04's later-period sample, the dominant transfer destination is technical_support, including for general_information and payment_issue request types."
+      ],
+      "supported_patterns": [
+        "A04's transfer rate rose in each successive high-volume day from 2026-09-01 onward, reaching a peak of 88.89% on 2026-09-07 (9 requests), compared to a range of 25.0%\u201342.86% across the 5 working days of the earlier period.",
+        "Across all four request classifications in the later period (66 requests total), A04's transfer rates exceeded the corresponding peer rates by wide margins: general_information 60.0% vs. 19.74%, login_issue 52.63% vs. 27.20%, payment_issue 60.0% vs. 22.67%, technical_issue 58.33% vs. 22.51%.",
+        "Templated transfer documentation with no recorded rationale or prior-attempt information is present across both the earlier period (21 transfers) and the later period (30-request sample of 38 transfers), making independent verification of transfer necessity impossible in either period.",
+        "Apparent destination-routing mismatches \u2014 transfers sent to queues not aligned with the request classification \u2014 appear in both the earlier period (e.g., login_issue to billing, technical_issue to billing) and the later period (e.g., login_issue to billing, general_information to technical_support, payment_issue to technical_support)."
+      ],
+      "hypotheses": [
+        "A04 may have changed their approach to case handling from around 2026-09-02 onward, transferring cases that peers typically resolve at first line, though the cause of any such change is unknown.",
+        "A04 may be experiencing reduced confidence or capability with certain request types, leading to earlier escalation, but this is not established by the available data.",
+        "A04 may be encountering a different or more complex case mix in the later period that is not fully captured by the four classification categories, which could partly explain the higher transfer rate.",
+        "The routing mismatches observed in both periods may reflect uncertainty about correct transfer destinations, a process or system gap, or inconsistent routing guidance \u2014 but causation has not been established.",
+        "The spike on 2026-09-07 (88.89% transfer rate, 9 requests) may reflect a specific situational factor on that day (e.g., a system issue, unfamiliar case type, or personal circumstance) rather than a continuation of the broader trend, but this cannot be confirmed without direct information."
+      ],
+      "confirmed_root_cause": null,
+      "missing_evidence": [
+        "A04's own account of why transfers increased from 2026-09-02 onward, and specifically what occurred on 2026-09-07.",
+        "Transfer documentation recording what was attempted before escalation, which would allow assessment of whether individual transfers were necessary.",
+        "A04-specific transfer destination data (the available destination data is team-wide and cannot be attributed solely to A04).",
+        "Information on whether A04's case mix changed in the later period in ways not captured by the four classification labels (e.g., complexity, customer type, or channel).",
+        "Peer-level per-agent transfer rates to determine whether any other agents show a similar rise in the same period, which would indicate a team-wide or systemic factor rather than an A04-specific one.",
+        "Any changes in team processes, routing rules, system tools, or guidance issued around or before 2026-09-01 that could have affected transfer behaviour.",
+        "Supervisor or quality-review records for A04's transferred cases in the later period, which could confirm or refute whether transfers were appropriate."
+      ],
+      "recommendations": [
+        "Hold a direct conversation with A04 focused on the 2026-09-07 shift (8 of 9 requests transferred) to understand whether a specific situational factor was present, before drawing conclusions about a sustained behavioural change.",
+        "Review a broader sample of A04's later-period transfers with A04 to understand what was attempted before each escalation, given that current documentation records no prior-attempt information.",
+        "Require agents to document what was tried before transferring and the specific reason for the chosen destination; this would make future transfer reviews conclusive rather than inferential.",
+        "Investigate the destination-routing mismatches identified in both periods (e.g., password resets to billing, operating-hours queries to technical_support) to determine whether routing guidance or tooling needs clarification.",
+        "Check whether any other agents show a similar transfer-rate rise from 2026-09-01 onward, to determine whether a team-wide or systemic factor may be contributing to A04's pattern.",
+        "Continue monitoring A04's daily transfer rate over the next week before initiating any formal performance process, as the root cause of the change has not been confirmed."
+      ]
+    },
+    "pattern_themes": [],
+    "narrative": "I now have comprehensive evidence across both periods. Here is the full analysis.\n\n---\n\n## A04 Transfer Behaviour \u2014 Two-Week Review (2026-08-25 to 2026-09-07)\n\n### 1. Headline Finding: Transfer Rate Has Risen Sharply\n\n| Period | Working Days | Requests | Transfers | Transfer Rate |\n|---|---|---|---|---|\n| **Earlier** (Aug 25\u201331) | 5 days | 62 | 21 | **33.9%** |\n| **Later** (Sep 1\u20137) | 5 days | 66 | 38 | **57.6%** |\n| **Change** | \u2014 | +4 | +17 | **+23.7 pp (+70%)** |\n| **Peer baseline (later period)** | \u2014 | 934 | 216 | **23.1%** |\n\nA04's transfer rate in the later period is **34.5 percentage points above peers** \u2014 the largest gap in the available data. This is flagged by two system signals: `RISING_TRANSFER_RATE` and `HIGH_TRANSFER_RATE_VS_PEERS`.\n\n---\n\n### 2. Daily Trend \u2014 The Escalation Is Accelerating\n\nThe daily data shows the rate was not uniformly high; it has been climbing:\n\n| Date | Requests | Transfer Rate | FLR Rate |\n|---|---|---|---|\n| Aug 25 | 12 | 25.0% | 75.0% |\n| Aug 26 | 7 | 42.9% | 57.1% |\n| Aug 27 | 21 | 33.3% | 66.7% |\n| Aug 28 | 9 | 33.3% | 66.7% |\n| Aug 31 | 13 | 38.5% | 61.5% |\n| Sep 1 | 11 | 36.4% | 63.6% |\n| Sep 2 | 18 | **66.7%** | 33.3% |\n| Sep 3 | 12 | 41.7% | 58.3% |\n| Sep 4 | 16 | **56.3%** | 43.8% |\n| **Sep 7** | 9 | **88.9%** | **11.1%** |\n\nToday (Sep 7) stands out acutely: **8 of 9 requests transferred**, leaving a first-line resolution rate of just 11%. This is an observed fact, not a trend artefact.\n\n---\n\n### 3. Classification Breakdown \u2014 Spread Across All Categories\n\nThe rise is not confined to one category; all four classifications show elevated transfer rates in the later period vs. peers:\n\n| Classification | Earlier Rate | Later Rate | Peer Rate (later) |\n|---|---|---|---|\n| general_information | 38.5% *(low sample)* | 60.0% *(low sample)* | 19.7% |\n| login_issue | 27.8% *(low sample)* | 52.6% *(low sample)* | 27.2% |\n| **payment_issue** | 28.6% *(low sample)* | **60.0%** | 22.7% |\n| technical_issue | 41.2% *(low sample)* | 58.3% *(low sample)* | 22.5% |\n\n`payment_issue` in the later period is the only category with a sufficient sample (25 requests) to be statistically reliable. All other per-classification rates are marked **low sample** and should be treated as indicative only.\n\n---\n\n### 4. Documentation Quality \u2014 A Supported Pattern\n\nReviewing all 21 earlier transfers and a 30-request sample of the 38 later transfers reveals a consistent documentation pattern in **both** periods:\n\n> *\"Customer [brief description]. Escalated to [destination] for follow-up.\"*\n\nThis template is identical across virtually every request. Notably:\n- **Routing mismatches are visible**: e.g., a `login_issue` / \"Password reset request\" transferred to **billing** (req. 80014); a `general_information` / \"Operating hours\" query transferred to **technical_support** (req. 70077); a `payment_issue` / \"Billing inquiry\" transferred to **technical_support** rather than billing (req. 90112).\n- Documentation does **not** record what was attempted before transferring, nor why the specific destination was chosen.\n- This pattern exists in both periods, so it alone does not explain the *change*, but it does mean the transfers cannot be independently verified as necessary.\n\n---\n\n### 5. Transfer Destinations (Team-Level)\n\nNote: destination data is team-wide, not A04-specific, so it cannot be attributed solely to A04.\n\n| Destination | Aug 25\u201331 | Sep 1\u20137 |\n|---|---|---|\n| technical_support | 120 | 141 |\n| billing | 79 | 58 |\n| back_office | 42 | 41 |\n| supervisor | 22 | 14 |\n\nAt the team level, the destination mix is broadly stable. A04's own sample shows a heavy lean toward `technical_support` in the later period, including for request types (billing inquiries, general information) that peers more often resolve first-line or route to billing/back-office.\n\n---\n\n### Summary of Findings\n\n| | Observed Fact | Supported Pattern | Hypothesis |\n|---|---|---|---|\n| Transfer rate rose +23.7 pp between the two halves | \u2705 | | |\n| Rate is 34.5 pp above peers in the later period | \u2705 | | |\n| Sep 7 rate is 88.9% (8/9 requests) | \u2705 | | |\n| Rise is spread across all four classifications | \u2705 | | |\n| Documentation is templated with no rationale recorded | \u2705 | | |\n| Some transfers appear routed to unexpected destinations | \u2705 (examples cited) | | |\n| A04 may be transferring cases that peers resolve first-line | | \u2705 | |\n| A change in A04's approach or confidence since Sep 1 | | | Hypothesis \u2014 not confirmed |\n\n---\n\n### Recommendations\n\n1. **Immediate conversation with A04** \u2014 review the Sep 7 shift specifically (8/9 transfers). Understand whether there was a specific reason (e.g., system issue, unfamiliar case type) or a broader pattern.\n2. **Request transfer rationale documentation** \u2014 the current template records no attempt-before-transfer information. Requiring agents to document what was tried first would make future reviews far more conclusive.\n3. **Spot-check routing accuracy** \u2014 the mismatches noted (password resets to billing, operating-hours queries to technical support) suggest either routing uncertainty or a system/process gap worth clarifying.\n4. **Monitor over the next week** \u2014 if the rate remains above ~40% after a coaching conversation, a more structured performance review would be warranted. The root cause of the change is **not confirmed** from the available data alone; direct conversation with A04 is the next required step.",
+    "trace": [
+      {
+        "tool": "detect_agent_performance_signals",
+        "args": {
+          "agent_id": "A04",
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07"
+        },
+        "result": {
+          "agent_id": "A04",
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07",
+          "status": "analyzed",
+          "periods": {
+            "earlier": {
+              "dates": [
+                "2026-08-25",
+                "2026-08-31"
+              ],
+              "requests": 62,
+              "transfers": 21,
+              "transfer_rate_percent": 33.87,
+              "average_handling_time_minutes": 6.58,
+              "by_classification": {
+                "general_information": {
+                  "requests": 13,
+                  "transferred": 5,
+                  "transfer_rate_percent": 38.46,
+                  "low_sample": true
+                },
+                "login_issue": {
+                  "requests": 18,
+                  "transferred": 5,
+                  "transfer_rate_percent": 27.78,
+                  "low_sample": true
+                },
+                "payment_issue": {
+                  "requests": 14,
+                  "transferred": 4,
+                  "transfer_rate_percent": 28.57,
+                  "low_sample": true
+                },
+                "technical_issue": {
+                  "requests": 17,
+                  "transferred": 7,
+                  "transfer_rate_percent": 41.18,
+                  "low_sample": true
+                }
+              }
+            },
+            "later": {
+              "dates": [
+                "2026-09-01",
+                "2026-09-07"
+              ],
+              "requests": 66,
+              "transfers": 38,
+              "transfer_rate_percent": 57.58,
+              "average_handling_time_minutes": 6.81,
+              "by_classification": {
+                "general_information": {
+                  "requests": 10,
+                  "transferred": 6,
+                  "transfer_rate_percent": 60.0,
+                  "low_sample": true
+                },
+                "login_issue": {
+                  "requests": 19,
+                  "transferred": 10,
+                  "transfer_rate_percent": 52.63,
+                  "low_sample": true
+                },
+                "payment_issue": {
+                  "requests": 25,
+                  "transferred": 15,
+                  "transfer_rate_percent": 60.0,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 12,
+                  "transferred": 7,
+                  "transfer_rate_percent": 58.33,
+                  "low_sample": true
+                }
+              }
+            },
+            "peers_later": {
+              "requests": 934,
+              "transfers": 216,
+              "transfer_rate_percent": 23.13,
+              "average_handling_time_minutes": 6.95,
+              "by_classification": {
+                "general_information": {
+                  "requests": 228,
+                  "transferred": 45,
+                  "transfer_rate_percent": 19.74,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 250,
+                  "transferred": 68,
+                  "transfer_rate_percent": 27.2,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 225,
+                  "transferred": 51,
+                  "transfer_rate_percent": 22.67,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 231,
+                  "transferred": 52,
+                  "transfer_rate_percent": 22.51,
+                  "low_sample": false
+                }
+              }
+            }
+          },
+          "signals": [
+            {
+              "code": "HIGH_TRANSFER_RATE_VS_PEERS",
+              "evidence": {
+                "agent_transfer_rate_percent": 57.58,
+                "peer_transfer_rate_percent": 23.13,
+                "difference_percentage_points": 34.45,
+                "agent_request_count": 66,
+                "peer_request_count": 934
+              },
+              "interpretation": "Higher transfer rate than peers; review case mix and transfer reasons."
+            },
+            {
+              "code": "RISING_TRANSFER_RATE",
+              "evidence": {
+                "earlier_transfer_rate_percent": 33.87,
+                "later_transfer_rate_percent": 57.58,
+                "change_percentage_points": 23.71,
+                "earlier_requests": 62,
+                "later_requests": 66
+              },
+              "interpretation": "Transfer rate rose between periods; this is not proof of unnecessary transfers."
+            }
+          ],
+          "methodology": "Two halves of scheduled working days; rates are request-weighted. Peer baseline excludes the agent. Thresholds are illustrative heuristics, not validated personnel assessment rules."
+        }
+      },
+      {
+        "tool": "get_agent_daily_trends",
+        "args": {
+          "agent_id": "A04",
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07"
+        },
+        "result": {
+          "agent_id": "A04",
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07",
+          "daily_trends": [
+            {
+              "date": "2026-08-25",
+              "handled_requests": 12,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 1.5,
+              "transferred_requests": 3,
+              "transfer_rate_percent": 25.0,
+              "first_line_resolution_rate_percent": 75.0,
+              "average_handling_time_minutes": 7.14
+            },
+            {
+              "date": "2026-08-26",
+              "handled_requests": 7,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 0.88,
+              "transferred_requests": 3,
+              "transfer_rate_percent": 42.86,
+              "first_line_resolution_rate_percent": 57.14,
+              "average_handling_time_minutes": 6.13
+            },
+            {
+              "date": "2026-08-27",
+              "handled_requests": 21,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 2.62,
+              "transferred_requests": 7,
+              "transfer_rate_percent": 33.33,
+              "first_line_resolution_rate_percent": 66.67,
+              "average_handling_time_minutes": 6.47
+            },
+            {
+              "date": "2026-08-28",
+              "handled_requests": 9,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 1.12,
+              "transferred_requests": 3,
+              "transfer_rate_percent": 33.33,
+              "first_line_resolution_rate_percent": 66.67,
+              "average_handling_time_minutes": 7.21
+            },
+            {
+              "date": "2026-08-29",
+              "handled_requests": 0,
+              "scheduled_hours": 0.0,
+              "requests_per_scheduled_hour": null,
+              "transferred_requests": 0,
+              "transfer_rate_percent": null,
+              "first_line_resolution_rate_percent": null,
+              "average_handling_time_minutes": null
+            },
+            {
+              "date": "2026-08-30",
+              "handled_requests": 0,
+              "scheduled_hours": 0.0,
+              "requests_per_scheduled_hour": null,
+              "transferred_requests": 0,
+              "transfer_rate_percent": null,
+              "first_line_resolution_rate_percent": null,
+              "average_handling_time_minutes": null
+            },
+            {
+              "date": "2026-08-31",
+              "handled_requests": 13,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 1.62,
+              "transferred_requests": 5,
+              "transfer_rate_percent": 38.46,
+              "first_line_resolution_rate_percent": 61.54,
+              "average_handling_time_minutes": 6.07
+            },
+            {
+              "date": "2026-09-01",
+              "handled_requests": 11,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 1.38,
+              "transferred_requests": 4,
+              "transfer_rate_percent": 36.36,
+              "first_line_resolution_rate_percent": 63.64,
+              "average_handling_time_minutes": 6.84
+            },
+            {
+              "date": "2026-09-02",
+              "handled_requests": 18,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 2.25,
+              "transferred_requests": 12,
+              "transfer_rate_percent": 66.67,
+              "first_line_resolution_rate_percent": 33.33,
+              "average_handling_time_minutes": 7.47
+            },
+            {
+              "date": "2026-09-03",
+              "handled_requests": 12,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 1.5,
+              "transferred_requests": 5,
+              "transfer_rate_percent": 41.67,
+              "first_line_resolution_rate_percent": 58.33,
+              "average_handling_time_minutes": 6.6
+            },
+            {
+              "date": "2026-09-04",
+              "handled_requests": 16,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 2.0,
+              "transferred_requests": 9,
+              "transfer_rate_percent": 56.25,
+              "first_line_resolution_rate_percent": 43.75,
+              "average_handling_time_minutes": 6.68
+            },
+            {
+              "date": "2026-09-05",
+              "handled_requests": 0,
+              "scheduled_hours": 0.0,
+              "requests_per_scheduled_hour": null,
+              "transferred_requests": 0,
+              "transfer_rate_percent": null,
+              "first_line_resolution_rate_percent": null,
+              "average_handling_time_minutes": null
+            },
+            {
+              "date": "2026-09-06",
+              "handled_requests": 0,
+              "scheduled_hours": 0.0,
+              "requests_per_scheduled_hour": null,
+              "transferred_requests": 0,
+              "transfer_rate_percent": null,
+              "first_line_resolution_rate_percent": null,
+              "average_handling_time_minutes": null
+            },
+            {
+              "date": "2026-09-07",
+              "handled_requests": 9,
+              "scheduled_hours": 8.0,
+              "requests_per_scheduled_hour": 1.12,
+              "transferred_requests": 8,
+              "transfer_rate_percent": 88.89,
+              "first_line_resolution_rate_percent": 11.11,
+              "average_handling_time_minutes": 5.98
+            }
+          ]
+        }
+      },
+      {
+        "tool": "get_transfers_by_destination",
+        "args": {
+          "start_time": "2026-08-25T08:00:00",
+          "end_time": "2026-08-31T17:00:00"
+        },
+        "result": {
+          "start_time": "2026-08-25T08:00:00",
+          "end_time": "2026-08-31T17:00:00",
+          "transfer_destinations": {
+            "technical_support": 120,
+            "back_office": 42,
+            "billing": 79,
+            "supervisor": 22
+          }
+        }
+      },
+      {
+        "tool": "get_transfers_by_destination",
+        "args": {
+          "start_time": "2026-09-01T08:00:00",
+          "end_time": "2026-09-07T17:00:00"
+        },
+        "result": {
+          "start_time": "2026-09-01T08:00:00",
+          "end_time": "2026-09-07T17:00:00",
+          "transfer_destinations": {
+            "technical_support": 141,
+            "billing": 58,
+            "back_office": 41,
+            "supervisor": 14
+          }
+        }
+      },
+      {
+        "tool": "get_agent_request_evidence",
+        "args": {
+          "agent_id": "A04",
+          "start_date": "2026-09-01",
+          "end_date": "2026-09-07",
+          "status": "transferred",
+          "limit": 30
+        },
+        "result": {
+          "agent_id": "A04",
+          "start_date": "2026-09-01",
+          "end_date": "2026-09-07",
+          "filters": {
+            "status": "transferred",
+            "classification": null,
+            "transferred_to": null
+          },
+          "total_matching_requests": 38,
+          "returned_requests": 30,
+          "truncated": true,
+          "requests": [
+            {
+              "request_id": 60006,
+              "request_time": "2026-09-01T08:59:00",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 8.83,
+              "documentation": "Customer reported that a notification was not received. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 60031,
+              "request_time": "2026-09-01T09:16:31",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.96,
+              "documentation": "Customer contacted support regarding a recent payment. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 60162,
+              "request_time": "2026-09-01T15:05:14",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 9.68,
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 60171,
+              "request_time": "2026-09-01T15:44:13",
+              "classification": "login_issue",
+              "subject": "Incorrect password",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 5.08,
+              "documentation": "Customer could not sign in because an incorrect password was entered. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70078,
+              "request_time": "2026-09-02T09:12:11",
+              "classification": "login_issue",
+              "subject": "Account access question",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.43,
+              "documentation": "Customer requested assistance accessing the account. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70037,
+              "request_time": "2026-09-02T09:28:09",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.08,
+              "documentation": "Customer contacted support regarding a recent payment. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70077,
+              "request_time": "2026-09-02T09:44:48",
+              "classification": "general_information",
+              "subject": "Operating hours",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 5.91,
+              "documentation": "Customer asked about service center operating hours. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70046,
+              "request_time": "2026-09-02T10:40:32",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 11.79,
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70058,
+              "request_time": "2026-09-02T11:13:35",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "transferred",
+              "transferred_to": "back_office",
+              "handling_time_minutes": 6.82,
+              "documentation": "Customer requested assistance with a technical issue. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 70119,
+              "request_time": "2026-09-02T12:45:13",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "transferred",
+              "transferred_to": "supervisor",
+              "handling_time_minutes": 9.81,
+              "documentation": "Customer requested assistance with a technical issue. Escalated to supervisor for follow-up."
+            },
+            {
+              "request_id": 70121,
+              "request_time": "2026-09-02T12:57:15",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 10.22,
+              "documentation": "Customer requested assistance with a technical issue. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70134,
+              "request_time": "2026-09-02T13:02:53",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.88,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70153,
+              "request_time": "2026-09-02T14:08:53",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 6.07,
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70147,
+              "request_time": "2026-09-02T14:41:24",
+              "classification": "general_information",
+              "subject": "Account information",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.59,
+              "documentation": "Customer requested information about account settings. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70195,
+              "request_time": "2026-09-02T16:05:45",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.82,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70197,
+              "request_time": "2026-09-02T16:52:12",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 5.5,
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 80014,
+              "request_time": "2026-09-03T08:42:29",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 6.16,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 80090,
+              "request_time": "2026-09-03T09:25:46",
+              "classification": "general_information",
+              "subject": "Service information",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.51,
+              "documentation": "Customer requested general information about the service. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 80158,
+              "request_time": "2026-09-03T14:27:11",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.13,
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 80166,
+              "request_time": "2026-09-03T15:16:21",
+              "classification": "login_issue",
+              "subject": "Incorrect password",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 6.26,
+              "documentation": "Customer could not sign in because an incorrect password was entered. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 80200,
+              "request_time": "2026-09-03T16:05:30",
+              "classification": "login_issue",
+              "subject": "Account access question",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.69,
+              "documentation": "Customer requested assistance accessing the account. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 90099,
+              "request_time": "2026-09-04T10:06:52",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 5.57,
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 90091,
+              "request_time": "2026-09-04T10:17:05",
+              "classification": "general_information",
+              "subject": "Service information",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 6.12,
+              "documentation": "Customer requested general information about the service. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 90102,
+              "request_time": "2026-09-04T12:32:06",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 9.09,
+              "documentation": "Customer reported that a notification was not received. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 90112,
+              "request_time": "2026-09-04T12:37:25",
+              "classification": "payment_issue",
+              "subject": "Billing inquiry",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.99,
+              "documentation": "Customer requested clarification regarding a charge. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 90110,
+              "request_time": "2026-09-04T12:54:06",
+              "classification": "general_information",
+              "subject": "Account information",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 5.47,
+              "documentation": "Customer requested information about account settings. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 90132,
+              "request_time": "2026-09-04T13:54:11",
+              "classification": "general_information",
+              "subject": "Service information",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 5.6,
+              "documentation": "Customer requested general information about the service. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 90095,
+              "request_time": "2026-09-04T14:32:37",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.58,
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 90158,
+              "request_time": "2026-09-04T14:39:57",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.08,
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 90086,
+              "request_time": "2026-09-04T16:29:18",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.54,
+              "documentation": "Customer contacted support regarding a recent payment. Escalated to technical support for follow-up."
+            }
+          ]
+        }
+      },
+      {
+        "tool": "get_agent_request_evidence",
+        "args": {
+          "agent_id": "A04",
+          "start_date": "2026-08-25",
+          "end_date": "2026-08-31",
+          "status": "transferred",
+          "limit": 21
+        },
+        "result": {
+          "agent_id": "A04",
+          "start_date": "2026-08-25",
+          "end_date": "2026-08-31",
+          "filters": {
+            "status": "transferred",
+            "classification": null,
+            "transferred_to": null
+          },
+          "total_matching_requests": 21,
+          "returned_requests": 21,
+          "truncated": false,
+          "requests": [
+            {
+              "request_id": 10003,
+              "request_time": "2026-08-25T08:05:13",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 6.46,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10008,
+              "request_time": "2026-08-25T08:07:59",
+              "classification": "general_information",
+              "subject": "Account information",
+              "status": "transferred",
+              "transferred_to": "back_office",
+              "handling_time_minutes": 5.38,
+              "documentation": "Customer requested information about account settings. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 10179,
+              "request_time": "2026-08-25T15:32:58",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 10.81,
+              "documentation": "Customer reported that a notification was not received. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 20061,
+              "request_time": "2026-08-26T11:19:30",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "transferred",
+              "transferred_to": "back_office",
+              "handling_time_minutes": 9.34,
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 20111,
+              "request_time": "2026-08-26T13:28:04",
+              "classification": "general_information",
+              "subject": "Operating hours",
+              "status": "transferred",
+              "transferred_to": "back_office",
+              "handling_time_minutes": 4.02,
+              "documentation": "Customer asked about service center operating hours. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 20162,
+              "request_time": "2026-08-26T15:07:00",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 7.81,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30022,
+              "request_time": "2026-08-27T09:41:13",
+              "classification": "login_issue",
+              "subject": "Incorrect password",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 4.13,
+              "documentation": "Customer could not sign in because an incorrect password was entered. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30054,
+              "request_time": "2026-08-27T10:11:48",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 7.66,
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30095,
+              "request_time": "2026-08-27T12:34:01",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "transferred",
+              "transferred_to": "back_office",
+              "handling_time_minutes": 5.96,
+              "documentation": "Customer contacted support regarding a recent payment. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 30116,
+              "request_time": "2026-08-27T13:33:09",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 6.39,
+              "documentation": "Customer contacted support regarding a recent payment. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30127,
+              "request_time": "2026-08-27T14:17:33",
+              "classification": "login_issue",
+              "subject": "Account access question",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 7.56,
+              "documentation": "Customer requested assistance accessing the account. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30133,
+              "request_time": "2026-08-27T14:57:20",
+              "classification": "general_information",
+              "subject": "Operating hours",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.95,
+              "documentation": "Customer asked about service center operating hours. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30141,
+              "request_time": "2026-08-27T15:04:46",
+              "classification": "payment_issue",
+              "subject": "Billing inquiry",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.18,
+              "documentation": "Customer requested clarification regarding a charge. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 40060,
+              "request_time": "2026-08-28T11:25:22",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.57,
+              "documentation": "Customer reported that a notification was not received. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 40178,
+              "request_time": "2026-08-28T15:39:52",
+              "classification": "general_information",
+              "subject": "Operating hours",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.06,
+              "documentation": "Customer asked about service center operating hours. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 40094,
+              "request_time": "2026-08-28T16:21:18",
+              "classification": "general_information",
+              "subject": "Operating hours",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 6.18,
+              "documentation": "Customer asked about service center operating hours. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 50112,
+              "request_time": "2026-08-31T12:06:57",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 9.84,
+              "documentation": "Customer reported that a notification was not received. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 50110,
+              "request_time": "2026-08-31T12:33:46",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "supervisor",
+              "handling_time_minutes": 7.47,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to supervisor for follow-up."
+            },
+            {
+              "request_id": 50102,
+              "request_time": "2026-08-31T12:41:57",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 8.01,
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 50104,
+              "request_time": "2026-08-31T12:44:41",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "transferred",
+              "transferred_to": "supervisor",
+              "handling_time_minutes": 6.28,
+              "documentation": "Customer reported that a notification was not received. Escalated to supervisor for follow-up."
+            },
+            {
+              "request_id": 50127,
+              "request_time": "2026-08-31T13:04:23",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.91,
+              "documentation": "Customer contacted support regarding a recent payment. Escalated to technical support for follow-up."
+            }
+          ]
+        }
+      },
+      {
+        "tool": "compare_values",
+        "args": {
+          "current": 57.58,
+          "baseline": 33.87
+        },
+        "result": {
+          "current": 57.58,
+          "baseline": 33.87,
+          "absolute_change": 23.71,
+          "percentage_change": 70.0
+        }
+      }
+    ],
+    "date_range": {
+      "start": "2026-08-25",
+      "end": "2026-09-07"
+    },
+    "model": "claude-sonnet-4-6",
+    "evidence_plan": {
+      "scope": {
+        "start_date": "2026-08-25",
+        "end_date": "2026-09-07",
+        "working_days": 10,
+        "time_window": null,
+        "viewing_date": "2026-09-07",
+        "agents": [
+          "A04"
+        ]
+      },
+      "intents": [
+        "change",
+        "review",
+        "agent_focus"
+      ],
+      "calls": [],
+      "drill_into_anomalies": false,
+      "reasons": [
+        "No pre-fetch rule matched; the agent chooses all evidence itself."
+      ],
+      "executed": []
+    },
+    "answer_checks": [
+      {
+        "kind": "unverified_number",
+        "message": "40 is not in the tool results and is not one step from a number beside it.",
+        "excerpt": "4. **Monitor over the next week** \u2014 if the rate remains above ~40% after a coaching conversation, a more structured performance review would be warranted."
+      }
+    ],
+    "status": "completed",
+    "error": null
+  },
+  "grade": {
+    "scenario": "S16",
+    "passed": true,
+    "critical_failures": 0,
+    "score": 1.0,
+    "checks": [
+      {
+        "check": "run completed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "tool: detect_agent_performance_signals or get_agent_daily_trends",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "no invalid tool arguments",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "fact stated: earlier rate = 33.87",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "fact stated: later rate = 57.58",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "must not: saved run R6 overgeneralised one day to the whole period",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "root cause left unconfirmed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      }
+    ]
+  },
+  "numbers": {
+    "summary": {
+      "direct": 151,
+      "derived": 2,
+      "loose": 1,
+      "unsupported": 0,
+      "total": 154
+    },
+    "not_verified": [
+      {
+        "raw": "40%",
+        "match": "loose",
+        "source": "narrative",
+        "context": "over the next week** \u2014 if the rate remains above ~40% after a coaching conversation"
+      }
+    ],
+    "identifiers": []
+  }
+}

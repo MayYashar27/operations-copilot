@@ -893,6 +893,18 @@ def get_agent_daily_trends(
         "daily_trends": trends,
     }
 
+def _classification_rates(rows: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """Requests, transfers and transfer rate per classification, sorted by name."""
+    out: Dict[str, Dict[str, Any]] = {}
+    for r in rows:
+        entry = out.setdefault(r["classification"], {"requests": 0, "transferred": 0})
+        entry["requests"] += 1
+        entry["transferred"] += r.get("status") == "transferred"
+    for entry in out.values():
+        entry["transfer_rate_percent"] = round(100 * entry["transferred"] / entry["requests"], 2)
+        entry["low_sample"] = entry["requests"] < LOW_SAMPLE_REQUESTS
+    return dict(sorted(out.items()))
+
 # Append to the END of tools.py, after get_agent_daily_trends().
 # Uses existing load_requests(), get_agent_daily_trends(), and parse_datetime().
 
@@ -946,6 +958,9 @@ def detect_agent_performance_signals(
             "transfers": transfers,
             "transfer_rate_percent": round(100 * transfers / count, 2) if count else None,
             "average_handling_time_minutes": round(sum(handling) / len(handling), 2) if handling else None,
+            # Per-category figures for the same period, so category rates are
+            # never taken from a different period than the totals beside them.
+            "by_classification": _classification_rates(rows),
         }
 
     earlier = metrics([r for r in agent_requests if r["request_time"][:10] in earlier_days])
@@ -1248,7 +1263,18 @@ def get_agent_comparison(start_date: str, end_date: str) -> Dict[str, Any]:
     agents.sort(key=lambda a: (a["transfer_rate_percent"] is None, -(a["transfer_rate_percent"] or 0), a["agent_id"]))
     team_transfers = sum(r.get("status") == "transferred" for r in requests)
     working_days = len({r["request_time"][:10] for r in requests})
-    return {
+
+    # A change between the earlier and later half of the period can hide behind
+    # a normal period average, so each agent also carries its trend signals.
+    trend_note = None
+    if working_days >= 4:
+        for agent in agents:
+            signals = detect_agent_performance_signals(agent["agent_id"], start_date, end_date)
+            agent["trend_signals"] = [s["code"] for s in signals.get("signals", [])]
+        trend_note = ("trend_signals compare each agent's earlier and later half of the period "
+                      "(detect_agent_performance_signals); an agent can have a normal period "
+                      "average and still a significant trend.")
+    result = {
         "start_date": start_date,
         "end_date": end_date,
         "period_label": _period_label(start_date, end_date, working_days),
@@ -1261,6 +1287,9 @@ def get_agent_comparison(start_date: str, end_date: str) -> Dict[str, Any]:
         "note": "Sorted by transfer rate. Descriptive signals, not performance ratings; "
                 "rates marked low_sample (fewer than 20 requests) are volatile.",
     }
+    if trend_note:
+        result["trend_signals_note"] = trend_note
+    return result
 
 
 # ---------------------------------------------------------
@@ -1335,14 +1364,30 @@ def detect_volume_anomalies(
     end_date: str,
     threshold_multiplier: float = 1.5,
 ) -> Dict[str, Any]:
-    """Unusual hours on every working day in a date range (same rule as the Overview)."""
+    """Unusual hours on every working day in a date range (same rule as the Overview).
+
+    Each unusual hour also says what its requests were: the count per
+    classification and the most frequent subjects.
+    """
     days = list_working_days(start_date, end_date)
+    requests = load_requests()
     anomalies = []
     for day in days:
         result = detect_hourly_volume_anomalies(day, threshold_multiplier)
         for anomaly in result["anomalies"]:
-            anomalies.append({"date": day, **anomaly,
-                              "day_average_hourly_volume": result["average_hourly_volume"]})
+            rows = [r for r in requests if anomaly["start_time"] <= r["request_time"] < anomaly["end_time"]]
+            subjects: Dict[str, int] = {}
+            for r in rows:
+                subjects[r["subject"]] = subjects.get(r["subject"], 0) + 1
+            anomalies.append({
+                "date": day, **anomaly,
+                "day_average_hourly_volume": result["average_hourly_volume"],
+                "requests_by_classification": dict(sorted(
+                    {c: sum(r["classification"] == c for r in rows)
+                     for c in {r["classification"] for r in rows}}.items())),
+                "top_subjects": [{"subject": s, "requests": n} for s, n in
+                                 sorted(subjects.items(), key=lambda kv: (-kv[1], kv[0]))[:5]],
+            })
     anomalies.sort(key=lambda a: -a["ratio_to_daily_hourly_average"])
     return {
         "start_date": start_date,

@@ -295,11 +295,22 @@ def get_agent_daily_trends(agent_id, start_date, end_date):
     return {"agent_id": agent_id, "start_date": start_date, "end_date": end_date, "daily_trends": out}
 
 
+def _by_class(rows: List[dict]) -> Dict[str, Dict[str, Any]]:
+    out: Dict[str, Dict[str, Any]] = {}
+    for c in sorted({r["classification"] for r in rows}):
+        sub = [r for r in rows if r["classification"] == c]
+        moved = sum(r["status"] == "transferred" for r in sub)
+        out[c] = {"requests": len(sub), "transferred": moved, "transfer_rate_percent": _pct(moved, len(sub)),
+                  "low_sample": len(sub) < LOW_SAMPLE}
+    return out
+
+
 def _period(rows: List[dict]) -> Dict[str, Any]:
     transfers = sum(r["status"] == "transferred" for r in rows)
     return {"requests": len(rows), "transfers": transfers,
             "transfer_rate_percent": _pct(transfers, len(rows)),
-            "average_handling_time_minutes": _avg([r["handling_time_minutes"] for r in rows])}
+            "average_handling_time_minutes": _avg([r["handling_time_minutes"] for r in rows]),
+            "by_classification": _by_class(rows)}
 
 
 def detect_agent_performance_signals(agent_id, start_date, end_date, min_period_requests=20):
@@ -393,12 +404,96 @@ def get_agent_comparison(start_date, end_date):
             "by_classification": dict(sorted(by_class.items())),
         })
     agents.sort(key=lambda a: (a["transfer_rate_percent"] is None, -(a["transfer_rate_percent"] or 0), a["agent_id"]))
+    if len({r["_d"] for r in rows}) >= 4:
+        for agent in agents:
+            agent["trend_signals"] = detect_agent_performance_signals(
+                agent["agent_id"], start_date, end_date)["signal_codes"]
     return {
         "start_date": start_date, "end_date": end_date, "valid_agent_ids": scheduled,
         "team_requests": len(rows),
         "team_transfer_rate_percent": _pct(sum(r["status"] == "transferred" for r in rows), len(rows)),
         "agents": agents,
     }
+
+
+def _working_days_between(start_date, end_date) -> List[str]:
+    return [d.isoformat() for d in data_dates() if _d(start_date) <= d <= _d(end_date)]
+
+
+def get_daily_series(start_date, end_date):
+    days = []
+    for day in _working_days_between(start_date, end_date):
+        s, e = f"{day}T08:00:00", f"{day}T17:00:00"
+        rows = _window(s, e)
+        moved = sum(r["status"] == "transferred" for r in rows)
+        monitor = get_monitor_metrics(s, e)
+        days.append({
+            "date": day, "requests": len(rows), "transferred": moved,
+            "transfer_rate_percent": _pct(moved, len(rows)),
+            "average_wait_time_minutes": _avg([r["wait_time_minutes"] for r in rows]),
+            "requests_by_classification": dict(sorted(Counter(r["classification"] for r in rows).items())),
+            "abandoned_calls": monitor.get("abandoned_calls"), "answered_calls": monitor.get("answered_calls"),
+            "average_available_agents": monitor.get("average_available_agents"),
+            "average_agents_on_shift": monitor.get("average_agents_on_shift"),
+            "min_agents_on_shift": monitor.get("min_agents_on_shift"),
+        })
+    per = lambda f: _avg([d[f] for d in days if d[f] is not None])  # noqa: E731
+    return {"start_date": start_date, "end_date": end_date, "working_days": len(days), "days": days,
+            "totals": {"requests": sum(d["requests"] for d in days), "transferred": sum(d["transferred"] for d in days),
+                       "abandoned_calls": sum(d["abandoned_calls"] or 0 for d in days)},
+            "per_working_day": {f: per(f) for f in ("requests", "transferred", "abandoned_calls",
+                                                    "average_available_agents")}}
+
+
+def detect_volume_anomalies(start_date, end_date, threshold_multiplier=1.5):
+    """Hours 08-16 whose count is >= multiplier x the day's mean hourly count."""
+    found = []
+    for day in _working_days_between(start_date, end_date):
+        per_hour = {h: _window(f"{day}T{h:02d}:00:00", f"{day}T{h + 1:02d}:00:00") for h in range(8, 17)}
+        mean = sum(len(v) for v in per_hour.values()) / 9
+        for h, rows in per_hour.items():
+            if mean and len(rows) >= mean * threshold_multiplier:
+                subjects = sorted(Counter(r["subject"] for r in rows).items(), key=lambda kv: (-kv[1], kv[0]))
+                found.append({
+                    "date": day, "start_time": f"{day}T{h:02d}:00:00", "end_time": f"{day}T{h + 1:02d}:00:00",
+                    "request_count": len(rows), "ratio_to_daily_hourly_average": round(len(rows) / mean, 2),
+                    "day_average_hourly_volume": round(mean, 2),
+                    "requests_by_classification": dict(sorted(Counter(r["classification"] for r in rows).items())),
+                    "top_subjects": [{"subject": s, "requests": n} for s, n in subjects[:5]],
+                })
+    found.sort(key=lambda a: -a["ratio_to_daily_hourly_average"])
+    return {"start_date": start_date, "end_date": end_date,
+            "working_days_checked": len(_working_days_between(start_date, end_date)),
+            "threshold_multiplier": threshold_multiplier, "anomalies": found}
+
+
+def get_capacity_context(start_time, end_time):
+    start, end = _dt(start_time), _dt(end_time)
+    if start >= end or start.date() != (end - timedelta(microseconds=1)).date():
+        raise ValueError("get_capacity_context takes a window within one day")
+
+    def view(s: datetime, e: datetime) -> Dict[str, Any]:
+        m = get_monitor_metrics(s.isoformat(), e.isoformat())
+        return {"start_time": s.isoformat(), "end_time": e.isoformat(),
+                "requests": count_requests(s.isoformat(), e.isoformat())["request_count"],
+                "average_wait_time_minutes": get_average_wait_time(s.isoformat(), e.isoformat())["average_wait_time_minutes"],
+                "average_agents_on_shift": m.get("average_agents_on_shift"), "min_agents_on_shift": m.get("min_agents_on_shift"),
+                "average_available_agents": m.get("average_available_agents"),
+                "peak_agents_on_calls": m.get("peak_agents_on_calls"), "abandoned_calls": m.get("abandoned_calls")}
+
+    length = end - start
+    opening = start.replace(hour=8, minute=0, second=0, microsecond=0)
+    others = [d for d in data_dates() if d != start.date()]
+    typical_rows = [view(start + (datetime.combine(d, start.time()) - start), end + (datetime.combine(d, start.time()) - start))
+                    for d in others]
+    fields = ("requests", "average_wait_time_minutes", "average_agents_on_shift", "average_available_agents", "abandoned_calls")
+    typical = {f: _avg([r[f] for r in typical_rows if r[f] is not None]) for f in fields}
+    window = view(start, end)
+    return {"window": window,
+            "previous_window": view(start - length, start) if start - length >= opening else None,
+            "typical_same_window": {**typical, "days": len(typical_rows)},
+            "difference_from_typical": {f: round(window[f] - typical[f], 2) for f in fields
+                                        if window[f] is not None and typical[f] is not None}}
 
 
 def legacy_get_monitor_metrics(start_time, end_time):
@@ -445,6 +540,9 @@ REPLAY: Dict[str, Callable[..., Dict[str, Any]]] = {
     "detect_agent_performance_signals": detect_agent_performance_signals,
     "get_agent_request_evidence": get_agent_request_evidence,
     "get_agent_comparison": get_agent_comparison,
+    "get_daily_series": get_daily_series,
+    "detect_volume_anomalies": detect_volume_anomalies,
+    "get_capacity_context": get_capacity_context,
 }
 
 REPLAY_LEGACY: Dict[str, Callable[..., Dict[str, Any]]] = {

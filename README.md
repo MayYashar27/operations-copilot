@@ -189,11 +189,11 @@ to use it.
 | `compare_values` | `current`, `baseline`, optional `current_days`, `baseline_days` | Absolute and percentage change; with day counts, also the per-day comparison |
 | `get_agent_performance` | `agent_id`, `start_date`, `end_date` | One representative's KPIs plus the team baseline |
 | `get_agent_daily_trends` | `agent_id`, `start_date`, `end_date` | Per-day requests, transfer rate, resolution rate, handling time |
-| `detect_agent_performance_signals` | `agent_id`, `start_date`, `end_date` | Rule-based signals comparing earlier vs later periods and peers |
+| `detect_agent_performance_signals` | `agent_id`, `start_date`, `end_date` | Rule-based signals comparing earlier vs later periods and peers, with per-category figures for each period |
 | `get_agent_request_evidence` | `agent_id`, dates, optional filters, `limit` | Request-level evidence for one representative |
-| `get_agent_comparison` | `start_date`, `end_date` | Every representative's KPIs and per-category transfers, sorted by transfer rate, the period covered, `low_sample` flags, and the list of valid agent IDs |
+| `get_agent_comparison` | `start_date`, `end_date` | Every representative's KPIs and per-category transfers, sorted by transfer rate, the period covered, `low_sample` flags, the list of valid agent IDs and, for four or more working days, each agent's `trend_signals` (changes that a period average can hide) |
 | `get_daily_series` | `start_date`, `end_date` | One row per working day (requests, transfers, wait, abandoned and answered calls, agents on shift, available agents), totals and per-working-day averages |
-| `detect_volume_anomalies` | `start_date`, `end_date` | Unusual hours on every working day in the range (the same rule as the Overview) |
+| `detect_volume_anomalies` | `start_date`, `end_date` | Unusual hours on every working day in the range (the same rule as the Overview), each with its requests per category and top request subjects |
 | `get_capacity_context` | `start_time`, `end_time` (one day) | Demand and staffing in the window next to the previous window and the typical same window on other days |
 
 The four per-agent tools validate `agent_id` against the real roster (`A01`–`A15`). An
@@ -259,7 +259,8 @@ flowchart TD
    proven), `missing_evidence` and `recommendations`.
 8. **Answer checks (deterministic, non-blocking).** `check_answer` compares the answer with
    the tool results and records warnings: numbers not found in the evidence, unknown IDs,
-   period-wide wording about an agent, totals compared across unequal periods, and a confirmed
+   period-wide wording about an agent, totals compared across unequal periods, a category count
+   that no tool returned (e.g. an hour's total reported as one category's count), and a confirmed
    root cause. The answer is never changed or blocked; the warnings appear in the Technical view.
 9. **Persistence and display.** The runner saves the result, the pattern themes, the final
    prose answer, the date range examined, the pre-fetch plan, the answer checks and a trace of
@@ -412,8 +413,9 @@ window gives 0.33, with 8 agents on shift instead of the usual 12). The agent's 
 hypothesis was a payment system event. The scenario planted in the generator for this hour was
 a **staffing shortage**: the low agent availability was in the facts, but the hypothesis pointed
 elsewhere. It is kept as an honest example of why hypotheses are labelled as unconfirmed. Since
-then, staffing figures are available to the agent and pre-fetched for questions like this one;
-whether the agent now reaches the staffing hypothesis has **not yet been verified with a live run**.
+then, staffing figures are available to the agent and pre-fetched for questions like this one.
+In the live validation runs (2026-11-02 and 2026-11-15, see below), the agent identified the
+staffing drop each time; this saved example itself has not been regenerated.
 
 **3. "On 2026-09-07, how many requests were transferred, to which destinations, and which request classifications were most often transferred?"**
 7 tool calls. 200 requests; 61 transferred (30.5%); destinations: technical support 35,
@@ -501,8 +503,8 @@ python langgraph_agent.py                     # CLI: ask a question or build a d
 ## Running the tests
 
 ```bash
-python -m pytest -q                # backend: 140 tests, no API key or network needed
-python -m pytest evals/tests -q    # evaluation suite: 135 tests, offline
+python -m pytest -q                # backend: 151 tests, no API key; network access is blocked
+python -m pytest evals/tests -q    # evaluation suite: 137 tests, offline
 python -m evals.run_phase0         # audit the saved runs (writes evals/results/)
 cd web
 npm run lint                       # oxlint
@@ -522,7 +524,13 @@ correctly: that needs live runs (see [AI_QUALITY_AUDIT.md](AI_QUALITY_AUDIT.md))
 | `tests/test_day_level_tools.py` | Monitor windows against the raw data (hourly, daily, multi-day, midnight-crossing, working-hours clipping), unequal periods, multi-day buckets, the three new tools, low-sample flags |
 | `tests/test_agent_phase_b.py` | 19 tools bound, backward-compatible arguments, prompt rules for each audit finding, a multi-day run with the new tools |
 | `tests/test_agent_phase_c.py` | Evidence planner (scope, relative dates, intents, fallback), pre-fetch and drill-down in the graph, answer checks, saving and loading records |
-| `evals/tests/` | Independent oracle vs tools, monitoring rule boundaries, graders, scenario validity |
+| `tests/test_review_findings.py` | Regressions from the live S30 review: trend signals for every agent, per-category figures per period, unusual-hour breakdowns and subjects, the category-count answer check |
+| `tests/conftest.py` | Blocks all outbound network access for the test session |
+| `evals/tests/` | Independent oracle vs all 19 tools, monitoring rule boundaries, graders, scenario validity |
+
+**Live evaluation (paid, optional).** `python -m evals.run_live S30 S29 --budget 2` runs scenarios
+against the real model with a hard budget cap and saves complete traces and token usage to
+`evals/results/live/`. The committed runs and their reviews are in that folder.
 
 ---
 
@@ -585,11 +593,15 @@ correctly: that needs live runs (see [AI_QUALITY_AUDIT.md](AI_QUALITY_AUDIT.md))
 
 - **Synthetic data only.** Thresholds and prompts were tuned on generated data and have not
   been validated against real operations.
-- **AI reasoning fixes not yet validated live.** The audit's tool and data issues are fixed and
-  tested. The reasoning issues (unequal periods, one day generalised to a period, missed
-  staffing cause, incomplete broad reviews) now have prompt rules, pre-fetched evidence and
-  answer checks, but whether Claude's answers improved can only be shown by live runs of the
-  scenarios in `evals/scenarios/`. None has been run yet.
+- **Live validation is limited to one run per scenario.** Six scenarios were run live after
+  the remediation ([evals/results/live/VALIDATION_2026-11-15.md](evals/results/live/VALIDATION_2026-11-15.md)):
+  the broad 10-day review found all 6 planted issues (the pre-fix agent found 1), and none of
+  1,000+ numbers in the answers was unsupported. One run each shows the agent *can* answer
+  correctly, not that it always will; measuring consistency needs repeated runs.
+- **Known residual weaknesses** (from the live runs): occasional over-interpretation in prose
+  ("four agents left the shift" where the data shows only a temporary drop), a speculative
+  hypothesis now and then, a narrative sentence that contradicted the structured result (flagged
+  by the answer checks), and an occasional empty-window tool call that the agent corrects itself.
 - **Saved AI examples predate the fixes.** Examples 1 and 2 quote monitor figures that are now
   computed differently; they need new live runs and are flagged, not edited.
 - **Answer checks are heuristics.** They catch numbers and IDs not found in the evidence and

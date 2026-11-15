@@ -97,8 +97,13 @@ Multi-day reviews and trends:
 - Start from day-level evidence: get_daily_series for each working day and
   per-working-day averages, and detect_volume_anomalies for unusual hours.
 - Investigate each unusual hour found, including its capacity context.
-- Compare agents over the whole period with get_agent_comparison and list
-  every agent outside the normal range, then check signals for each.
+  Describe what its requests were about from requests_by_classification
+  and top_subjects, and retrieve request details when a theme needs
+  confirming, also when no single classification dominates.
+- Compare agents over the whole period with get_agent_comparison and cover
+  every agent that is outside the normal range OR has trend_signals: a
+  change between the earlier and later half can hide behind a normal
+  period average. Check signals for each of them.
 - Do not use one aggregated window to describe a period: it hides incidents.
 
 Evidence ladder:
@@ -655,7 +660,11 @@ def detect_agent_performance_signals_tool(
     start_date: str,
     end_date: str,
 ) -> dict:
-    """Detect changes and unusual performance signals for an agent (existing ID such as A01)."""
+    """Detect changes and unusual performance signals for an agent (existing ID such as A01).
+
+    Compares the earlier and later half of the agent's working days, with
+    per-classification figures for each half (by_classification).
+    """
     validate_agent_id(agent_id)
     return detect_agent_performance_signals_original(
         agent_id, start_date, end_date
@@ -708,6 +717,8 @@ def get_agent_comparison_tool(
     rates, and whether differences relate to request categories.
     Results describe only the requested period (see period_label); rates
     marked low_sample come from fewer than 20 requests and are volatile.
+    For ranges of four or more working days, each agent also has
+    trend_signals: changes between the earlier and later half of the period.
     """
     return get_agent_comparison_original(start_date, end_date)
 
@@ -736,6 +747,8 @@ def detect_volume_anomalies_tool(
     """
     Find unusual hours on every working day in an inclusive date range:
     hours with at least 1.5 times that day's average hourly volume.
+    Each hour includes its requests per classification and its most
+    frequent request subjects.
 
     Use this first in broad or multi-day reviews to discover incidents
     that aggregated totals would hide.

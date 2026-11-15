@@ -1,0 +1,308 @@
+{
+  "scenario": "S07",
+  "category": "spike_cause",
+  "question": "Which hour was busiest today, which request type drove it, and how many of those requests were escalated?",
+  "date_context": "2026-08-25",
+  "prompt_sent": "Which hour was busiest today, which request type drove it, and how many of those requests were escalated?\n\nContext: The manager is viewing the shift of 2026-08-25; treat 'today' or 'this shift' as that date. Available data covers working days 2026-08-25 to 2026-09-07, 08:00-17:00.",
+  "duration_seconds": 49.6,
+  "usage": {
+    "claude-sonnet-4-6": {
+      "output_tokens": 2566,
+      "input_token_details": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0,
+        "cache_creation": 0,
+        "cache_read": 0
+      },
+      "total_tokens": 29769,
+      "input_tokens": 27203
+    }
+  },
+  "cost_usd": 0.1201,
+  "outcome": {
+    "result": {
+      "observed_facts": [
+        "On 2026-08-25, the 12:00\u201313:00 hour received 45 requests, the highest of any hour in the shift.",
+        "All other hours on 2026-08-25 received between 18 and 21 requests.",
+        "The typical volume for the 12:00\u201313:00 slot is 20.0 requests, based on 9 comparable days.",
+        "On 2026-08-25 during 12:00\u201313:00, 40 of the 45 requests (89%) were classified as login_issue.",
+        "The remaining 5 requests during 12:00\u201313:00 were distributed across payment_issue (2), technical_issue (1), and general_information (2).",
+        "Of the 40 login_issue requests during 12:00\u201313:00, 23 were transferred (escalated) and 17 were resolved.",
+        "Transfer destinations for login_issue escalations during 12:00\u201313:00: technical_support (12), billing (7), supervisor (2), back_office (2).",
+        "On 2026-08-25 during 12:00\u201313:00, average available agents dropped to 1.42, with peak agents on calls reaching 12 (the full complement of 12 agents on shift).",
+        "Average available agents in the prior hour (11:00\u201312:00) on 2026-08-25 was 5.08.",
+        "Average wait time during 12:00\u201313:00 on 2026-08-25 was 11.47 minutes, up from 4.37 minutes in the prior hour.",
+        "Abandoned calls during 12:00\u201313:00 on 2026-08-25 were 26, compared to 6 in the prior hour and a typical value of 5.0 for that slot (based on 9 days).",
+        "Agent headcount on 2026-08-25 remained at 12 throughout both the 11:00\u201312:00 and 12:00\u201313:00 windows.",
+        "On 2026-08-25, the full-day classification breakdown was: login_issue (73), general_information (45), technical_issue (40), payment_issue (42)."
+      ],
+      "supported_patterns": [],
+      "hypotheses": [
+        "The surge of 40 login_issue requests during 12:00\u201313:00 on 2026-08-25 may have been caused by an underlying system event (e.g., an authentication outage or service degradation) that simultaneously affected many users at midday.",
+        "The high transfer rate (23 of 40, or 57.5%) for login_issue requests during 12:00\u201313:00 on 2026-08-25 may indicate that front-line agents lacked the tools or permissions to resolve a particular category of login failure, rather than reflecting normal escalation patterns.",
+        "The concentration of login_issue transfers to technical_support (12 of 23) may suggest a technical fault underlying the login surge, but this has not been confirmed."
+      ],
+      "confirmed_root_cause": null,
+      "missing_evidence": [
+        "System or authentication logs for 2026-08-25 around 12:00\u201313:00 that could confirm or rule out a platform-level login failure or outage.",
+        "Incident or known-issue records for 2026-08-25 that might explain why login_issue volume spiked to 40 requests in a single hour.",
+        "Classification breakdown for the 12:00\u201313:00 slot on the 9 typical comparable days, to determine whether login_issue is normally the dominant type in that window.",
+        "Detail on the nature of the 23 transferred login_issue requests (e.g., sub-type or agent notes) to understand why the transfer rate was elevated relative to the resolved rate.",
+        "Historical transfer rates for login_issue requests to establish whether 57.5% is anomalous or typical for that classification."
+      ],
+      "recommendations": [
+        "Review system and authentication logs for 2026-08-25 between 12:00 and 13:00 to determine whether a platform event drove the login_issue surge.",
+        "Check incident management records for any known issues or change activity on 2026-08-25 that could be associated with the midday login_issue spike.",
+        "Investigate the 26 abandoned calls during 12:00\u201313:00 on 2026-08-25 to assess customer impact and determine whether callbacks or follow-ups are needed.",
+        "Review agent notes or disposition codes for the 23 transferred login_issue requests to understand what prevented first-line resolution and whether additional agent training or tooling is warranted.",
+        "Establish a baseline transfer rate for login_issue requests across the available data period (2026-08-25 to 2026-09-07) to determine whether the 57.5% transfer rate on 2026-08-25 is anomalous."
+      ]
+    },
+    "pattern_themes": [],
+    "narrative": "Here's the full picture for today's shift (2026-08-25):\n\n---\n\n## \ud83d\udcca Busiest Hour: 12:00\u201313:00\n\n| Hour | Requests |\n|---|---|\n| 08:00\u201309:00 | 18 |\n| 09:00\u201310:00 | 19 |\n| 10:00\u201311:00 | 20 |\n| 11:00\u201312:00 | 19 |\n| **12:00\u201313:00** | **45 \u2b06\ufe0f** |\n| 13:00\u201314:00 | 20 |\n| 14:00\u201315:00 | 20 |\n| 15:00\u201316:00 | 21 |\n| 16:00\u201317:00 | 18 |\n\nThe 12:00\u201313:00 hour received **45 requests** \u2014 more than **twice the typical volume** for that slot (typical: ~20 requests across the last 9 comparable days).\n\n---\n\n## \ud83d\udd0d Driving Classification: Login Issues\n\nOf the 45 requests in that hour, **40 (89%) were `login_issue`** \u2014 a sharp concentration compared to the day's overall mix. The remaining 5 were spread across payment, technical, and general information.\n\n---\n\n## \ud83d\udea8 Escalations (Transfers) for Login Issues in That Hour\n\nOf the 40 `login_issue` requests during 12:00\u201313:00:\n\n| Status | Count |\n|---|---|\n| **Transferred (escalated)** | **23 (57.5%)** |\n| Resolved at first line | 17 (42.5%) |\n\n**Transfer destinations:**\n- Technical Support: 12\n- Billing: 7\n- Supervisor: 2\n- Back Office: 2\n\n---\n\n## \u26a0\ufe0f Capacity Context\n\nThe spike was a **demand-side surge**, not a staffing reduction \u2014 agent headcount held steady at 12 throughout. However, the surge overwhelmed available capacity:\n\n- **Available agents dropped** from 5.08 (prior hour) to just **1.42** (nearly all 12 agents were on calls simultaneously)\n- **Wait time jumped** from 4.4 min \u2192 **11.5 min**\n- **Abandoned calls spiked** to **26** (vs. a typical 5 for that hour)\n\n---\n\n## Summary\n\n> **12:00\u201313:00** was the busiest hour, driven almost entirely by a surge in **login issues** (+20 above typical). Of those 40 login-issue requests, **23 were escalated (57.5%)**, primarily to Technical Support (12) and Billing (7). The surge overwhelmed available agents, causing wait times to more than double and 26 calls to be abandoned. The root cause of the login-issue surge is not confirmed from this data \u2014 further investigation (e.g., system logs or a known outage) would be needed to explain why so many login issues arrived simultaneously at midday.",
+    "trace": [
+      {
+        "tool": "get_requests_by_time_bucket",
+        "args": {
+          "start_time": "2026-08-25 08:00",
+          "end_time": "2026-08-25 17:00",
+          "bucket_minutes": 60
+        },
+        "result": {
+          "start_time": "2026-08-25 08:00",
+          "end_time": "2026-08-25 17:00",
+          "bucket_minutes": 60,
+          "request_counts": {
+            "08:00-09:00": 18,
+            "09:00-10:00": 19,
+            "10:00-11:00": 20,
+            "11:00-12:00": 19,
+            "12:00-13:00": 45,
+            "13:00-14:00": 20,
+            "14:00-15:00": 20,
+            "15:00-16:00": 21,
+            "16:00-17:00": 18
+          }
+        }
+      },
+      {
+        "tool": "get_requests_by_classification",
+        "args": {
+          "start_time": "2026-08-25 08:00",
+          "end_time": "2026-08-25 17:00"
+        },
+        "result": {
+          "start_time": "2026-08-25 08:00",
+          "end_time": "2026-08-25 17:00",
+          "classifications": {
+            "login_issue": 73,
+            "general_information": 45,
+            "technical_issue": 40,
+            "payment_issue": 42
+          }
+        }
+      },
+      {
+        "tool": "get_requests_by_classification",
+        "args": {
+          "start_time": "2026-08-25 12:00",
+          "end_time": "2026-08-25 13:00"
+        },
+        "result": {
+          "start_time": "2026-08-25 12:00",
+          "end_time": "2026-08-25 13:00",
+          "classifications": {
+            "payment_issue": 2,
+            "login_issue": 40,
+            "technical_issue": 1,
+            "general_information": 2
+          }
+        }
+      },
+      {
+        "tool": "get_capacity_context",
+        "args": {
+          "start_time": "2026-08-25 12:00",
+          "end_time": "2026-08-25 13:00"
+        },
+        "result": {
+          "window": {
+            "start_time": "2026-08-25T12:00:00",
+            "end_time": "2026-08-25T13:00:00",
+            "requests": 45,
+            "average_wait_time_minutes": 11.47,
+            "average_agents_on_shift": 12.0,
+            "min_agents_on_shift": 12,
+            "average_available_agents": 1.42,
+            "peak_agents_on_calls": 12,
+            "abandoned_calls": 26
+          },
+          "previous_window": {
+            "start_time": "2026-08-25T11:00:00",
+            "end_time": "2026-08-25T12:00:00",
+            "requests": 19,
+            "average_wait_time_minutes": 4.37,
+            "average_agents_on_shift": 12.0,
+            "min_agents_on_shift": 12,
+            "average_available_agents": 5.08,
+            "peak_agents_on_calls": 9,
+            "abandoned_calls": 6
+          },
+          "typical_same_window": {
+            "requests": 20.0,
+            "average_wait_time_minutes": 4.35,
+            "average_agents_on_shift": 12.0,
+            "average_available_agents": 5.01,
+            "abandoned_calls": 5.0,
+            "days": 9
+          },
+          "difference_from_typical": {
+            "requests": 25.0,
+            "average_wait_time_minutes": 7.12,
+            "average_agents_on_shift": 0.0,
+            "average_available_agents": -3.59,
+            "abandoned_calls": 21.0
+          },
+          "reading_guide": "Demand side: requests vs typical. Capacity side: agents on shift and available agents vs typical. Both can contribute; neither proves a cause."
+        }
+      },
+      {
+        "tool": "get_classification_status_breakdown",
+        "args": {
+          "classification": "login_issue",
+          "start_time": "2026-08-25 12:00",
+          "end_time": "2026-08-25 13:00"
+        },
+        "result": {
+          "start_time": "2026-08-25 12:00",
+          "end_time": "2026-08-25 13:00",
+          "classification": "login_issue",
+          "request_count": 40,
+          "statuses": {
+            "transferred": 23,
+            "resolved": 17
+          },
+          "transfer_destinations": {
+            "supervisor": 2,
+            "technical_support": 12,
+            "back_office": 2,
+            "billing": 7
+          }
+        }
+      }
+    ],
+    "date_range": {
+      "start": "2026-08-25",
+      "end": "2026-08-25"
+    },
+    "model": "claude-sonnet-4-6",
+    "evidence_plan": {
+      "scope": {
+        "start_date": "2026-08-25",
+        "end_date": "2026-08-25",
+        "working_days": 1,
+        "time_window": null,
+        "viewing_date": "2026-08-25",
+        "agents": []
+      },
+      "intents": [
+        "spike"
+      ],
+      "calls": [],
+      "drill_into_anomalies": false,
+      "reasons": [
+        "No pre-fetch rule matched; the agent chooses all evidence itself."
+      ],
+      "executed": []
+    },
+    "answer_checks": [
+      {
+        "kind": "unverified_number",
+        "message": "57.5 is not in the tool results and is not one step from a number beside it.",
+        "excerpt": "Historical transfer rates for login_issue requests to establish whether 57.5% is anomalous or typical for that classification."
+      }
+    ],
+    "status": "completed",
+    "error": null
+  },
+  "grade": {
+    "scenario": "S07",
+    "passed": true,
+    "critical_failures": 0,
+    "score": 1.0,
+    "checks": [
+      {
+        "check": "run completed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "tool: count_requests or detect_volume_anomalies or get_capacity_context or get_daily_series or get_requests_by_time_bucket",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "tool: get_requests_by_classification",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "tool: get_classification_status_breakdown or get_requests_by_status",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "no invalid tool arguments",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "fact stated: login transferred in busiest hour = 23",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "concept in observed_facts: all ['12:00', 'login'] any []",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "root cause left unconfirmed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      }
+    ]
+  },
+  "numbers": {
+    "summary": {
+      "direct": 79,
+      "derived": 6,
+      "loose": 2,
+      "unsupported": 0,
+      "total": 87
+    },
+    "not_verified": [
+      {
+        "raw": "57.5%",
+        "match": "loose",
+        "source": "result.missing_evidence",
+        "context": "tes for login_issue requests to establish whether 57.5% is anomalous or typical for t"
+      },
+      {
+        "raw": "57.5%",
+        "match": "loose",
+        "source": "result.recommendations",
+        "context": "026-08-25 to 2026-09-07) to determine whether the 57.5% transfer rate on 2026-08-25 i"
+      }
+    ],
+    "identifiers": []
+  }
+}

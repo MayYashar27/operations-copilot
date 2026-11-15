@@ -1,0 +1,440 @@
+{
+  "scenario": "S29",
+  "category": "robustness",
+  "question": "Did request volume drop between 2026-08-25 to 2026-09-01 and 2026-09-02 to 2026-09-07?",
+  "date_context": "2026-09-07",
+  "prompt_sent": "Did request volume drop between 2026-08-25 to 2026-09-01 and 2026-09-02 to 2026-09-07?\n\nContext: The manager is viewing the shift of 2026-09-07; treat 'today' or 'this shift' as that date. Available data covers working days 2026-08-25 to 2026-09-07, 08:00-17:00.",
+  "duration_seconds": 44.8,
+  "usage": {
+    "claude-sonnet-4-6": {
+      "input_token_details": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0,
+        "cache_creation": 0,
+        "cache_read": 0
+      },
+      "output_tokens": 2303,
+      "total_tokens": 21336,
+      "input_tokens": 19033
+    }
+  },
+  "cost_usd": 0.0916,
+  "outcome": {
+    "result": {
+      "observed_facts": [
+        "Period 1 (2026-08-25 to 2026-09-01) contained 6 working days: 25, 26, 27, 28 Aug; 31 Aug; 1 Sep.",
+        "Period 2 (2026-09-02 to 2026-09-07) contained 4 working days: 2, 3, 4, 7 Sep (5 and 6 Sep are non-working days).",
+        "Period 1 total requests: 1,199 across 6 working days, equating to 199.8 requests per working day.",
+        "Period 2 total requests: 800 across 4 working days, equating to 200.0 requests per working day.",
+        "Per-working-day absolute change between periods: +0.17 requests/day (+0.08%).",
+        "Every individual working day across the full 10-day window recorded between 199 and 200 requests: 2026-08-25 (200), 2026-08-26 (200), 2026-08-27 (199), 2026-08-28 (200), 2026-08-31 (200), 2026-09-01 (200), 2026-09-02 (200), 2026-09-03 (200), 2026-09-04 (200), 2026-09-07 (200).",
+        "Three intra-day hourly volume spikes were detected, all on working days within Period 1: 2026-08-25 12:00\u201313:00 (45 requests, 2.02\u00d7 daily hourly average), 2026-08-26 14:00\u201315:00 (45 requests, 2.02\u00d7 daily hourly average), 2026-08-27 15:00\u201316:00 (45 requests, 2.04\u00d7 daily hourly average).",
+        "No intra-day hourly volume anomalies were detected on any working day in Period 2 (2026-09-02 to 2026-09-07).",
+        "Overall per-working-day request rate across all 10 working days: 199.9 requests/day."
+      ],
+      "supported_patterns": [
+        "Daily request volume was flat at 199\u2013200 requests per working day across all 10 working days from 2026-08-25 to 2026-09-07 (10 data points).",
+        "All three detected intra-day hourly spikes (each 45 requests, ratio 2.02\u20132.04\u00d7) occurred exclusively in Period 1 (2026-08-25 to 2026-08-27), with none recorded in Period 2 (3 anomaly records vs. 0)."
+      ],
+      "hypotheses": [
+        "The three intra-day hourly spikes in Period 1 may reflect a transient event or recurring pattern specific to that week, but their cause has not been determined from the available evidence.",
+        "The absence of intra-day spikes in Period 2 may indicate that whatever drove the Period 1 spikes resolved or did not recur, but this cannot be confirmed without further investigation."
+      ],
+      "confirmed_root_cause": null,
+      "missing_evidence": [
+        "Intra-day hourly breakdowns for all working days in Period 2 (2026-09-02 to 2026-09-07) to confirm whether the absence of anomalies is complete or a detection gap.",
+        "Classification or channel-level breakdowns for the three spike hours (2026-08-25 12:00\u201313:00, 2026-08-26 14:00\u201315:00, 2026-08-27 15:00\u201316:00) to identify what drove the concentrated volume.",
+        "Context on whether 2026-09-05 and 2026-09-06 are public holidays or standard weekend days, to confirm the working-day count for Period 2."
+      ],
+      "recommendations": [
+        "Use per-working-day values (not raw totals) when comparing any two periods that differ in the number of working days, as the raw total difference between Period 1 (1,199) and Period 2 (800) is entirely explained by Period 1 having 2 additional working days.",
+        "Investigate the three intra-day hourly spikes on 2026-08-25, 2026-08-26, and 2026-08-27 to determine whether they share a common trigger, as all three occurred in the same week and at similar magnitudes (~2\u00d7 the daily hourly average).",
+        "Monitor daily request volume in subsequent periods to determine whether the 199\u2013200 requests/day rate continues or shifts, given the current evidence shows no change between the two periods examined."
+      ]
+    },
+    "pattern_themes": [],
+    "narrative": "Here is the full picture:\n\n---\n\n## Request Volume Comparison: 2026-08-25\u201309-01 vs. 2026-09-02\u201309-07\n\n### Period definitions\n| Period | Working days | Total requests | Requests per working day |\n|---|---|---|---|\n| **Period 1** \u2013 25 Aug to 1 Sep | 6 (25, 26, 27, 28 Aug; 31 Aug; 1 Sep) | 1,199 | 199.8 |\n| **Period 2** \u2013 2 Sep to 7 Sep | 6 (2, 3, 4, 7 Sep) \u2014 wait, see note below | 4 working days | see below |\n\n> \u26a0\ufe0f **Important clarification on working days:**\n> The daily series shows that **2026-09-05 and 2026-09-06 are not working days** (weekend). Period 2 therefore contains **4 working days** (2, 3, 4, 7 Sep), not 6. Period 1 contains **6 working days** (25, 26, 27, 28 Aug; 31 Aug; 1 Sep). Because the periods have **different numbers of working days**, the fair comparison is **per working day**.\n\nLet me present the corrected figures:\n\n| Period | Working days | Total requests | Requests per working day |\n|---|---|---|---|\n| **Period 1** (25 Aug \u2013 1 Sep) | 6 | 1,199 | **199.8** |\n| **Period 2** (2 Sep \u2013 7 Sep) | 4 | 800 | **200.0** |\n\n### Key finding: **No meaningful drop in request volume**\n\n- **Per working day, volume is virtually identical**: 199.8 vs. 200.0 \u2014 a difference of just **+0.2 requests/day (+0.08%)**.\n- Every single working day across the entire 10-day window recorded **exactly 199\u2013200 requests**, with no day deviating from that range.\n- The difference in raw totals (1,199 vs. 800) is entirely explained by Period 1 having **2 more working days** than Period 2.\n\n### Daily breakdown for reference\n| Date | Requests |\n|---|---|\n| 2026-08-25 | 200 |\n| 2026-08-26 | 200 |\n| 2026-08-27 | 199 |\n| 2026-08-28 | 200 |\n| 2026-08-31 | 200 |\n| 2026-09-01 | 200 |\n| 2026-09-02 | 200 |\n| 2026-09-03 | 200 |\n| 2026-09-04 | 200 |\n| 2026-09-07 | 200 |\n\n### Notable anomalies (volume spikes within days)\nThree intra-day spikes were detected in Period 1 \u2014 all in the first period, none in Period 2:\n- **25 Aug, 12:00\u201313:00**: 45 requests (2.02\u00d7 daily average)\n- **26 Aug, 14:00\u201315:00**: 45 requests (2.02\u00d7 daily average)\n- **27 Aug, 15:00\u201316:00**: 45 requests (2.04\u00d7 daily average)\n\nThese spikes are intra-day concentrations and did not affect daily totals materially.\n\n---\n\n### \u2705 Conclusion\n**Request volume did not drop between the two periods.** The daily rate was essentially flat at ~200 requests per working day throughout the entire 10-day window. Any apparent difference in raw totals is solely due to Period 2 having fewer working days (4 vs. 6).",
+    "trace": [
+      {
+        "tool": "get_daily_series",
+        "args": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07"
+        },
+        "result": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07",
+          "working_days": 10,
+          "days": [
+            {
+              "date": "2026-08-25",
+              "requests": 200,
+              "transferred": 61,
+              "transfer_rate_percent": 30.5,
+              "average_wait_time_minutes": 6.04,
+              "requests_by_classification": {
+                "general_information": 45,
+                "login_issue": 73,
+                "payment_issue": 42,
+                "technical_issue": 40
+              },
+              "abandoned_calls": 75,
+              "answered_calls": 970,
+              "average_available_agents": 4.47,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-08-26",
+              "requests": 200,
+              "transferred": 51,
+              "transfer_rate_percent": 25.5,
+              "average_wait_time_minutes": 5.82,
+              "requests_by_classification": {
+                "general_information": 49,
+                "login_issue": 52,
+                "payment_issue": 57,
+                "technical_issue": 42
+              },
+              "abandoned_calls": 73,
+              "answered_calls": 968,
+              "average_available_agents": 4.69,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-08-27",
+              "requests": 199,
+              "transferred": 54,
+              "transfer_rate_percent": 27.14,
+              "average_wait_time_minutes": 6.25,
+              "requests_by_classification": {
+                "general_information": 39,
+                "login_issue": 43,
+                "payment_issue": 65,
+                "technical_issue": 52
+              },
+              "abandoned_calls": 100,
+              "answered_calls": 997,
+              "average_available_agents": 4.41,
+              "average_agents_on_shift": 11.56,
+              "min_agents_on_shift": 8
+            },
+            {
+              "date": "2026-08-28",
+              "requests": 200,
+              "transferred": 57,
+              "transfer_rate_percent": 28.5,
+              "average_wait_time_minutes": 4.51,
+              "requests_by_classification": {
+                "general_information": 62,
+                "login_issue": 44,
+                "payment_issue": 42,
+                "technical_issue": 52
+              },
+              "abandoned_calls": 48,
+              "answered_calls": 974,
+              "average_available_agents": 4.93,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-08-31",
+              "requests": 200,
+              "transferred": 40,
+              "transfer_rate_percent": 20.0,
+              "average_wait_time_minutes": 4.62,
+              "requests_by_classification": {
+                "general_information": 53,
+                "login_issue": 53,
+                "payment_issue": 51,
+                "technical_issue": 43
+              },
+              "abandoned_calls": 54,
+              "answered_calls": 939,
+              "average_available_agents": 5.07,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-01",
+              "requests": 200,
+              "transferred": 43,
+              "transfer_rate_percent": 21.5,
+              "average_wait_time_minutes": 4.6,
+              "requests_by_classification": {
+                "general_information": 38,
+                "login_issue": 61,
+                "payment_issue": 50,
+                "technical_issue": 51
+              },
+              "abandoned_calls": 62,
+              "answered_calls": 969,
+              "average_available_agents": 5.18,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-02",
+              "requests": 200,
+              "transferred": 56,
+              "transfer_rate_percent": 28.0,
+              "average_wait_time_minutes": 4.57,
+              "requests_by_classification": {
+                "general_information": 54,
+                "login_issue": 42,
+                "payment_issue": 50,
+                "technical_issue": 54
+              },
+              "abandoned_calls": 58,
+              "answered_calls": 1009,
+              "average_available_agents": 5.29,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-03",
+              "requests": 200,
+              "transferred": 44,
+              "transfer_rate_percent": 22.0,
+              "average_wait_time_minutes": 4.5,
+              "requests_by_classification": {
+                "general_information": 40,
+                "login_issue": 64,
+                "payment_issue": 49,
+                "technical_issue": 47
+              },
+              "abandoned_calls": 56,
+              "answered_calls": 994,
+              "average_available_agents": 4.98,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-04",
+              "requests": 200,
+              "transferred": 50,
+              "transfer_rate_percent": 25.0,
+              "average_wait_time_minutes": 4.33,
+              "requests_by_classification": {
+                "general_information": 61,
+                "login_issue": 58,
+                "payment_issue": 41,
+                "technical_issue": 40
+              },
+              "abandoned_calls": 49,
+              "answered_calls": 965,
+              "average_available_agents": 5.08,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-07",
+              "requests": 200,
+              "transferred": 61,
+              "transfer_rate_percent": 30.5,
+              "average_wait_time_minutes": 4.49,
+              "requests_by_classification": {
+                "general_information": 45,
+                "login_issue": 44,
+                "payment_issue": 60,
+                "technical_issue": 51
+              },
+              "abandoned_calls": 53,
+              "answered_calls": 984,
+              "average_available_agents": 4.75,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            }
+          ],
+          "totals": {
+            "requests": 1999,
+            "transferred": 517,
+            "abandoned_calls": 628
+          },
+          "per_working_day": {
+            "requests": 199.9,
+            "transferred": 51.7,
+            "abandoned_calls": 62.8,
+            "average_available_agents": 4.88
+          },
+          "note": "Compare periods using per_working_day values; totals depend on how many days a period has."
+        }
+      },
+      {
+        "tool": "detect_volume_anomalies",
+        "args": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07"
+        },
+        "result": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07",
+          "working_days_checked": 10,
+          "threshold_multiplier": 1.5,
+          "anomalies": [
+            {
+              "date": "2026-08-27",
+              "start_time": "2026-08-27T15:00:00",
+              "end_time": "2026-08-27T16:00:00",
+              "request_count": 45,
+              "ratio_to_daily_hourly_average": 2.04,
+              "day_average_hourly_volume": 22.11
+            },
+            {
+              "date": "2026-08-25",
+              "start_time": "2026-08-25T12:00:00",
+              "end_time": "2026-08-25T13:00:00",
+              "request_count": 45,
+              "ratio_to_daily_hourly_average": 2.02,
+              "day_average_hourly_volume": 22.22
+            },
+            {
+              "date": "2026-08-26",
+              "start_time": "2026-08-26T14:00:00",
+              "end_time": "2026-08-26T15:00:00",
+              "request_count": 45,
+              "ratio_to_daily_hourly_average": 2.02,
+              "day_average_hourly_volume": 22.22
+            }
+          ],
+          "rule": "An hour is unusual when its requests are at least threshold_multiplier times that day's average hourly volume (08:00-17:00)."
+        }
+      },
+      {
+        "tool": "compare_values",
+        "args": {
+          "current": 1200,
+          "baseline": 1199,
+          "current_days": 6,
+          "baseline_days": 6
+        },
+        "result": {
+          "current": 1200.0,
+          "baseline": 1199.0,
+          "absolute_change": 1.0,
+          "percentage_change": 0.08,
+          "current_days": 6,
+          "baseline_days": 6,
+          "current_per_day": 200.0,
+          "baseline_per_day": 199.83,
+          "per_day_absolute_change": 0.17,
+          "per_day_percentage_change": 0.08,
+          "note": "Equal periods; per-day and total comparisons agree."
+        }
+      }
+    ],
+    "date_range": {
+      "start": "2026-08-25",
+      "end": "2026-09-07"
+    },
+    "model": "claude-sonnet-4-6",
+    "evidence_plan": {
+      "scope": {
+        "start_date": "2026-08-25",
+        "end_date": "2026-09-07",
+        "working_days": 10,
+        "time_window": null,
+        "viewing_date": "2026-09-07",
+        "agents": []
+      },
+      "intents": [
+        "change"
+      ],
+      "calls": [
+        {
+          "tool": "get_daily_series",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        },
+        {
+          "tool": "detect_volume_anomalies",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        }
+      ],
+      "drill_into_anomalies": false,
+      "reasons": [
+        "The question covers 10 working days: collected the day-by-day series and searched every day for unusual hours."
+      ],
+      "executed": [
+        {
+          "tool": "get_daily_series",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        },
+        {
+          "tool": "detect_volume_anomalies",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        }
+      ]
+    },
+    "answer_checks": [],
+    "status": "completed",
+    "error": null
+  },
+  "grade": {
+    "scenario": "S29",
+    "passed": false,
+    "critical_failures": 0,
+    "score": 0.667,
+    "checks": [
+      {
+        "check": "run completed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "tool: count_requests",
+        "verdict": "FAIL",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "no invalid tool arguments",
+        "verdict": "FAIL",
+        "critical": false,
+        "detail": "unknown tool 'get_daily_series'; unknown tool 'detect_volume_anomalies'"
+      },
+      {
+        "check": "concept in observed_facts/supported_patterns: all [] any ['per day', 'per working day', 'daily average', 'working days']",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "must not: unnormalised comparison of unequal periods",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "root cause left unconfirmed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      }
+    ]
+  },
+  "numbers": {
+    "summary": {
+      "direct": 133,
+      "derived": 7,
+      "loose": 0,
+      "unsupported": 0,
+      "total": 140
+    },
+    "not_verified": [],
+    "identifiers": []
+  }
+}

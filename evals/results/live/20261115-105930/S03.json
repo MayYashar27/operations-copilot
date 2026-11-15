@@ -1,0 +1,694 @@
+{
+  "scenario": "S03",
+  "category": "spike_cause",
+  "question": "There was an unusually high workload on 2026-08-27 between 15:00 and 16:00. Investigate what happened and explain the likely cause.",
+  "date_context": "2026-09-07",
+  "prompt_sent": "There was an unusually high workload on 2026-08-27 between 15:00 and 16:00. Investigate what happened and explain the likely cause.\n\nContext: The manager is viewing the shift of 2026-09-07; treat 'today' or 'this shift' as that date. Available data covers working days 2026-08-25 to 2026-09-07, 08:00-17:00.",
+  "duration_seconds": 88.8,
+  "usage": {
+    "claude-sonnet-4-6": {
+      "output_tokens": 4753,
+      "input_token_details": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0,
+        "cache_creation": 0,
+        "cache_read": 0
+      },
+      "total_tokens": 36741,
+      "input_tokens": 31988
+    }
+  },
+  "cost_usd": 0.1673,
+  "outcome": {
+    "result": {
+      "observed_facts": [
+        "On 2026-08-27 15:00\u201316:00, 45 requests were received, compared to 20 in the prior hour (14:00\u201315:00) and a typical 9-day average of 22.22 for that same window.",
+        "On 2026-08-27 15:00\u201316:00, average wait time was 12.49 minutes, compared to 4.95 minutes in the prior hour and a typical average of 4.41 minutes (9-day average).",
+        "On 2026-08-27 15:00\u201316:00, agents on shift dropped to 8, down from 12 in the prior hour (14:00\u201315:00); the typical staffing for that window is also 12 (9-day average).",
+        "On 2026-08-27 15:00\u201316:00, average available agents was 0.33, compared to 4.5 in the prior hour and a typical average of 5.01 (9-day average).",
+        "On 2026-08-27 15:00\u201316:00, peak agents on calls reached 8, equal to the total agents on shift, meaning all agents were simultaneously occupied.",
+        "On 2026-08-27 15:00\u201316:00, 46 calls were abandoned, compared to 6 in the prior hour and a typical average of 5.67 (9-day average).",
+        "On 2026-08-27 15:00\u201316:00, the 45 requests were distributed across four classifications: payment_issue (16), technical_issue (10), login_issue (10), and general_information (9).",
+        "On 2026-08-27 15:00\u201316:00, 11 requests involved payment questions or pending transactions (request IDs: 30156, 30138, 30139, 30151, 30175, 30179, 30169, 30140, 30171, 30150, 30168).",
+        "On 2026-08-27 15:00\u201316:00, 9 requests involved sign-in and password issues including incorrect password entries and password reset requests (request IDs: 30177, 30160, 30157, 30143, 30163, 30159, 30173, 30161, 30152).",
+        "On 2026-08-27 15:00\u201316:00, 5 requests involved billing inquiries that required escalation rather than first-line resolution (request IDs: 30141, 30144, 30155, 30172, 30180).",
+        "On 2026-08-27 15:00\u201316:00, 5 requests involved notification delivery issues (request IDs: 30137, 30158, 30176, 30153, 30146).",
+        "On 2026-08-27 15:00\u201316:00, 4 requests involved browser-related service access difficulties (request IDs: 30165, 30170, 30166, 30167).",
+        "On 2026-08-27 15:00\u201316:00, 5 requests were identified as potentially misrouted escalations, with technical and password-related issues escalated to billing (request IDs: 30162, 30141, 30159, 30152, 30158)."
+      ],
+      "supported_patterns": [
+        "On 2026-08-27 15:00\u201316:00, payment and transaction-related inquiries were the largest single theme, accounting for 11 of 45 requests (high confidence, pattern analysis).",
+        "On 2026-08-27 15:00\u201316:00, sign-in and password issues formed the second-largest recurring theme, with 9 of 45 requests (high confidence, pattern analysis).",
+        "On 2026-08-27 15:00\u201316:00, notification delivery issues and browser-related access difficulties together accounted for 9 of 45 requests, spanning two separate classifications (high confidence, pattern analysis).",
+        "On 2026-08-27 15:00\u201316:00, billing inquiries were consistently escalated rather than resolved at first line, across 5 requests (high confidence, pattern analysis).",
+        "On 2026-08-27 15:00\u201316:00, 5 requests showed a misrouting pattern where subjects such as technical issues and password problems were escalated to billing rather than to aligned departments (medium confidence, pattern analysis).",
+        "On 2026-08-27 15:00\u201316:00, the demand surge was broad-based, with all four classification categories elevated simultaneously rather than concentrated in a single category."
+      ],
+      "hypotheses": [
+        "The 4-agent reduction at 15:00 on 2026-08-27 may have been unplanned (e.g., early departures or absences), as the typical staffing for that window is 12 agents and the prior hour also had 12; however, the data does not distinguish between planned and unplanned departures.",
+        "The simultaneous multi-category demand surge (payment, login, technical, general) may indicate a platform-side event affecting customers across multiple touchpoints, but no system log or error trace is available to confirm this.",
+        "The 5 potentially misrouted escalations may reflect degraded triage quality under the pressure of high volume and minimal agent availability, but this cannot be confirmed without reviewing routing decisions directly.",
+        "The combination of a staffing drop and a demand surge occurring simultaneously may be coincidental, or the staffing reduction may have been a scheduled event that was not adjusted in response to rising demand; the evidence does not establish which."
+      ],
+      "confirmed_root_cause": null,
+      "missing_evidence": [
+        "Shift schedule records for 2026-08-27 at 15:00, to determine whether the reduction from 12 to 8 agents was planned or the result of unplanned absences or early departures.",
+        "Platform and system logs for approximately 14:30\u201315:30 on 2026-08-27, to determine whether a technical event (e.g., login failures, notification failures, browser errors) drove the multi-category demand surge.",
+        "Routing rules and escalation logs for the 5 potentially misrouted requests (IDs: 30162, 30141, 30159, 30152, 30158), to confirm whether misrouting occurred and whether it caused downstream delays.",
+        "Data on whether the 46 abandoned calls on 2026-08-27 15:00\u201316:00 were subsequently recovered (e.g., via callback or re-contact), to assess the full customer impact.",
+        "Classification-level typical averages for the 15:00\u201316:00 window, to determine whether any single category was disproportionately elevated relative to its own baseline."
+      ],
+      "recommendations": [
+        "Review the shift schedule for 2026-08-27 at 15:00 to determine whether the 4-agent reduction was planned or unplanned, and identify whether a scheduling or absence management process failed.",
+        "Check platform and system logs for 14:30\u201315:30 on 2026-08-27 to investigate whether a technical event contributed to the broad-based demand surge across payment, login, technical, and general categories.",
+        "Review the 5 potentially misrouted escalations (request IDs: 30162, 30141, 30159, 30152, 30158) to assess whether routing errors caused downstream delays and whether triage guidance or tooling needs adjustment.",
+        "Investigate the 46 abandoned calls from 2026-08-27 15:00\u201316:00 to determine whether affected customers were re-contacted or their issues resolved, and assess whether a callback or queue recovery process is needed.",
+        "Review staffing policies for the 14:00\u201316:00 window to assess whether a minimum agent floor or contingency protocol should be established to prevent a recurrence of simultaneous low-staffing and high-demand conditions."
+      ]
+    },
+    "pattern_themes": [
+      {
+        "theme": "High volume of payment and transaction-related inquiries (payment questions and pending transactions)",
+        "request_ids": [
+          30156,
+          30138,
+          30139,
+          30151,
+          30175,
+          30179,
+          30169,
+          30140,
+          30171,
+          30150,
+          30168
+        ],
+        "evidence_count": 11,
+        "confidence": "high"
+      },
+      {
+        "theme": "Recurring sign-in and password issues (incorrect password entries and password reset requests)",
+        "request_ids": [
+          30177,
+          30160,
+          30157,
+          30143,
+          30163,
+          30159,
+          30173,
+          30161,
+          30152
+        ],
+        "evidence_count": 9,
+        "confidence": "high"
+      },
+      {
+        "theme": "Billing inquiries requiring escalation rather than first-line resolution",
+        "request_ids": [
+          30141,
+          30144,
+          30155,
+          30172,
+          30180
+        ],
+        "evidence_count": 5,
+        "confidence": "high"
+      },
+      {
+        "theme": "Notification delivery issues reported by customers",
+        "request_ids": [
+          30137,
+          30158,
+          30176,
+          30153,
+          30146
+        ],
+        "evidence_count": 5,
+        "confidence": "high"
+      },
+      {
+        "theme": "Browser-related service access difficulties",
+        "request_ids": [
+          30165,
+          30170,
+          30166,
+          30167
+        ],
+        "evidence_count": 4,
+        "confidence": "high"
+      },
+      {
+        "theme": "Account information and access requests requiring escalation",
+        "request_ids": [
+          30142,
+          30181,
+          30178,
+          30164
+        ],
+        "evidence_count": 4,
+        "confidence": "medium"
+      },
+      {
+        "theme": "Misrouted escalations \u2014 requests escalated to departments misaligned with their subject matter (e.g., technical issues sent to billing, password issues sent to billing)",
+        "request_ids": [
+          30162,
+          30141,
+          30159,
+          30152,
+          30158
+        ],
+        "evidence_count": 5,
+        "confidence": "medium"
+      }
+    ],
+    "narrative": "I now have comprehensive evidence across both demand and capacity dimensions, plus full request-level detail. Here is the complete investigation.\n\n---\n\n## \ud83d\udd0d Incident Investigation: 2026-08-27, 15:00\u201316:00\n\n---\n\n### 1. What the Data Shows at a Glance\n\n| Metric | 15:00\u201316:00 (incident) | 14:00\u201315:00 (prior hour) | Typical 15:00\u201316:00 (9-day avg) |\n|---|---|---|---|\n| **Requests received** | **45** | 20 | 22.2 |\n| **Avg wait time (min)** | **12.49** | 4.95 | 4.41 |\n| **Agents on shift** | **8** | 12 | 12.0 |\n| **Available agents (avg)** | **0.33** | 4.5 | 5.01 |\n| **Peak agents on calls** | **8** | 9 | \u2014 |\n| **Abandoned calls** | **46** | 6 | 5.67 |\n\n---\n\n### 2. Demand Side \u2014 A Sudden Surge Across All Categories\n\n**45 requests** arrived in the 15:00\u201316:00 window \u2014 **more than double** the prior hour (20) and **+103% above the typical 15:00\u201316:00 average** of 22.2. The surge was broad, not concentrated in a single category:\n\n| Classification | Count | Share |\n|---|---|---|\n| **payment_issue** | 16 | 36% |\n| **technical_issue** | 10 | 22% |\n| **login_issue** | 10 | 22% |\n| **general_information** | 9 | 20% |\n\nNo single classification dominates overwhelmingly, meaning this was a **broad-based demand spike**, not a targeted event in one category.\n\n---\n\n### 3. Capacity Side \u2014 A Simultaneous Staffing Drop\n\nThis is the critical compounding factor. **Agents on shift fell from 12 to 8** between 14:00\u201315:00 and 15:00\u201316:00 \u2014 a **loss of 4 agents (\u221233%)** \u2014 at exactly the moment demand more than doubled. The typical staffing for this hour is also 12 agents.\n\nThe result was catastrophic for availability:\n- **Average available agents: 0.33** (vs. 4.5 the prior hour and 5.01 typically)\n- **All 8 remaining agents were simultaneously on calls** (peak agents on calls = 8)\n- **46 calls were abandoned** \u2014 nearly matching the 45 requests received, and **8\u00d7 the typical abandonment** of 5.67\n\n---\n\n### 4. Semantic Themes in the 45 Requests\n\nThe pattern-analysis component identified the following recurring themes across the 45 requests (all high confidence unless noted):\n\n| Theme | Request IDs (sample) | Count |\n|---|---|---|\n| **Payment & pending transaction inquiries** | 30156, 30138, 30139, 30151, 30175, 30179, 30169, 30140, 30171, 30150, 30168 | 11 |\n| **Sign-in & password issues** (incorrect passwords, resets) | 30177, 30160, 30157, 30143, 30163, 30159, 30173, 30161, 30152 | 9 |\n| **Billing inquiries requiring escalation** | 30141, 30144, 30155, 30172, 30180 | 5 |\n| **Notification delivery issues** | 30137, 30158, 30176, 30153, 30146 | 5 |\n| **Browser-related access difficulties** | 30165, 30170, 30166, 30167 | 4 |\n| **Account info/access requiring escalation** *(medium confidence)* | 30142, 30181, 30178, 30164 | 4 |\n| **Misrouted escalations** *(medium confidence)* | 30162, 30141, 30159, 30152, 30158 | 5 |\n\n**Notable misrouting pattern:** Several requests were escalated to departments misaligned with their subject matter \u2014 e.g., a technical issue (30162) and a password issue (30159, 30152) escalated to *billing*, and a notification issue (30158) also sent to *billing*. This suggests that under pressure, routing decisions may have been less precise.\n\n---\n\n### 5. Likely Cause \u2014 A Dual-Sided Incident\n\nThe evidence points to a **compound incident** driven by two simultaneous factors:\n\n#### \ud83d\udd34 Factor 1 (Capacity): Unplanned staffing reduction at 15:00\nFour agents left the shift at 15:00 \u2014 reducing capacity by 33% at the worst possible moment. This is **not a normal end-of-shift pattern** (the typical 15:00\u201316:00 staffing is 12, not 8). This suggests an unplanned or early departure of agents. **This is the primary driver of the service breakdown**, as even a normal demand level of ~22 requests would have been strained with only 8 agents.\n\n#### \ud83d\udfe0 Factor 2 (Demand): A broad, multi-category demand surge\nDemand more than doubled simultaneously \u2014 across payment, login, technical, and general categories. The breadth of the surge (no single dominant category) suggests it was not caused by one specific product event, but may reflect a general customer-facing issue or a coincidental clustering of contacts. The technical and login themes (browser problems, notification failures, password issues) together suggest possible platform-side difficulties that drove customers to contact support across multiple channels.\n\n#### Combined effect:\n- With 8 agents facing 45 requests (vs. a typical 12 agents for 22 requests), the system was overwhelmed.\n- Average wait time tripled (4.41 \u2192 12.49 min).\n- 46 calls were abandoned \u2014 customers gave up waiting.\n- Agents under pressure may have made routing errors (misrouted escalations).\n\n---\n\n### 6. What Is Not Confirmed\n\n- **Root cause is not confirmed.** The staffing drop could reflect scheduled early departures, unplanned absences, or a system/scheduling error \u2014 the data does not distinguish between these.\n- The demand surge's origin is not confirmed. The multi-category nature is consistent with a platform-wide issue, but no system log or error trace is available to confirm this.\n- Abandoned calls cannot be attributed to specific request types \u2014 they are counted separately from logged requests.\n\n---\n\n### 7. Recommended Next Steps\n\n| Action | Purpose |\n|---|---|\n| Review shift schedule for 2026-08-27 15:00 | Confirm whether the 4-agent reduction was planned or unplanned |\n| Check platform/system logs for 14:30\u201315:30 | Determine whether a technical event (login, notification, browser) drove the multi-category demand surge |\n| Review misrouted escalations (IDs: 30162, 30141, 30159, 30152, 30158) | Assess whether routing errors caused downstream delays and whether agent training or triage tools need adjustment |\n| Establish a staffing floor policy | Ensure a minimum agent count is maintained during peak-risk hours (14:00\u201316:00) |\n| Review callback/queue management for high-abandonment scenarios | 46 abandoned calls represent significant unmet demand that may not have been recovered |",
+    "trace": [
+      {
+        "tool": "get_capacity_context",
+        "args": {
+          "start_time": "2026-08-27T15:00:00",
+          "end_time": "2026-08-27T16:00:00"
+        },
+        "result": {
+          "window": {
+            "start_time": "2026-08-27T15:00:00",
+            "end_time": "2026-08-27T16:00:00",
+            "requests": 45,
+            "average_wait_time_minutes": 12.49,
+            "average_agents_on_shift": 8.0,
+            "min_agents_on_shift": 8,
+            "average_available_agents": 0.33,
+            "peak_agents_on_calls": 8,
+            "abandoned_calls": 46
+          },
+          "previous_window": {
+            "start_time": "2026-08-27T14:00:00",
+            "end_time": "2026-08-27T15:00:00",
+            "requests": 20,
+            "average_wait_time_minutes": 4.95,
+            "average_agents_on_shift": 12.0,
+            "min_agents_on_shift": 12,
+            "average_available_agents": 4.5,
+            "peak_agents_on_calls": 9,
+            "abandoned_calls": 6
+          },
+          "typical_same_window": {
+            "requests": 22.22,
+            "average_wait_time_minutes": 4.41,
+            "average_agents_on_shift": 12.0,
+            "average_available_agents": 5.01,
+            "abandoned_calls": 5.67,
+            "days": 9
+          },
+          "difference_from_typical": {
+            "requests": 22.78,
+            "average_wait_time_minutes": 8.08,
+            "average_agents_on_shift": -4.0,
+            "average_available_agents": -4.68,
+            "abandoned_calls": 40.33
+          },
+          "reading_guide": "Demand side: requests vs typical. Capacity side: agents on shift and available agents vs typical. Both can contribute; neither proves a cause."
+        }
+      },
+      {
+        "tool": "get_requests_by_classification",
+        "args": {
+          "start_time": "2026-08-27T15:00:00",
+          "end_time": "2026-08-27T15:00:00"
+        },
+        "result": {
+          "start_time": "2026-08-27T15:00:00",
+          "end_time": "2026-08-27T15:00:00",
+          "classifications": {}
+        }
+      },
+      {
+        "tool": "get_requests_by_classification",
+        "args": {
+          "start_time": "2026-08-27T15:00:00",
+          "end_time": "2026-08-27T16:00:00"
+        },
+        "result": {
+          "start_time": "2026-08-27T15:00:00",
+          "end_time": "2026-08-27T16:00:00",
+          "classifications": {
+            "payment_issue": 16,
+            "technical_issue": 10,
+            "general_information": 9,
+            "login_issue": 10
+          }
+        }
+      },
+      {
+        "tool": "get_request_details",
+        "args": {
+          "start_time": "2026-08-27T15:00:00",
+          "end_time": "2026-08-27T16:00:00"
+        },
+        "result": {
+          "start_time": "2026-08-27T15:00:00",
+          "end_time": "2026-08-27T16:00:00",
+          "classification_filter": null,
+          "request_count": 45,
+          "requests": [
+            {
+              "request_id": 30156,
+              "request_time": "2026-08-27T15:00:21",
+              "subject": "Pending transaction",
+              "classification": "payment_issue",
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30162,
+              "request_time": "2026-08-27T15:01:18",
+              "subject": "Technical assistance",
+              "classification": "technical_issue",
+              "documentation": "Customer requested assistance with a technical issue. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30137,
+              "request_time": "2026-08-27T15:01:33",
+              "subject": "Notification issue",
+              "classification": "technical_issue",
+              "documentation": "Customer reported that a notification was not received. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30138,
+              "request_time": "2026-08-27T15:01:49",
+              "subject": "Pending transaction",
+              "classification": "payment_issue",
+              "documentation": "Customer asked about a transaction that is still pending. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30139,
+              "request_time": "2026-08-27T15:02:29",
+              "subject": "Payment question",
+              "classification": "payment_issue",
+              "documentation": "Customer contacted support regarding a recent payment. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30151,
+              "request_time": "2026-08-27T15:04:17",
+              "subject": "Payment question",
+              "classification": "payment_issue",
+              "documentation": "Customer contacted support regarding a recent payment. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 30141,
+              "request_time": "2026-08-27T15:04:46",
+              "subject": "Billing inquiry",
+              "classification": "payment_issue",
+              "documentation": "Customer requested clarification regarding a charge. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30149,
+              "request_time": "2026-08-27T15:05:25",
+              "subject": "Operating hours",
+              "classification": "general_information",
+              "documentation": "Customer asked about service center operating hours. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30177,
+              "request_time": "2026-08-27T15:05:44",
+              "subject": "Incorrect password",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in because an incorrect password was entered. Escalated to supervisor for follow-up."
+            },
+            {
+              "request_id": 30175,
+              "request_time": "2026-08-27T15:06:08",
+              "subject": "Payment question",
+              "classification": "payment_issue",
+              "documentation": "Customer contacted support regarding a recent payment. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30148,
+              "request_time": "2026-08-27T15:08:21",
+              "subject": "Service information",
+              "classification": "general_information",
+              "documentation": "Customer requested general information about the service. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 30154,
+              "request_time": "2026-08-27T15:09:28",
+              "subject": "Account information",
+              "classification": "general_information",
+              "documentation": "Customer requested information about account settings. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30160,
+              "request_time": "2026-08-27T15:12:50",
+              "subject": "Incorrect password",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in because an incorrect password was entered. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30157,
+              "request_time": "2026-08-27T15:13:47",
+              "subject": "Incorrect password",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in because an incorrect password was entered. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30179,
+              "request_time": "2026-08-27T15:14:02",
+              "subject": "Payment question",
+              "classification": "payment_issue",
+              "documentation": "Customer contacted support regarding a recent payment. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30169,
+              "request_time": "2026-08-27T15:15:36",
+              "subject": "Pending transaction",
+              "classification": "payment_issue",
+              "documentation": "Customer asked about a transaction that is still pending. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30140,
+              "request_time": "2026-08-27T15:16:51",
+              "subject": "Payment question",
+              "classification": "payment_issue",
+              "documentation": "Customer contacted support regarding a recent payment. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30174,
+              "request_time": "2026-08-27T15:19:28",
+              "subject": "Operating hours",
+              "classification": "general_information",
+              "documentation": "Customer asked about service center operating hours. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30145,
+              "request_time": "2026-08-27T15:19:33",
+              "subject": "Service information",
+              "classification": "general_information",
+              "documentation": "Customer requested general information about the service. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30171,
+              "request_time": "2026-08-27T15:19:44",
+              "subject": "Payment question",
+              "classification": "payment_issue",
+              "documentation": "Customer contacted support regarding a recent payment. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30173,
+              "request_time": "2026-08-27T15:20:53",
+              "subject": "Password reset request",
+              "classification": "login_issue",
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30181,
+              "request_time": "2026-08-27T15:20:55",
+              "subject": "Account information",
+              "classification": "general_information",
+              "documentation": "Customer requested information about account settings. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30143,
+              "request_time": "2026-08-27T15:22:56",
+              "subject": "Incorrect password",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in because an incorrect password was entered. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30161,
+              "request_time": "2026-08-27T15:24:42",
+              "subject": "Password reset request",
+              "classification": "login_issue",
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30158,
+              "request_time": "2026-08-27T15:30:39",
+              "subject": "Notification issue",
+              "classification": "technical_issue",
+              "documentation": "Customer reported that a notification was not received. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30165,
+              "request_time": "2026-08-27T15:31:25",
+              "subject": "Browser problem",
+              "classification": "technical_issue",
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30163,
+              "request_time": "2026-08-27T15:31:55",
+              "subject": "Incorrect password",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in because an incorrect password was entered. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30170,
+              "request_time": "2026-08-27T15:34:08",
+              "subject": "Browser problem",
+              "classification": "technical_issue",
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 30150,
+              "request_time": "2026-08-27T15:35:12",
+              "subject": "Pending transaction",
+              "classification": "payment_issue",
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30147,
+              "request_time": "2026-08-27T15:36:32",
+              "subject": "Account information",
+              "classification": "general_information",
+              "documentation": "Customer requested information about account settings. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30176,
+              "request_time": "2026-08-27T15:36:39",
+              "subject": "Notification issue",
+              "classification": "technical_issue",
+              "documentation": "Customer reported that a notification was not received. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30159,
+              "request_time": "2026-08-27T15:37:57",
+              "subject": "Incorrect password",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in because an incorrect password was entered. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30166,
+              "request_time": "2026-08-27T15:40:19",
+              "subject": "Browser problem",
+              "classification": "technical_issue",
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30153,
+              "request_time": "2026-08-27T15:41:01",
+              "subject": "Notification issue",
+              "classification": "technical_issue",
+              "documentation": "Customer reported that a notification was not received. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30142,
+              "request_time": "2026-08-27T15:41:19",
+              "subject": "Account access question",
+              "classification": "login_issue",
+              "documentation": "Customer requested assistance accessing the account. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 30178,
+              "request_time": "2026-08-27T15:41:23",
+              "subject": "Account information",
+              "classification": "general_information",
+              "documentation": "Customer requested information about account settings. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 30144,
+              "request_time": "2026-08-27T15:41:54",
+              "subject": "Billing inquiry",
+              "classification": "payment_issue",
+              "documentation": "Customer requested clarification regarding a charge. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 30180,
+              "request_time": "2026-08-27T15:42:12",
+              "subject": "Billing inquiry",
+              "classification": "payment_issue",
+              "documentation": "Customer requested clarification regarding a charge. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30152,
+              "request_time": "2026-08-27T15:42:26",
+              "subject": "Password reset request",
+              "classification": "login_issue",
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30146,
+              "request_time": "2026-08-27T15:44:14",
+              "subject": "Notification issue",
+              "classification": "technical_issue",
+              "documentation": "Customer reported that a notification was not received. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 30155,
+              "request_time": "2026-08-27T15:54:05",
+              "subject": "Billing inquiry",
+              "classification": "payment_issue",
+              "documentation": "Customer requested clarification regarding a charge. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30167,
+              "request_time": "2026-08-27T15:56:52",
+              "subject": "Browser problem",
+              "classification": "technical_issue",
+              "documentation": "Customer reported difficulty using the service from the browser. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 30168,
+              "request_time": "2026-08-27T15:57:25",
+              "subject": "Pending transaction",
+              "classification": "payment_issue",
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 30172,
+              "request_time": "2026-08-27T15:59:36",
+              "subject": "Billing inquiry",
+              "classification": "payment_issue",
+              "documentation": "Customer requested clarification regarding a charge. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 30164,
+              "request_time": "2026-08-27T15:59:45",
+              "subject": "Account information",
+              "classification": "general_information",
+              "documentation": "Customer requested information about account settings. Escalated to supervisor for follow-up."
+            }
+          ]
+        }
+      }
+    ],
+    "date_range": {
+      "start": "2026-08-27",
+      "end": "2026-08-27"
+    },
+    "model": "claude-sonnet-4-6",
+    "evidence_plan": {
+      "scope": {
+        "start_date": "2026-08-27",
+        "end_date": "2026-08-27",
+        "working_days": 1,
+        "time_window": [
+          "2026-08-27T15:00:00",
+          "2026-08-27T16:00:00"
+        ],
+        "viewing_date": "2026-09-07",
+        "agents": []
+      },
+      "intents": [
+        "cause",
+        "spike"
+      ],
+      "calls": [
+        {
+          "tool": "get_capacity_context",
+          "args": {
+            "start_time": "2026-08-27T15:00:00",
+            "end_time": "2026-08-27T16:00:00"
+          }
+        }
+      ],
+      "drill_into_anomalies": false,
+      "reasons": [
+        "A specific hour is investigated: collected demand and staffing against the previous hour and the typical day."
+      ],
+      "executed": [
+        {
+          "tool": "get_capacity_context",
+          "args": {
+            "start_time": "2026-08-27T15:00:00",
+            "end_time": "2026-08-27T16:00:00"
+          }
+        }
+      ]
+    },
+    "answer_checks": [
+      {
+        "kind": "unverified_number",
+        "message": "33 is not in the tool results and is not one step from a number beside it.",
+        "excerpt": "Four agents left the shift at 15:00 \u2014 reducing capacity by 33% at the worst possible moment."
+      }
+    ],
+    "status": "completed",
+    "error": null
+  },
+  "grade": {
+    "scenario": "S03",
+    "passed": false,
+    "critical_failures": 0,
+    "score": 0.857,
+    "checks": [
+      {
+        "check": "run completed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "tool: count_requests or detect_volume_anomalies or get_capacity_context or get_daily_series or get_requests_by_time_bucket",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "tool: get_capacity_context or get_daily_series or get_monitor_metrics",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "no invalid tool arguments",
+        "verdict": "FAIL",
+        "critical": false,
+        "detail": "empty or reversed window 2026-08-27T15:00:00 -> 2026-08-27T15:00:00"
+      },
+      {
+        "check": "fact stated: available agents in the hour = 0.33",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "concept in hypotheses/supported_patterns: all [] any ['staff', 'capacity', 'available agents', 'fewer agents']",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "root cause left unconfirmed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      }
+    ]
+  },
+  "numbers": {
+    "summary": {
+      "direct": 114,
+      "derived": 6,
+      "loose": 7,
+      "unsupported": 0,
+      "total": 127
+    },
+    "not_verified": [
+      {
+        "raw": "33%",
+        "match": "loose",
+        "source": "narrative",
+        "context": "ts left the shift at 15:00 \u2014 reducing capacity by 33% at the worst possible moment."
+      }
+    ],
+    "identifiers": []
+  }
+}

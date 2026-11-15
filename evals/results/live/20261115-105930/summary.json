@@ -1,0 +1,66 @@
+{
+  "budget": 2.1,
+  "spent_usd": 0.6857,
+  "runs": [
+    {
+      "scenario": "S29",
+      "status": "completed",
+      "cost_usd": 0.1208,
+      "tool_calls": 5,
+      "grader": {
+        "passed": true,
+        "score": 1.0,
+        "critical_failures": 0
+      },
+      "error": null
+    },
+    {
+      "scenario": "S16",
+      "status": "completed",
+      "cost_usd": 0.2137,
+      "tool_calls": 7,
+      "grader": {
+        "passed": true,
+        "score": 1.0,
+        "critical_failures": 0
+      },
+      "error": null
+    },
+    {
+      "scenario": "S03",
+      "status": "completed",
+      "cost_usd": 0.1673,
+      "tool_calls": 4,
+      "grader": {
+        "passed": false,
+        "score": 0.857,
+        "critical_failures": 0
+      },
+      "error": null
+    },
+    {
+      "scenario": "S05",
+      "status": "completed",
+      "cost_usd": 0.0639,
+      "tool_calls": 3,
+      "grader": {
+        "passed": true,
+        "score": 1.0,
+        "critical_failures": 0
+      },
+      "error": null
+    },
+    {
+      "scenario": "S07",
+      "status": "completed",
+      "cost_usd": 0.1201,
+      "tool_calls": 5,
+      "grader": {
+        "passed": true,
+        "score": 1.0,
+        "critical_failures": 0
+      },
+      "error": null
+    }
+  ]
+}

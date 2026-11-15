@@ -1,0 +1,78 @@
+{
+  "budget": 4.75,
+  "spent_usd": 1.0458,
+  "runs": [
+    {
+      "scenario": "S29",
+      "status": "completed",
+      "cost_usd": 0.0916,
+      "tool_calls": 3,
+      "grader": {
+        "passed": false,
+        "score": 0.667,
+        "critical_failures": 0
+      },
+      "error": null
+    },
+    {
+      "scenario": "S30",
+      "status": "completed",
+      "cost_usd": 0.3543,
+      "tool_calls": 14,
+      "grader": {
+        "passed": false,
+        "score": 0.778,
+        "critical_failures": 0
+      },
+      "error": null
+    },
+    {
+      "scenario": "S16",
+      "status": "completed",
+      "cost_usd": 0.2203,
+      "tool_calls": 7,
+      "grader": {
+        "passed": true,
+        "score": 1.0,
+        "critical_failures": 0
+      },
+      "error": null
+    },
+    {
+      "scenario": "S03",
+      "status": "completed",
+      "cost_usd": 0.1672,
+      "tool_calls": 4,
+      "grader": {
+        "passed": false,
+        "score": 0.571,
+        "critical_failures": 0
+      },
+      "error": null
+    },
+    {
+      "scenario": "S05",
+      "status": "completed",
+      "cost_usd": 0.0911,
+      "tool_calls": 5,
+      "grader": {
+        "passed": false,
+        "score": 0.8,
+        "critical_failures": 0
+      },
+      "error": null
+    },
+    {
+      "scenario": "S07",
+      "status": "completed",
+      "cost_usd": 0.1214,
+      "tool_calls": 5,
+      "grader": {
+        "passed": false,
+        "score": 0.875,
+        "critical_failures": 0
+      },
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,360 @@
+{
+  "S29": {
+    "before": {
+      "passed": false,
+      "score": 0.667,
+      "failed": [
+        "tool: count_requests",
+        "no invalid tool arguments"
+      ]
+    },
+    "after": {
+      "passed": true,
+      "score": 1.0,
+      "failed": [],
+      "checks": [
+        {
+          "check": "run completed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "tool: count_requests or detect_volume_anomalies or get_capacity_context or get_daily_series or get_requests_by_time_bucket",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "no invalid tool arguments",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "concept in observed_facts/supported_patterns: all [] any ['per day', 'per working day', 'daily average', 'working days']",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "must not: unnormalised comparison of unequal periods",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "root cause left unconfirmed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        }
+      ]
+    }
+  },
+  "S30": {
+    "before": {
+      "passed": false,
+      "score": 0.778,
+      "failed": [
+        "tool: count_requests or get_requests_by_time_bucket",
+        "no invalid tool arguments"
+      ]
+    },
+    "after": {
+      "passed": false,
+      "score": 0.9,
+      "failed": [
+        "concept in observed_facts/supported_patterns/hypotheses: all ['A07', 'A09'] any []"
+      ],
+      "checks": [
+        {
+          "check": "run completed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "tool: get_agent_comparison",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "tool: count_requests or detect_volume_anomalies or get_capacity_context or get_daily_series or get_requests_by_time_bucket",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "no invalid tool arguments",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "concept in observed_facts/supported_patterns: all ['A04'] any []",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "concept in observed_facts/supported_patterns: all [] any ['08-25', '08-26', '08-27', 'Aug 25', 'Aug 26', 'Aug 27']",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "concept in observed_facts/supported_patterns/hypotheses: all ['A07', 'A09'] any []",
+          "verdict": "FAIL",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "must not: saved run R8 error",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "must not: saved run R8 error",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "root cause left unconfirmed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        }
+      ]
+    }
+  },
+  "S16": {
+    "before": {
+      "passed": true,
+      "score": 1.0,
+      "failed": []
+    },
+    "after": {
+      "passed": true,
+      "score": 1.0,
+      "failed": [],
+      "checks": [
+        {
+          "check": "run completed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "tool: detect_agent_performance_signals or get_agent_daily_trends",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "no invalid tool arguments",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "fact stated: earlier rate = 33.87",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "fact stated: later rate = 57.58",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "must not: saved run R6 overgeneralised one day to the whole period",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "root cause left unconfirmed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        }
+      ]
+    }
+  },
+  "S03": {
+    "before": {
+      "passed": false,
+      "score": 0.571,
+      "failed": [
+        "tool: count_requests",
+        "tool: get_monitor_metrics",
+        "no invalid tool arguments"
+      ]
+    },
+    "after": {
+      "passed": true,
+      "score": 1.0,
+      "failed": [],
+      "checks": [
+        {
+          "check": "run completed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "tool: count_requests or detect_volume_anomalies or get_capacity_context or get_daily_series or get_requests_by_time_bucket",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "tool: get_capacity_context or get_daily_series or get_monitor_metrics",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "no invalid tool arguments",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "fact stated: available agents in the hour = 0.33",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "concept in hypotheses/supported_patterns: all [] any ['staff', 'capacity', 'available agents', 'fewer agents']",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "root cause left unconfirmed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        }
+      ]
+    }
+  },
+  "S05": {
+    "before": {
+      "passed": false,
+      "score": 0.8,
+      "failed": [
+        "no invalid tool arguments"
+      ]
+    },
+    "after": {
+      "passed": true,
+      "score": 1.0,
+      "failed": [],
+      "checks": [
+        {
+          "check": "run completed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "tool: get_average_wait_time or get_capacity_context or get_daily_series or get_monitor_metrics",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "no invalid tool arguments",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "concept in hypotheses/supported_patterns/observed_facts: all [] any ['staff', 'capacity', 'available agents']",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "root cause left unconfirmed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        }
+      ]
+    }
+  },
+  "S07": {
+    "before": {
+      "passed": false,
+      "score": 0.875,
+      "failed": [
+        "no invalid tool arguments"
+      ]
+    },
+    "after": {
+      "passed": true,
+      "score": 1.0,
+      "failed": [],
+      "checks": [
+        {
+          "check": "run completed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "tool: count_requests or detect_volume_anomalies or get_capacity_context or get_daily_series or get_requests_by_time_bucket",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "tool: get_requests_by_classification",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "tool: get_classification_status_breakdown or get_requests_by_status",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "no invalid tool arguments",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "fact stated: login transferred in busiest hour = 23",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        },
+        {
+          "check": "concept in observed_facts: all ['12:00', 'login'] any []",
+          "verdict": "PASS",
+          "critical": false,
+          "detail": ""
+        },
+        {
+          "check": "root cause left unconfirmed",
+          "verdict": "PASS",
+          "critical": true,
+          "detail": ""
+        }
+      ]
+    }
+  }
+}

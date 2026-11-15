@@ -165,8 +165,15 @@ pre-fetched `get_capacity_context` for 12:00–13:00 and end with the answer che
   "33% drop", a one-day rate presented as a period-wide pattern, a missed staffing cause, a broad
   review that missed most planted issues). The remediation corrected the monitor semantics against
   the data generator, added three day-level tools, prompt rules, deterministic pre-fetching and
-  answer checks, with regression tests for each finding. The reasoning fixes are **not yet
-  validated with live runs**.
+  answer checks, with regression tests for each finding.
+- **Live validation and a second review loop.** Six scenarios were run live with a budget cap and
+  reviewed against the data. The first round found that the broad review now surfaced 5 of 6
+  planted issues but missed a trend-only agent (its period average looked normal), attached
+  10-day category rates to "the later half", and reported an hour's total as one category's count.
+  Each root cause was a gap in the evidence the agent received, so the fixes were small and
+  deterministic (trend signals per agent, category figures per period, per-hour category and
+  subject breakdowns, one new answer check). The second round found all 6 planted issues
+  ([evals/results/live/VALIDATION_2026-11-15.md](evals/results/live/VALIDATION_2026-11-15.md)).
 
 ## 8. Scalability and reliability improvements
 
@@ -224,7 +231,8 @@ The tools are pure functions with normal unit tests. The API is tested with Fast
 and injected fakes (`create_app(settings, store, runner)`). For the LangGraph graph I monkeypatch the
 bound model with a scripted object that returns predetermined `AIMessage`s, so I can reproduce exact
 tool-call sequences, including bad ones, and assert what the model was shown on the next turn.
-140 project tests and 135 evaluation tests run offline. The evaluation suite also audits saved live
+151 project tests and 137 evaluation tests run offline, with outbound network access blocked so
+no test can reach the API by accident. The evaluation suite also audits saved live
 runs: it replays every tool call against an independent re-implementation of the tools and checks
 the answers' numbers, IDs and claims. What offline tests cannot show is whether the model's
 reasoning is right; that needs live scenario runs with a budget.
@@ -259,6 +267,8 @@ Open-ended reasoning. The offline audit showed the agent is reliable on focused 
 broad 10-day review, compared unequal periods, generalised one day to a whole period and surfaced
 only 1 of 6 planted issues; in example 2 it missed a staffing shortage. I fixed the data-level
 causes (a monitor tool bug, missing staffing and day-level tools), added prompt rules,
-deterministic pre-fetching and answer checks. The measurement is the next step: the scenarios in
-`evals/scenarios/` with objective graders, run live a few times each, before claiming the
-reasoning improved.
+deterministic pre-fetching and answer checks. Live runs then confirmed the targeted failures did
+not recur, and the broad review went from 1 to 6 of 6 planted issues. What remains weak is
+interpretation in free prose (occasional over-reading of the data) and consistency, which I have
+not measured: each scenario ran once. The next step is repeated runs per scenario with the
+objective graders, reporting how often each scenario passes, not just whether it passed once.

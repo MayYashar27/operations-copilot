@@ -17,11 +17,15 @@ its status is in the next section.
 |---|---|---|
 | H1 multi-day abandoned calls | `get_monitor_metrics` now counts `start <= t < end`, matching the generator (each snapshot covers the 5 minutes starting at its timestamp), sums counters per day, and uses working hours (08:00–17:00) unless after-hours data is requested. 10 days = 628 (634 with the after-hours 17:00 snapshots) | **Fixed and tested** against the raw data |
 | M2 merged multi-day buckets | Multi-day bucket labels include the date | **Fixed and tested** |
-| H2 unequal periods | Tools report working days; `compare_values` compares per day; new `get_daily_series`; prompt rule; pre-fetch for multi-day questions; answer check for totals over unequal periods | Tools fixed; **reasoning not yet validated live** |
-| H3 one day generalised to a period | `low_sample` flags and `period_label` in agent tools; prompt and final-answer rules; answer check for period-wide wording | **Reasoning not yet validated live** |
-| M1 staffing missed | `agents_on_shift` exposed; new `get_capacity_context`; prompt requires demand and staffing; pre-fetch for spike and staffing questions | Evidence now available; **reasoning not yet validated live** |
-| M2/M3 broad reviews | New `detect_volume_anomalies`; multi-day strategy in the prompt; pre-fetch of series, anomalies, all-agent comparison and capacity per unusual hour | **Reasoning not yet validated live** |
-| M5, low findings | Prompt rule against the model's own arithmetic; answer check for untraceable numbers | **Not yet validated live** |
+| H2 unequal periods | Tools report working days; `compare_values` compares per day; new `get_daily_series`; prompt rule; pre-fetch for multi-day questions; answer check for totals over unequal periods | **Correct in live runs** (S29, 2 of 2) |
+| H3 one day generalised to a period | `low_sample` flags and `period_label`; per-category figures per period; prompt and final-answer rules; answer check for period-wide wording | **Correct in live runs** (S16, 2 of 2; S30 period attribution fixed on 2026-11-15) |
+| M1 staffing missed | `agents_on_shift` exposed; new `get_capacity_context`; prompt requires demand and staffing; pre-fetch for spike and staffing questions | **Correct in live runs** (S03 and S05, 2 of 2 each) |
+| M2/M3 broad reviews | New `detect_volume_anomalies` (with per-hour categories and subjects); `trend_signals` per agent; multi-day strategy in the prompt; pre-fetch of series, anomalies, all-agent comparison and capacity per unusual hour | **6 of 6 planted issues in the 2026-11-15 live run** (5 of 6 on 2026-11-02, 1 of 6 before the remediation) |
+| M5, low findings | Prompt rule against the model's own arithmetic; answer checks for untraceable numbers and category counts | Improved; one narrative slip remained in S30 and was flagged by the answer check |
+
+Live validation: one run per scenario on 2026-11-02 and on 2026-11-15
+([evals/results/live/VALIDATION_2026-11-15.md](evals/results/live/VALIDATION_2026-11-15.md)).
+Consistency across repeated runs has not been measured.
 | H4 invented ID | Fixed earlier | Fixed |
 
 Saved runs R1, R2 and R8 contain monitor figures produced by the pre-fix tool. They are kept

@@ -69,6 +69,18 @@ def test_daily_series_agrees_with_oracle():
         assert row["average_agents_on_shift"] == oracle.get_monitor_metrics(start, end)["average_agents_on_shift"]
 
 
+def test_new_tools_fully_agree_with_independent_implementations():
+    assert same(tools.get_daily_series(DAYS[0], DAYS[-1]), oracle.get_daily_series(DAYS[0], DAYS[-1]))
+    assert same(tools.detect_volume_anomalies(DAYS[0], DAYS[-1]), oracle.detect_volume_anomalies(DAYS[0], DAYS[-1]))
+    for start, end in HOURLY[:9] + [(f"{DAYS[2]}T15:00:00", f"{DAYS[2]}T16:00:00")]:
+        assert same(tools.get_capacity_context(start, end), oracle.get_capacity_context(start, end))
+
+
+def test_grader_knows_all_19_tools():
+    import langgraph_agent
+    assert {t.name for t in langgraph_agent.TOOLS} == set(oracle.REPLAY)
+
+
 def test_capacity_context_agrees_with_oracle():
     for start, end in HOURLY[:9]:
         context = tools.get_capacity_context(start, end)

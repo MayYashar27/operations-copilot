@@ -1,0 +1,2687 @@
+{
+  "scenario": "S30",
+  "category": "trend",
+  "question": "Looking at the last 10 working days, what are the most important operational trends or warning signs, and what would you recommend?",
+  "date_context": "2026-09-07",
+  "prompt_sent": "Looking at the last 10 working days, what are the most important operational trends or warning signs, and what would you recommend?\n\nContext: The manager is viewing the shift of 2026-09-07; treat 'today' or 'this shift' as that date. Available data covers working days 2026-08-25 to 2026-09-07, 08:00-17:00.",
+  "duration_seconds": 179.7,
+  "usage": {
+    "claude-sonnet-4-6": {
+      "total_tokens": 92525,
+      "output_tokens": 8656,
+      "input_token_details": {
+        "cache_creation": 0,
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0,
+        "cache_read": 0
+      },
+      "input_tokens": 83869
+    }
+  },
+  "cost_usd": 0.3814,
+  "outcome": {
+    "result": {
+      "observed_facts": [
+        "The period covers 10 working days from 2026-08-25 to 2026-09-07, 08:00\u201317:00.",
+        "Total requests across the 10 working days: 1,999 (199.9 per working day). Volume was 200 requests on 9 of 10 days and 199 on 2026-08-27.",
+        "Total transfers across the 10 working days: 517 (51.7 per working day). Team transfer rate: 25.86%.",
+        "Total abandoned calls across the 10 working days: 628 (62.8 per working day).",
+        "Average available agents across the 10 working days: 4.88 out of 12 scheduled on shift.",
+        "On 2026-08-25, abandoned calls were 75, average wait time 6.04 min, and transfer rate 30.5%.",
+        "On 2026-08-26, abandoned calls were 73, average wait time 5.82 min, and transfer rate 25.5%.",
+        "On 2026-08-27, abandoned calls were 100, average wait time 6.25 min, and transfer rate 27.14%.",
+        "On 2026-08-28 through 2026-09-07, abandoned calls ranged from 48 to 62 per day, and average wait times ranged from 4.33 to 4.62 min.",
+        "On 2026-08-25, the 12:00\u201313:00 hour recorded 45 requests \u2014 2.02\u00d7 the day's average hourly volume of 22.22. Of those 45, 40 were classified as login_issue.",
+        "During the 2026-08-25 12:00\u201313:00 spike: average wait time was 11.47 min (vs. typical 4.35 min for that hour across 9 days), average available agents were 1.42 (vs. typical 5.01), peak agents on calls reached 12, and 26 calls were abandoned (vs. typical 5.0).",
+        "Pattern analysis of the 40 login_issue requests in the 2026-08-25 12:00\u201313:00 hour identified 36 requests (high confidence) linked to login/account access failures following an application update, with subjects including 'Login stopped working,' 'Login fails after app update,' and 'Cannot access account after update.'",
+        "Of the 36 update-related login requests on 2026-08-25 12:00\u201313:00, 23 were escalated or transferred (high confidence) and 13 were resolved on first contact (high confidence).",
+        "On 2026-08-26, the 14:00\u201315:00 hour recorded 45 requests \u2014 2.02\u00d7 the day's average hourly volume of 22.22. Average wait time was 10.2 min (vs. typical 4.77 min), average available agents were 2.17 (vs. typical 5.01), and 26 calls were abandoned (vs. typical 5.44). Staffing was at 12 agents (normal).",
+        "Top subjects in the 2026-08-26 14:00\u201315:00 spike included 'Payment button not responding' (7 requests), 'Mobile app freezes during login' (6 requests), 'Cannot view account information' (4 requests), and 'Payment page not loading' (4 requests).",
+        "On 2026-08-27, the 15:00\u201316:00 hour recorded 45 requests \u2014 2.04\u00d7 the day's average hourly volume of 22.11. Average wait time was 12.49 min (vs. typical 4.41 min), average available agents were 0.33 (vs. typical 5.01), agents on shift were 8 (vs. typical 12.0), peak agents on calls reached 8, and 46 calls were abandoned (vs. typical 5.67).",
+        "In the hour preceding the 2026-08-27 15:00\u201316:00 spike (14:00\u201315:00), agents on shift were 12 and average available agents were 4.5, indicating the staffing drop occurred at or around 15:00.",
+        "On 2026-08-27, the minimum agents on shift for the day was 8, and the average agents on shift was 11.56, compared to 12.0 on all other days except 2026-08-27.",
+        "Agent A04 handled 128 requests over the 10 working days with a transfer rate of 46.09% \u2014 the highest of all 15 agents \u2014 and carries signals HIGH_TRANSFER_RATE_VS_PEERS and RISING_TRANSFER_RATE.",
+        "Agent A04's transfer rate rose from 33.87% in the earlier half (2026-08-25 to 2026-08-31, 62 requests) to 57.58% in the later half (2026-09-01 to 2026-09-07, 66 requests). Peer transfer rate in the later half was 23.13% (934 requests), a difference of 34.45 percentage points.",
+        "In the later half, A04's transfer rate by classification was: general_information 60.0% (10 requests, low sample), login_issue 52.63% (19 requests, low sample), payment_issue 60.0% (25 requests), technical_issue 58.33% (12 requests, low sample).",
+        "In the reviewed sample of A04's later-period requests, request 60171 ('Incorrect password') was transferred to technical_support; request 70077 ('Operating hours,' general_information) was transferred to technical_support; request 70134 ('Password reset request') was transferred to technical_support; request 80014 ('Password reset request') was transferred to billing.",
+        "Documentation for A04's transferred cases in the reviewed sample is formulaic, stating only 'Escalated to [X] for follow-up' with no detail on what was attempted before transfer.",
+        "Agent A07 handled 114 requests over the 10 working days with a transfer rate of 27.19% and carries signals RISING_TRANSFER_RATE, FALLING_HANDLING_TIME, and FASTER_HANDLING_WITH_MORE_TRANSFERS.",
+        "Agent A07's transfer rate rose from 18.33% in the earlier half (2026-08-25 to 2026-08-31, 60 requests) to 37.04% in the later half (2026-09-01 to 2026-09-07, 54 requests). Peer transfer rate in the later half was 24.74% (946 requests).",
+        "Agent A07's average handling time fell from 6.01 min in the earlier half to 3.95 min in the later half, compared to peer average handling time of 7.11 min in the later half.",
+        "In the reviewed sample of A07's later-period requests, multiple transferred cases carry minimal documentation: request 60092 ('Password reset request,' transferred) documented as 'Handled.'; request 70098 ('Operating hours,' transferred to billing) documented as 'Issue checked.'; request 70065 ('Billing inquiry,' transferred to technical_support) documented as 'Customer contacted support. Done.'; request 80109 ('Account access question,' transferred to back_office) documented as 'Customer contacted support. Done.'",
+        "In the reviewed sample of A07's later-period requests, several transfers appear potentially misrouted: 'Operating hours' transferred to billing (request 70098); 'Browser problem' transferred to billing (requests 70180, 80025).",
+        "In the reviewed sample of A07's later-period requests, handling times on transferred cases included 2.47 min (request 80109), 2.63 min (request 70145), 2.65 min (request 70091), 2.98 min (request 70135), and 3.16 min (request 80003).",
+        "Agent A09 handled 154 requests over the 10 working days with an overall transfer rate of 33.77%, carrying signal HIGH_TRANSFER_RATE_VS_PEERS. A09's technical_issue transfer rate was 47.06% across 85 requests; other classifications were at or below team average (general_information 17.39%, login_issue 25.0%, payment_issue 5.56% \u2014 low sample).",
+        "The 15 agents' period transfer rates ranged from 18.9% (A06) to 46.09% (A04). The team transfer rate was 25.86%."
+      ],
+      "supported_patterns": [
+        "On 2026-08-25 to 2026-08-27, three separate hours each recorded 45 requests \u2014 approximately 2\u00d7 the respective day's average hourly volume \u2014 each accompanied by wait times exceeding 10 minutes and 26\u201346 abandoned calls in that single hour.",
+        "On 2026-08-25 12:00\u201313:00, 36 of 40 login_issue requests (high confidence) shared the theme of login/account access failures following an application update, with subjects 'Login stopped working,' 'Login fails after app update,' and 'Cannot access account after update' recurring across the hour.",
+        "On 2026-08-25 12:00\u201313:00, 23 of the 36 update-related login requests were escalated rather than resolved on first contact (high confidence), indicating agents lacked a consistent first-line resolution path for this issue type.",
+        "Abandoned calls on 2026-08-25 (75), 2026-08-26 (73), and 2026-08-27 (100) were materially higher than on the remaining 7 days (range 48\u201362), forming a cluster of elevated abandonment in the first three days of the period.",
+        "Agent A04's transfer rate rose by 23.71 percentage points between the earlier half (33.87%, 62 requests) and the later half (57.58%, 66 requests) of the period, with the later-half rate 34.45 percentage points above peers (23.13%, 934 requests), across all four classifications.",
+        "In the reviewed sample of A04's later-period requests, transferred cases include routine query types (incorrect password, operating hours, password reset) that peers typically resolve on first line, with documentation limited to a formulaic escalation note and no record of steps attempted.",
+        "Agent A07's transfer rate rose by 18.71 percentage points between the earlier half (18.33%, 60 requests) and the later half (37.04%, 54 requests), concurrent with a 34.28% fall in average handling time (6.01 min to 3.95 min), while peer handling time in the later half was 7.11 min.",
+        "In the reviewed sample of A07's later-period transferred cases, documentation is consistently minimal ('Handled.', 'Done.', 'Issue checked.') with no record of actions taken, and several transfers carry handling times under 3.2 minutes."
+      ],
+      "hypotheses": [
+        "The 2026-08-25 12:00\u201313:00 login-issue surge may have been triggered by a recent application update that caused widespread login failures, given that 36 of 40 requests in that hour explicitly referenced an application update and shared near-identical subjects.",
+        "The 2026-08-26 14:00\u201315:00 spike subjects ('Mobile app freezes during login,' 'Payment button not responding,' 'Payment page not loading') may reflect continued or related application instability following the 2026-08-25 update-linked surge, though this is not confirmed.",
+        "The staffing shortfall on 2026-08-27 15:00\u201316:00 (8 agents on shift vs. 12 in the preceding hour) may reflect unplanned agent departures, a scheduling error, or an approved early-release arrangement; the cause is not determinable from available data.",
+        "Agent A04's rising transfer rate in the later half of the period may reflect a first-line resolution gap \u2014 transferring cases that peers handle directly \u2014 rather than a genuinely more complex case mix, based on the sample evidence of routine queries being transferred; however, case mix differences not visible in the sample cannot be ruled out.",
+        "Agent A07's concurrent fall in handling time and rise in transfer rate in the later half of the period may indicate cases are being closed or transferred without adequate resolution attempts, based on the very short handling times and minimal documentation observed in the sample; however, a change in case complexity or other operational factors cannot be excluded without reviewing all 54 later-period requests.",
+        "Agent A09's elevated transfer rate on technical_issue (47.06%, 85 requests) may reflect a training or knowledge gap specific to that classification, or may reflect a genuinely more complex technical case mix assigned to A09; available data does not distinguish between these explanations."
+      ],
+      "confirmed_root_cause": null,
+      "missing_evidence": [
+        "Application release or update logs for the period around 2026-08-25, to confirm whether a deployment preceded the login-issue surge and whether it was the same update referenced in customer contacts.",
+        "Scheduling records for 2026-08-27 to determine whether the reduction from 12 to 8 agents at 15:00 was planned, approved, or an unplanned absence.",
+        "All 66 of A04's later-half requests (only 30 were reviewed) to determine whether the transfer pattern observed in the sample holds across the full later period and whether case mix differences explain any portion of the elevated transfer rate.",
+        "All 54 of A07's later-half requests (only 30 were reviewed) to confirm whether the minimal-documentation and short-handling-time pattern is consistent across the full later period.",
+        "Transfer destination outcomes for A04 and A07 (i.e., whether transferred cases were resolved by the receiving team or bounced further), to assess whether transfers were appropriate.",
+        "A07's case mix in the later half compared to the earlier half, to determine whether a shift toward simpler or more transferable request types could explain part of the handling time reduction.",
+        "Team-wide documentation quality standards and any recent changes to documentation requirements, to contextualise whether A07's minimal documentation is an individual deviation or a broader team pattern.",
+        "A09's technical_issue case details to determine whether the 47.06% transfer rate reflects case complexity, a knowledge gap, or routing practices specific to that agent."
+      ],
+      "recommendations": [
+        "Conduct a supervisory review of A07's later-period cases (2026-09-01 to 2026-09-07) as a priority, focusing on transferred cases with handling times under 4 minutes and documentation entries of 'Handled.', 'Done.', or 'Issue checked.' Verify whether transfers were appropriate and whether customers received adequate service before escalation.",
+        "Schedule a coaching review for A04 covering the full 66 later-period requests (2026-09-01 to 2026-09-07). Focus on case types where peers achieve first-line resolution \u2014 including incorrect password, password reset, and general information queries \u2014 and compare A04's handling approach and documentation against peer practice.",
+        "Investigate the 2026-08-27 15:00\u201316:00 staffing shortfall: determine whether the reduction from 12 to 8 agents was planned or unplanned, and review scheduling protocols to ensure end-of-day coverage is maintained or a contingency is in place when agents depart early.",
+        "Review whether an application update preceded the 2026-08-25 login-issue surge. If confirmed, establish a rapid-response protocol for future updates \u2014 such as a supervisor-issued knowledge article or first-line resolution guide \u2014 to reduce the escalation rate for update-related login failures.",
+        "Reinforce documentation standards across the team. At minimum, transferred cases should record what was attempted, what was found, and the reason for transfer. Use A07's later-period records as a concrete example of documentation that does not meet operational requirements.",
+        "Monitor A09's technical_issue handling over the next period. If the 47.06% transfer rate on technical_issue persists, investigate whether targeted training or access to additional knowledge resources would reduce unnecessary escalations in that classification.",
+        "Review the team's baseline abandoned-call level (62.8 per working day on average). With fewer than 5 of 12 scheduled agents available on average, examine whether break scheduling, after-call work time, or shift patterns can improve agent availability during peak demand hours."
+      ]
+    },
+    "pattern_themes": [
+      {
+        "theme": "Login/account access failures following an application update",
+        "request_ids": [
+          10121,
+          10098,
+          10092,
+          10101,
+          10120,
+          10095,
+          10099,
+          10110,
+          10079,
+          10117,
+          10077,
+          10111,
+          10112,
+          10100,
+          10080,
+          10114,
+          10086,
+          10109,
+          10084,
+          10102,
+          10097,
+          10087,
+          10083,
+          10115,
+          10082,
+          10078,
+          10105,
+          10108,
+          10091,
+          10096,
+          10118,
+          10088,
+          10103,
+          10119,
+          10107,
+          10116
+        ],
+        "evidence_count": 36,
+        "confidence": "high"
+      },
+      {
+        "theme": "Login/account access issues escalated rather than resolved on first contact",
+        "request_ids": [
+          10121,
+          10098,
+          10101,
+          10120,
+          10095,
+          10077,
+          10111,
+          10112,
+          10080,
+          10114,
+          10109,
+          10084,
+          10087,
+          10083,
+          10115,
+          10082,
+          10078,
+          10105,
+          10091,
+          10103,
+          10119,
+          10107,
+          10116
+        ],
+        "evidence_count": 23,
+        "confidence": "high"
+      },
+      {
+        "theme": "Login/account access issues resolved on first contact without escalation",
+        "request_ids": [
+          10092,
+          10099,
+          10110,
+          10079,
+          10117,
+          10100,
+          10086,
+          10102,
+          10097,
+          10108,
+          10096,
+          10118,
+          10088
+        ],
+        "evidence_count": 13,
+        "confidence": "high"
+      },
+      {
+        "theme": "Login failures unrelated to an application update (incorrect password or general account access)",
+        "request_ids": [
+          10085,
+          10093,
+          10106,
+          10113
+        ],
+        "evidence_count": 4,
+        "confidence": "high"
+      }
+    ],
+    "narrative": "I now have sufficient evidence to compile a comprehensive operational review. Let me present the findings.\n\n---\n\n# Operational Review: 2026-08-25 to 2026-09-07 (10 Working Days)\n\n---\n\n## 1. Overall Volume & Throughput \u2014 Stable, But Structurally Stressed\n\n| Metric | 10-Day Total | Per Working Day |\n|---|---|---|\n| Requests received | 1,999 | 199.9 |\n| Transfers | 517 | 51.7 |\n| Abandoned calls | 628 | 62.8 |\n| Avg. available agents | \u2014 | 4.88 of 12 on shift |\n\n**Key observation:** Volume is consistent at ~200 requests/day across all 10 days \u2014 there is no overall growth trend. However, the structural picture is concerning: on average fewer than 5 of 12 scheduled agents are available at any given moment (08:00\u201317:00), and the team is abandoning over 60 calls per working day. These are persistent baseline conditions, not isolated events.\n\n---\n\n## 2. \u26a0\ufe0f Warning Sign #1 \u2014 Login-Issue Surge on 2026-08-25 (Noon Hour)\n\n### What happened\nThe 12:00\u201313:00 hour on 2026-08-25 recorded **45 login_issue requests** \u2014 more than **2\u00d7 the day's average hourly volume** (22.2/hr). Of those 45, **40 were login_issue**, making this classification overwhelmingly dominant.\n\n### Demand side\nRequest details (40 requests reviewed) and the pre-loaded pattern analysis confirm a **high-confidence theme: login/account access failures following an application update**. Subjects included \"Login stopped working,\" \"Login fails after app update,\" and \"Cannot access account after update\" \u2014 36 requests across the period explicitly reference a recent application update.\n\n### Capacity side (12:00\u201313:00 on 2026-08-25)\n- Agents on shift: 12 (normal)\n- Average available agents: **1.42** (vs. typical 5.01 for that hour \u2014 a drop of 3.59)\n- Peak agents on calls: 12 (all agents occupied)\n- Abandoned calls: **26** (vs. typical 5.0)\n- Average wait time: **11.47 min** (vs. typical 4.35 min)\n\n**Interpretation (supported pattern, not confirmed root cause):** The surge was driven by a demand spike concentrated in login issues linked to an application update. Staffing was at normal levels, but the sudden volume overwhelmed available capacity, causing all 12 agents to be simultaneously occupied, wait times to nearly triple, and 26 calls to be abandoned in a single hour.\n\n### Resolution split\nOf the 36 update-related login requests identified by pattern analysis:\n- **13 were resolved on first contact** (36%)\n- **23 were escalated/transferred** (64%) \u2014 to technical support, billing, back office, and supervisor\n\nThe high escalation rate for an update-related issue suggests agents lacked a first-line resolution path, which is consistent with a novel technical problem rather than a routine login query.\n\n---\n\n## 3. \u26a0\ufe0f Warning Sign #2 \u2014 Elevated Abandonment on 2026-08-27 (15:00\u201316:00)\n\n### What happened\nThe 15:00\u201316:00 hour on 2026-08-27 recorded **45 requests** (2.04\u00d7 the day's average), with **46 abandoned calls** and an average wait time of **12.49 minutes**.\n\n### Capacity side \u2014 most severe of the three spikes\n- Agents on shift: **8** (vs. 12 typical \u2014 4 agents missing)\n- Average available agents: **0.33** (vs. typical 5.01)\n- Peak agents on calls: 8 (all on calls)\n- Abandoned calls: **46** (vs. typical 5.67)\n\nThis is the most operationally severe hour in the 10-day window. Unlike the Aug 25 spike, this was a **combined demand-and-capacity failure**: volume was elevated AND staffing was 4 agents below the normal level. The previous hour (14:00\u201315:00) had 12 agents on shift and normal conditions, suggesting agents departed at or around 15:00.\n\n**Interpretation (hypothesis):** The combination of a reduced shift (8 vs. 12 agents) and above-average demand at end-of-day created a near-total capacity collapse. The root cause of the staffing shortfall is not confirmed by available data.\n\n---\n\n## 4. \u26a0\ufe0f Warning Sign #3 \u2014 Spike on 2026-08-26 (14:00\u201315:00)\n\nThe 14:00\u201315:00 hour on 2026-08-26 recorded **45 requests** (2.02\u00d7 average), with mixed classifications (login, payment, technical). Wait time was 10.2 min and 26 calls were abandoned. Staffing was at 12 (normal), but available agents dropped to 2.17 \u2014 again a demand-driven capacity squeeze. Top subjects included \"Payment button not responding\" and \"Mobile app freezes during login,\" suggesting possible continued app-related issues the day after the Aug 25 surge.\n\n---\n\n## 5. \u26a0\ufe0f Warning Sign #4 \u2014 Early-Week Abandonment Cluster (Aug 25\u201327)\n\n| Date | Abandoned Calls | Transfer Rate | Avg Wait (min) |\n|---|---|---|---|\n| 2026-08-25 | **75** | 30.5% | 6.04 |\n| 2026-08-26 | **73** | 25.5% | 5.82 |\n| 2026-08-27 | **100** | 27.1% | 6.25 |\n| 2026-08-28 | 48 | 28.5% | 4.51 |\n| 2026-08-31 | 54 | 20.0% | 4.62 |\n| \u2026 (Sep 1\u20137) | 49\u201362 | 21.5\u201330.5% | 4.33\u20134.60 |\n\nThe first three days of the period show materially higher abandonment (75, 73, 100) compared to the rest of the period (48\u201362). This is associated with the login-update surge (Aug 25), the afternoon spike (Aug 26), and the staffing shortfall (Aug 27). From Aug 28 onward, abandonment stabilises at a lower \u2014 though still elevated \u2014 baseline.\n\n---\n\n## 6. \u26a0\ufe0f Warning Sign #5 \u2014 Agent A04: Sharply Rising Transfer Rate\n\n**Period average: 46.1% transfer rate** (team: 25.9%) \u2014 highest of all 15 agents, with a `HIGH_TRANSFER_RATE_VS_PEERS` and `RISING_TRANSFER_RATE` signal.\n\n| Half | Requests | Transfer Rate |\n|---|---|---|\n| Earlier (Aug 25\u201331) | 62 | 33.9% |\n| Later (Sep 1\u20137) | 66 | **57.6%** |\n| Peers (later half) | 934 | 23.1% |\n\nIn the later half, A04's transfer rate is **34.5 percentage points above peers** across all four classifications (general_information 60%, login_issue 52.6%, payment_issue 60%, technical_issue 58.3%).\n\n**Request-level evidence (sample of 30 from Sep 1\u20137):** Several transfers raise questions about appropriateness:\n- Request **60171**: \"Incorrect password\" \u2192 transferred to technical_support. Peers typically resolve incorrect-password cases on first line.\n- Request **70077**: \"Operating hours\" (general_information) \u2192 transferred to technical_support. This is a routine query that should not require escalation.\n- Request **70134**: \"Password reset request\" \u2192 transferred to technical_support.\n- Request **80014**: \"Password reset request\" \u2192 transferred to billing.\n\nDocumentation for A04's transferred cases is formulaic (\"Escalated to [X] for follow-up\") with no detail on what was attempted before transfer. This is a **supported pattern** across the sample, not a confirmed finding for all 66 requests.\n\n**Hypothesis:** A04 may be transferring cases that peers resolve on first line, particularly routine login and payment queries. This warrants a focused coaching review. The rising trend (33.9% \u2192 57.6%) suggests the behaviour is worsening, not stabilising.\n\n---\n\n## 7. \u26a0\ufe0f Warning Sign #6 \u2014 Agent A07: Falling Handling Time + Rising Transfers\n\n**Period average: 27.2% transfer rate** (above team average of 25.9%), with signals `RISING_TRANSFER_RATE`, `FALLING_HANDLING_TIME`, and `FASTER_HANDLING_WITH_MORE_TRANSFERS`.\n\n| Half | Requests | Transfer Rate | Avg Handling Time |\n|---|---|---|---|\n| Earlier (Aug 25\u201331) | 60 | 18.3% | 6.01 min |\n| Later (Sep 1\u20137) | 54 | **37.0%** | **3.95 min** |\n| Peers (later half) | 946 | 24.7% | 7.11 min |\n\nIn the later half, A07's handling time is **3.16 minutes faster than peers** while transfers nearly doubled. This combination is a recognised signal that warrants investigation.\n\n**Request-level evidence (sample of 30 from Sep 1\u20137):** Documentation quality is markedly poor in the later period:\n- Request **60092** (Password reset, transferred): *\"Handled.\"*\n- Request **60043** (Browser problem, resolved): *\"Issue checked.\"*\n- Request **60070** (Technical assistance, resolved): *\"Handled.\"*\n- Request **70098** (Operating hours, transferred to billing): *\"Issue checked.\"*\n- Request **70065** (Billing inquiry, transferred to technical_support): *\"Customer contacted support. Done.\"*\n- Request **80109** (Account access, transferred to back_office): *\"Customer contacted support. Done.\"*\n\nMultiple transfers carry no documentation of what was attempted. Some transfers appear potentially misrouted (e.g., \"Operating hours\" \u2192 billing; \"Browser problem\" \u2192 billing). The very short handling times on transferred cases (2.47\u20133.28 min) suggest minimal engagement before transfer.\n\n**Hypothesis:** A07's later-period pattern \u2014 faster handling, more transfers, minimal documentation \u2014 may indicate cases are being closed or transferred without adequate resolution attempts. This is a supported pattern in the sample reviewed (not confirmed for all 54 requests) and warrants immediate supervisory review.\n\n---\n\n## 8. Agent A09: Elevated Transfer Rate Concentrated in Technical Issues\n\nA09 has a 33.8% transfer rate (above team average), driven almost entirely by technical_issue: **47.1% transfer rate on 85 technical requests**. Other classifications are at or below team average. This is a more targeted signal \u2014 A09 may need additional support or training specifically for technical issues, or the technical_issue category may genuinely require more escalations. This is a lower-priority signal than A04 and A07 but worth monitoring.\n\n---\n\n## Summary of Warning Signs\n\n| # | Warning Sign | Severity | Status |\n|---|---|---|---|\n| 1 | Login surge (Aug 25, 12:00) linked to app update \u2014 26 abandoned calls, 11.5 min wait | \ud83d\udd34 High | Resolved (past event, but recurrence risk if updates repeat) |\n| 2 | Staffing shortfall (Aug 27, 15:00) \u2014 4 agents missing, 46 abandoned calls, 12.5 min wait | \ud83d\udd34 High | Past event \u2014 scheduling review needed |\n| 3 | Aug 26 afternoon spike \u2014 26 abandoned, 10.2 min wait | \ud83d\udfe0 Medium | Past event |\n| 4 | Elevated abandonment Aug 25\u201327 (75\u2013100/day vs. 48\u201362 thereafter) | \ud83d\udfe0 Medium | Resolved but baseline still elevated |\n| 5 | A04 transfer rate 57.6% in later half, 34pp above peers, rising trend | \ud83d\udd34 High | Active \u2014 requires coaching review |\n| 6 | A07 handling time halved + transfers doubled in later half, poor documentation | \ud83d\udd34 High | Active \u2014 requires supervisory review |\n| 7 | A09 technical_issue transfer rate 47.1% (85 requests) | \ud83d\udfe1 Low-Medium | Monitor |\n\n---\n\n## Recommendations\n\n### Immediate (today)\n1. **Review A07's recent cases** with a supervisor. The combination of very short handling times, rising transfers, and near-absent documentation in the Sep 1\u20137 sample is the most acute active signal. Verify whether transfers were appropriate and whether customers received adequate service.\n2. **Schedule a coaching session for A04.** The rising transfer rate (34pp above peers in the later half) and evidence of routine queries being transferred (incorrect password, operating hours) suggest a first-line resolution gap. Review the full 66 later-period cases, not just the sample.\n\n### Short-term (this week)\n3. **Investigate the Aug 27 staffing shortfall.** Four agents were absent from the 15:00\u201316:00 shift without apparent replacement. Determine whether this was planned, unplanned, or a scheduling error, and put a contingency protocol in place for end-of-day coverage.\n4. **Establish an application-update incident protocol.** The Aug 25 login surge (36 update-related requests in one hour, 64% escalation rate) shows the team had no first-line resolution path for a novel update issue. A rapid-response knowledge article or supervisor-issued guidance at the time of future updates would reduce escalations and wait times.\n5. **Monitor A09's technical_issue handling.** With 85 requests and a 47.1% transfer rate in that category, determine whether this reflects a training gap or a genuinely complex case mix.\n\n### Ongoing\n6. **Address the baseline abandonment level.** Even on stable days, 48\u201362 calls are abandoned per shift. With fewer than 5 of 12 agents available on average, the team is operating with limited buffer. Review whether scheduling, break patterns, or after-call work time can improve agent availability during peak hours.\n7. **Enforce documentation standards.** A07's later-period records (\"Handled.\", \"Done.\", \"Issue checked.\") provide no operational value and make quality review impossible. A minimum documentation standard \u2014 what was attempted, what was found, why a transfer was made \u2014 should be reinforced team-wide.",
+    "trace": [
+      {
+        "tool": "get_daily_series",
+        "args": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07"
+        },
+        "result": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07",
+          "working_days": 10,
+          "days": [
+            {
+              "date": "2026-08-25",
+              "requests": 200,
+              "transferred": 61,
+              "transfer_rate_percent": 30.5,
+              "average_wait_time_minutes": 6.04,
+              "requests_by_classification": {
+                "general_information": 45,
+                "login_issue": 73,
+                "payment_issue": 42,
+                "technical_issue": 40
+              },
+              "abandoned_calls": 75,
+              "answered_calls": 970,
+              "average_available_agents": 4.47,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-08-26",
+              "requests": 200,
+              "transferred": 51,
+              "transfer_rate_percent": 25.5,
+              "average_wait_time_minutes": 5.82,
+              "requests_by_classification": {
+                "general_information": 49,
+                "login_issue": 52,
+                "payment_issue": 57,
+                "technical_issue": 42
+              },
+              "abandoned_calls": 73,
+              "answered_calls": 968,
+              "average_available_agents": 4.69,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-08-27",
+              "requests": 199,
+              "transferred": 54,
+              "transfer_rate_percent": 27.14,
+              "average_wait_time_minutes": 6.25,
+              "requests_by_classification": {
+                "general_information": 39,
+                "login_issue": 43,
+                "payment_issue": 65,
+                "technical_issue": 52
+              },
+              "abandoned_calls": 100,
+              "answered_calls": 997,
+              "average_available_agents": 4.41,
+              "average_agents_on_shift": 11.56,
+              "min_agents_on_shift": 8
+            },
+            {
+              "date": "2026-08-28",
+              "requests": 200,
+              "transferred": 57,
+              "transfer_rate_percent": 28.5,
+              "average_wait_time_minutes": 4.51,
+              "requests_by_classification": {
+                "general_information": 62,
+                "login_issue": 44,
+                "payment_issue": 42,
+                "technical_issue": 52
+              },
+              "abandoned_calls": 48,
+              "answered_calls": 974,
+              "average_available_agents": 4.93,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-08-31",
+              "requests": 200,
+              "transferred": 40,
+              "transfer_rate_percent": 20.0,
+              "average_wait_time_minutes": 4.62,
+              "requests_by_classification": {
+                "general_information": 53,
+                "login_issue": 53,
+                "payment_issue": 51,
+                "technical_issue": 43
+              },
+              "abandoned_calls": 54,
+              "answered_calls": 939,
+              "average_available_agents": 5.07,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-01",
+              "requests": 200,
+              "transferred": 43,
+              "transfer_rate_percent": 21.5,
+              "average_wait_time_minutes": 4.6,
+              "requests_by_classification": {
+                "general_information": 38,
+                "login_issue": 61,
+                "payment_issue": 50,
+                "technical_issue": 51
+              },
+              "abandoned_calls": 62,
+              "answered_calls": 969,
+              "average_available_agents": 5.18,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-02",
+              "requests": 200,
+              "transferred": 56,
+              "transfer_rate_percent": 28.0,
+              "average_wait_time_minutes": 4.57,
+              "requests_by_classification": {
+                "general_information": 54,
+                "login_issue": 42,
+                "payment_issue": 50,
+                "technical_issue": 54
+              },
+              "abandoned_calls": 58,
+              "answered_calls": 1009,
+              "average_available_agents": 5.29,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-03",
+              "requests": 200,
+              "transferred": 44,
+              "transfer_rate_percent": 22.0,
+              "average_wait_time_minutes": 4.5,
+              "requests_by_classification": {
+                "general_information": 40,
+                "login_issue": 64,
+                "payment_issue": 49,
+                "technical_issue": 47
+              },
+              "abandoned_calls": 56,
+              "answered_calls": 994,
+              "average_available_agents": 4.98,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-04",
+              "requests": 200,
+              "transferred": 50,
+              "transfer_rate_percent": 25.0,
+              "average_wait_time_minutes": 4.33,
+              "requests_by_classification": {
+                "general_information": 61,
+                "login_issue": 58,
+                "payment_issue": 41,
+                "technical_issue": 40
+              },
+              "abandoned_calls": 49,
+              "answered_calls": 965,
+              "average_available_agents": 5.08,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            },
+            {
+              "date": "2026-09-07",
+              "requests": 200,
+              "transferred": 61,
+              "transfer_rate_percent": 30.5,
+              "average_wait_time_minutes": 4.49,
+              "requests_by_classification": {
+                "general_information": 45,
+                "login_issue": 44,
+                "payment_issue": 60,
+                "technical_issue": 51
+              },
+              "abandoned_calls": 53,
+              "answered_calls": 984,
+              "average_available_agents": 4.75,
+              "average_agents_on_shift": 12.0,
+              "min_agents_on_shift": 12
+            }
+          ],
+          "totals": {
+            "requests": 1999,
+            "transferred": 517,
+            "abandoned_calls": 628
+          },
+          "per_working_day": {
+            "requests": 199.9,
+            "transferred": 51.7,
+            "abandoned_calls": 62.8,
+            "average_available_agents": 4.88
+          },
+          "note": "Compare periods using per_working_day values; totals depend on how many days a period has."
+        }
+      },
+      {
+        "tool": "detect_volume_anomalies",
+        "args": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07"
+        },
+        "result": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07",
+          "working_days_checked": 10,
+          "threshold_multiplier": 1.5,
+          "anomalies": [
+            {
+              "date": "2026-08-27",
+              "start_time": "2026-08-27T15:00:00",
+              "end_time": "2026-08-27T16:00:00",
+              "request_count": 45,
+              "ratio_to_daily_hourly_average": 2.04,
+              "day_average_hourly_volume": 22.11,
+              "requests_by_classification": {
+                "general_information": 9,
+                "login_issue": 10,
+                "payment_issue": 16,
+                "technical_issue": 10
+              },
+              "top_subjects": [
+                {
+                  "subject": "Incorrect password",
+                  "requests": 6
+                },
+                {
+                  "subject": "Payment question",
+                  "requests": 6
+                },
+                {
+                  "subject": "Account information",
+                  "requests": 5
+                },
+                {
+                  "subject": "Billing inquiry",
+                  "requests": 5
+                },
+                {
+                  "subject": "Notification issue",
+                  "requests": 5
+                }
+              ]
+            },
+            {
+              "date": "2026-08-25",
+              "start_time": "2026-08-25T12:00:00",
+              "end_time": "2026-08-25T13:00:00",
+              "request_count": 45,
+              "ratio_to_daily_hourly_average": 2.02,
+              "day_average_hourly_volume": 22.22,
+              "requests_by_classification": {
+                "general_information": 2,
+                "login_issue": 40,
+                "payment_issue": 2,
+                "technical_issue": 1
+              },
+              "top_subjects": [
+                {
+                  "subject": "Login stopped working",
+                  "requests": 15
+                },
+                {
+                  "subject": "Cannot access account after update",
+                  "requests": 11
+                },
+                {
+                  "subject": "Login fails after app update",
+                  "requests": 7
+                },
+                {
+                  "subject": "Unable to sign in",
+                  "requests": 3
+                },
+                {
+                  "subject": "Incorrect password",
+                  "requests": 2
+                }
+              ]
+            },
+            {
+              "date": "2026-08-26",
+              "start_time": "2026-08-26T14:00:00",
+              "end_time": "2026-08-26T15:00:00",
+              "request_count": 45,
+              "ratio_to_daily_hourly_average": 2.02,
+              "day_average_hourly_volume": 22.22,
+              "requests_by_classification": {
+                "general_information": 9,
+                "login_issue": 15,
+                "payment_issue": 14,
+                "technical_issue": 7
+              },
+              "top_subjects": [
+                {
+                  "subject": "Payment button not responding",
+                  "requests": 7
+                },
+                {
+                  "subject": "Mobile app freezes during login",
+                  "requests": 6
+                },
+                {
+                  "subject": "Cannot view account information",
+                  "requests": 4
+                },
+                {
+                  "subject": "Payment page not loading",
+                  "requests": 4
+                },
+                {
+                  "subject": "Account access question",
+                  "requests": 3
+                }
+              ]
+            }
+          ],
+          "rule": "An hour is unusual when its requests are at least threshold_multiplier times that day's average hourly volume (08:00-17:00)."
+        }
+      },
+      {
+        "tool": "get_agent_comparison",
+        "args": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07"
+        },
+        "result": {
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07",
+          "period_label": "2026-08-25 to 2026-09-07 (10 working days). Rates describe only this period.",
+          "working_days": 10,
+          "low_sample_threshold": 20,
+          "valid_agent_ids": [
+            "A01",
+            "A02",
+            "A03",
+            "A04",
+            "A05",
+            "A06",
+            "A07",
+            "A08",
+            "A09",
+            "A10",
+            "A11",
+            "A12",
+            "A13",
+            "A14",
+            "A15"
+          ],
+          "team_requests": 1999,
+          "team_transfer_rate_percent": 25.86,
+          "agents": [
+            {
+              "agent_id": "A04",
+              "handled_requests": 128,
+              "low_sample": false,
+              "transferred_requests": 59,
+              "transfer_rate_percent": 46.09,
+              "first_line_resolution_rate_percent": 53.91,
+              "average_handling_time_minutes": 6.7,
+              "by_classification": {
+                "general_information": {
+                  "requests": 23,
+                  "transferred": 11,
+                  "transfer_rate_percent": 47.83,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 37,
+                  "transferred": 15,
+                  "transfer_rate_percent": 40.54,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 39,
+                  "transferred": 19,
+                  "transfer_rate_percent": 48.72,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 29,
+                  "transferred": 14,
+                  "transfer_rate_percent": 48.28,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": [
+                "HIGH_TRANSFER_RATE_VS_PEERS",
+                "RISING_TRANSFER_RATE"
+              ]
+            },
+            {
+              "agent_id": "A09",
+              "handled_requests": 154,
+              "low_sample": false,
+              "transferred_requests": 52,
+              "transfer_rate_percent": 33.77,
+              "first_line_resolution_rate_percent": 66.23,
+              "average_handling_time_minutes": 10.47,
+              "by_classification": {
+                "general_information": {
+                  "requests": 23,
+                  "transferred": 4,
+                  "transfer_rate_percent": 17.39,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 28,
+                  "transferred": 7,
+                  "transfer_rate_percent": 25.0,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 18,
+                  "transferred": 1,
+                  "transfer_rate_percent": 5.56,
+                  "low_sample": true
+                },
+                "technical_issue": {
+                  "requests": 85,
+                  "transferred": 40,
+                  "transfer_rate_percent": 47.06,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": [
+                "HIGH_TRANSFER_RATE_VS_PEERS"
+              ]
+            },
+            {
+              "agent_id": "A03",
+              "handled_requests": 135,
+              "low_sample": false,
+              "transferred_requests": 37,
+              "transfer_rate_percent": 27.41,
+              "first_line_resolution_rate_percent": 72.59,
+              "average_handling_time_minutes": 6.77,
+              "by_classification": {
+                "general_information": {
+                  "requests": 33,
+                  "transferred": 12,
+                  "transfer_rate_percent": 36.36,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 46,
+                  "transferred": 11,
+                  "transfer_rate_percent": 23.91,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 28,
+                  "transferred": 8,
+                  "transfer_rate_percent": 28.57,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 28,
+                  "transferred": 6,
+                  "transfer_rate_percent": 21.43,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A07",
+              "handled_requests": 114,
+              "low_sample": false,
+              "transferred_requests": 31,
+              "transfer_rate_percent": 27.19,
+              "first_line_resolution_rate_percent": 72.81,
+              "average_handling_time_minutes": 5.03,
+              "by_classification": {
+                "general_information": {
+                  "requests": 26,
+                  "transferred": 6,
+                  "transfer_rate_percent": 23.08,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 29,
+                  "transferred": 7,
+                  "transfer_rate_percent": 24.14,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 30,
+                  "transferred": 7,
+                  "transfer_rate_percent": 23.33,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 29,
+                  "transferred": 11,
+                  "transfer_rate_percent": 37.93,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": [
+                "RISING_TRANSFER_RATE",
+                "FALLING_HANDLING_TIME",
+                "FASTER_HANDLING_WITH_MORE_TRANSFERS"
+              ]
+            },
+            {
+              "agent_id": "A08",
+              "handled_requests": 141,
+              "low_sample": false,
+              "transferred_requests": 36,
+              "transfer_rate_percent": 25.53,
+              "first_line_resolution_rate_percent": 74.47,
+              "average_handling_time_minutes": 6.53,
+              "by_classification": {
+                "general_information": {
+                  "requests": 34,
+                  "transferred": 6,
+                  "transfer_rate_percent": 17.65,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 47,
+                  "transferred": 14,
+                  "transfer_rate_percent": 29.79,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 32,
+                  "transferred": 9,
+                  "transfer_rate_percent": 28.12,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 28,
+                  "transferred": 7,
+                  "transfer_rate_percent": 25.0,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A14",
+              "handled_requests": 115,
+              "low_sample": false,
+              "transferred_requests": 29,
+              "transfer_rate_percent": 25.22,
+              "first_line_resolution_rate_percent": 74.78,
+              "average_handling_time_minutes": 6.75,
+              "by_classification": {
+                "general_information": {
+                  "requests": 30,
+                  "transferred": 8,
+                  "transfer_rate_percent": 26.67,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 33,
+                  "transferred": 8,
+                  "transfer_rate_percent": 24.24,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 25,
+                  "transferred": 6,
+                  "transfer_rate_percent": 24.0,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 27,
+                  "transferred": 7,
+                  "transfer_rate_percent": 25.93,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A10",
+              "handled_requests": 153,
+              "low_sample": false,
+              "transferred_requests": 38,
+              "transfer_rate_percent": 24.84,
+              "first_line_resolution_rate_percent": 75.16,
+              "average_handling_time_minutes": 6.56,
+              "by_classification": {
+                "general_information": {
+                  "requests": 43,
+                  "transferred": 11,
+                  "transfer_rate_percent": 25.58,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 43,
+                  "transferred": 9,
+                  "transfer_rate_percent": 20.93,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 39,
+                  "transferred": 10,
+                  "transfer_rate_percent": 25.64,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 28,
+                  "transferred": 8,
+                  "transfer_rate_percent": 28.57,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A13",
+              "handled_requests": 130,
+              "low_sample": false,
+              "transferred_requests": 32,
+              "transfer_rate_percent": 24.62,
+              "first_line_resolution_rate_percent": 75.38,
+              "average_handling_time_minutes": 6.7,
+              "by_classification": {
+                "general_information": {
+                  "requests": 39,
+                  "transferred": 10,
+                  "transfer_rate_percent": 25.64,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 34,
+                  "transferred": 11,
+                  "transfer_rate_percent": 32.35,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 32,
+                  "transferred": 9,
+                  "transfer_rate_percent": 28.12,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 25,
+                  "transferred": 2,
+                  "transfer_rate_percent": 8.0,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A12",
+              "handled_requests": 123,
+              "low_sample": false,
+              "transferred_requests": 30,
+              "transfer_rate_percent": 24.39,
+              "first_line_resolution_rate_percent": 75.61,
+              "average_handling_time_minutes": 6.62,
+              "by_classification": {
+                "general_information": {
+                  "requests": 26,
+                  "transferred": 3,
+                  "transfer_rate_percent": 11.54,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 35,
+                  "transferred": 10,
+                  "transfer_rate_percent": 28.57,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 40,
+                  "transferred": 14,
+                  "transfer_rate_percent": 35.0,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 22,
+                  "transferred": 3,
+                  "transfer_rate_percent": 13.64,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A15",
+              "handled_requests": 156,
+              "low_sample": false,
+              "transferred_requests": 37,
+              "transfer_rate_percent": 23.72,
+              "first_line_resolution_rate_percent": 76.28,
+              "average_handling_time_minutes": 6.54,
+              "by_classification": {
+                "general_information": {
+                  "requests": 39,
+                  "transferred": 7,
+                  "transfer_rate_percent": 17.95,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 46,
+                  "transferred": 13,
+                  "transfer_rate_percent": 28.26,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 45,
+                  "transferred": 12,
+                  "transfer_rate_percent": 26.67,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 26,
+                  "transferred": 5,
+                  "transfer_rate_percent": 19.23,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A02",
+              "handled_requests": 134,
+              "low_sample": false,
+              "transferred_requests": 31,
+              "transfer_rate_percent": 23.13,
+              "first_line_resolution_rate_percent": 76.87,
+              "average_handling_time_minutes": 6.89,
+              "by_classification": {
+                "general_information": {
+                  "requests": 30,
+                  "transferred": 7,
+                  "transfer_rate_percent": 23.33,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 28,
+                  "transferred": 11,
+                  "transfer_rate_percent": 39.29,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 44,
+                  "transferred": 11,
+                  "transfer_rate_percent": 25.0,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 32,
+                  "transferred": 2,
+                  "transfer_rate_percent": 6.25,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A11",
+              "handled_requests": 144,
+              "low_sample": false,
+              "transferred_requests": 32,
+              "transfer_rate_percent": 22.22,
+              "first_line_resolution_rate_percent": 77.78,
+              "average_handling_time_minutes": 6.86,
+              "by_classification": {
+                "general_information": {
+                  "requests": 37,
+                  "transferred": 8,
+                  "transfer_rate_percent": 21.62,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 40,
+                  "transferred": 13,
+                  "transfer_rate_percent": 32.5,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 35,
+                  "transferred": 3,
+                  "transfer_rate_percent": 8.57,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 32,
+                  "transferred": 8,
+                  "transfer_rate_percent": 25.0,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A01",
+              "handled_requests": 119,
+              "low_sample": false,
+              "transferred_requests": 24,
+              "transfer_rate_percent": 20.17,
+              "first_line_resolution_rate_percent": 79.83,
+              "average_handling_time_minutes": 6.42,
+              "by_classification": {
+                "general_information": {
+                  "requests": 29,
+                  "transferred": 5,
+                  "transfer_rate_percent": 17.24,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 33,
+                  "transferred": 9,
+                  "transfer_rate_percent": 27.27,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 38,
+                  "transferred": 8,
+                  "transfer_rate_percent": 21.05,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 19,
+                  "transferred": 2,
+                  "transfer_rate_percent": 10.53,
+                  "low_sample": true
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A05",
+              "handled_requests": 126,
+              "low_sample": false,
+              "transferred_requests": 25,
+              "transfer_rate_percent": 19.84,
+              "first_line_resolution_rate_percent": 80.16,
+              "average_handling_time_minutes": 6.94,
+              "by_classification": {
+                "general_information": {
+                  "requests": 28,
+                  "transferred": 5,
+                  "transfer_rate_percent": 17.86,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 31,
+                  "transferred": 10,
+                  "transfer_rate_percent": 32.26,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 35,
+                  "transferred": 6,
+                  "transfer_rate_percent": 17.14,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 32,
+                  "transferred": 4,
+                  "transfer_rate_percent": 12.5,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            },
+            {
+              "agent_id": "A06",
+              "handled_requests": 127,
+              "low_sample": false,
+              "transferred_requests": 24,
+              "transfer_rate_percent": 18.9,
+              "first_line_resolution_rate_percent": 81.1,
+              "average_handling_time_minutes": 7.01,
+              "by_classification": {
+                "general_information": {
+                  "requests": 46,
+                  "transferred": 8,
+                  "transfer_rate_percent": 17.39,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 24,
+                  "transferred": 4,
+                  "transfer_rate_percent": 16.67,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 27,
+                  "transferred": 5,
+                  "transfer_rate_percent": 18.52,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 30,
+                  "transferred": 7,
+                  "transfer_rate_percent": 23.33,
+                  "low_sample": false
+                }
+              },
+              "trend_signals": []
+            }
+          ],
+          "note": "Sorted by transfer rate. Descriptive signals, not performance ratings; rates marked low_sample (fewer than 20 requests) are volatile.",
+          "trend_signals_note": "trend_signals compare each agent's earlier and later half of the period (detect_agent_performance_signals); an agent can have a normal period average and still a significant trend."
+        }
+      },
+      {
+        "tool": "get_capacity_context",
+        "args": {
+          "start_time": "2026-08-27T15:00:00",
+          "end_time": "2026-08-27T16:00:00"
+        },
+        "result": {
+          "window": {
+            "start_time": "2026-08-27T15:00:00",
+            "end_time": "2026-08-27T16:00:00",
+            "requests": 45,
+            "average_wait_time_minutes": 12.49,
+            "average_agents_on_shift": 8.0,
+            "min_agents_on_shift": 8,
+            "average_available_agents": 0.33,
+            "peak_agents_on_calls": 8,
+            "abandoned_calls": 46
+          },
+          "previous_window": {
+            "start_time": "2026-08-27T14:00:00",
+            "end_time": "2026-08-27T15:00:00",
+            "requests": 20,
+            "average_wait_time_minutes": 4.95,
+            "average_agents_on_shift": 12.0,
+            "min_agents_on_shift": 12,
+            "average_available_agents": 4.5,
+            "peak_agents_on_calls": 9,
+            "abandoned_calls": 6
+          },
+          "typical_same_window": {
+            "requests": 22.22,
+            "average_wait_time_minutes": 4.41,
+            "average_agents_on_shift": 12.0,
+            "average_available_agents": 5.01,
+            "abandoned_calls": 5.67,
+            "days": 9
+          },
+          "difference_from_typical": {
+            "requests": 22.78,
+            "average_wait_time_minutes": 8.08,
+            "average_agents_on_shift": -4.0,
+            "average_available_agents": -4.68,
+            "abandoned_calls": 40.33
+          },
+          "reading_guide": "Demand side: requests vs typical. Capacity side: agents on shift and available agents vs typical. Both can contribute; neither proves a cause."
+        }
+      },
+      {
+        "tool": "get_capacity_context",
+        "args": {
+          "start_time": "2026-08-25T12:00:00",
+          "end_time": "2026-08-25T13:00:00"
+        },
+        "result": {
+          "window": {
+            "start_time": "2026-08-25T12:00:00",
+            "end_time": "2026-08-25T13:00:00",
+            "requests": 45,
+            "average_wait_time_minutes": 11.47,
+            "average_agents_on_shift": 12.0,
+            "min_agents_on_shift": 12,
+            "average_available_agents": 1.42,
+            "peak_agents_on_calls": 12,
+            "abandoned_calls": 26
+          },
+          "previous_window": {
+            "start_time": "2026-08-25T11:00:00",
+            "end_time": "2026-08-25T12:00:00",
+            "requests": 19,
+            "average_wait_time_minutes": 4.37,
+            "average_agents_on_shift": 12.0,
+            "min_agents_on_shift": 12,
+            "average_available_agents": 5.08,
+            "peak_agents_on_calls": 9,
+            "abandoned_calls": 6
+          },
+          "typical_same_window": {
+            "requests": 20.0,
+            "average_wait_time_minutes": 4.35,
+            "average_agents_on_shift": 12.0,
+            "average_available_agents": 5.01,
+            "abandoned_calls": 5.0,
+            "days": 9
+          },
+          "difference_from_typical": {
+            "requests": 25.0,
+            "average_wait_time_minutes": 7.12,
+            "average_agents_on_shift": 0.0,
+            "average_available_agents": -3.59,
+            "abandoned_calls": 21.0
+          },
+          "reading_guide": "Demand side: requests vs typical. Capacity side: agents on shift and available agents vs typical. Both can contribute; neither proves a cause."
+        }
+      },
+      {
+        "tool": "get_capacity_context",
+        "args": {
+          "start_time": "2026-08-26T14:00:00",
+          "end_time": "2026-08-26T15:00:00"
+        },
+        "result": {
+          "window": {
+            "start_time": "2026-08-26T14:00:00",
+            "end_time": "2026-08-26T15:00:00",
+            "requests": 45,
+            "average_wait_time_minutes": 10.2,
+            "average_agents_on_shift": 12.0,
+            "min_agents_on_shift": 12,
+            "average_available_agents": 2.17,
+            "peak_agents_on_calls": 11,
+            "abandoned_calls": 26
+          },
+          "previous_window": {
+            "start_time": "2026-08-26T13:00:00",
+            "end_time": "2026-08-26T14:00:00",
+            "requests": 20,
+            "average_wait_time_minutes": 4.75,
+            "average_agents_on_shift": 12.0,
+            "min_agents_on_shift": 12,
+            "average_available_agents": 5.17,
+            "peak_agents_on_calls": 9,
+            "abandoned_calls": 8
+          },
+          "typical_same_window": {
+            "requests": 23.44,
+            "average_wait_time_minutes": 4.77,
+            "average_agents_on_shift": 12.0,
+            "average_available_agents": 5.01,
+            "abandoned_calls": 5.44,
+            "days": 9
+          },
+          "difference_from_typical": {
+            "requests": 21.56,
+            "average_wait_time_minutes": 5.43,
+            "average_agents_on_shift": 0.0,
+            "average_available_agents": -2.84,
+            "abandoned_calls": 20.56
+          },
+          "reading_guide": "Demand side: requests vs typical. Capacity side: agents on shift and available agents vs typical. Both can contribute; neither proves a cause."
+        }
+      },
+      {
+        "tool": "get_request_details",
+        "args": {
+          "start_time": "2026-08-25T12:00:00",
+          "end_time": "2026-08-25T13:00:00",
+          "classification": "login_issue"
+        },
+        "result": {
+          "start_time": "2026-08-25T12:00:00",
+          "end_time": "2026-08-25T13:00:00",
+          "classification_filter": "login_issue",
+          "request_count": 40,
+          "requests": [
+            {
+              "request_id": 10121,
+              "request_time": "2026-08-25T12:06:55",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to supervisor for follow-up."
+            },
+            {
+              "request_id": 10098,
+              "request_time": "2026-08-25T12:11:03",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10092,
+              "request_time": "2026-08-25T12:13:53",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10085,
+              "request_time": "2026-08-25T12:14:11",
+              "subject": "Incorrect password",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in because an incorrect password was entered. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10101,
+              "request_time": "2026-08-25T12:15:12",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10120,
+              "request_time": "2026-08-25T12:17:02",
+              "subject": "Login fails after app update",
+              "classification": "login_issue",
+              "documentation": "Customer reported repeated login failures after installing the latest application update. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10095,
+              "request_time": "2026-08-25T12:17:27",
+              "subject": "Login fails after app update",
+              "classification": "login_issue",
+              "documentation": "Customer reported repeated login failures after installing the latest application update. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 10099,
+              "request_time": "2026-08-25T12:17:48",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10110,
+              "request_time": "2026-08-25T12:17:56",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10079,
+              "request_time": "2026-08-25T12:19:18",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10117,
+              "request_time": "2026-08-25T12:20:07",
+              "subject": "Login fails after app update",
+              "classification": "login_issue",
+              "documentation": "Customer reported repeated login failures after installing the latest application update. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10077,
+              "request_time": "2026-08-25T12:20:25",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 10111,
+              "request_time": "2026-08-25T12:21:01",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10112,
+              "request_time": "2026-08-25T12:21:17",
+              "subject": "Unable to sign in",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in after updating the application. Standard troubleshooting did not resolve the issue. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 10100,
+              "request_time": "2026-08-25T12:22:14",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10116,
+              "request_time": "2026-08-25T12:22:44",
+              "subject": "Unable to sign in",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in after updating the application. Standard troubleshooting did not resolve the issue. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 10093,
+              "request_time": "2026-08-25T12:24:30",
+              "subject": "Account access question",
+              "classification": "login_issue",
+              "documentation": "Customer requested assistance accessing the account. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10080,
+              "request_time": "2026-08-25T12:28:28",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10114,
+              "request_time": "2026-08-25T12:28:50",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to supervisor for follow-up."
+            },
+            {
+              "request_id": 10086,
+              "request_time": "2026-08-25T12:29:08",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10109,
+              "request_time": "2026-08-25T12:29:27",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 10084,
+              "request_time": "2026-08-25T12:31:25",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10106,
+              "request_time": "2026-08-25T12:34:27",
+              "subject": "Incorrect password",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in because an incorrect password was entered. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10102,
+              "request_time": "2026-08-25T12:36:13",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10097,
+              "request_time": "2026-08-25T12:37:36",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10087,
+              "request_time": "2026-08-25T12:39:52",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10083,
+              "request_time": "2026-08-25T12:39:54",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 10115,
+              "request_time": "2026-08-25T12:42:37",
+              "subject": "Unable to sign in",
+              "classification": "login_issue",
+              "documentation": "Customer could not sign in after updating the application. Standard troubleshooting did not resolve the issue. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 10082,
+              "request_time": "2026-08-25T12:43:19",
+              "subject": "Login fails after app update",
+              "classification": "login_issue",
+              "documentation": "Customer reported repeated login failures after installing the latest application update. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10078,
+              "request_time": "2026-08-25T12:43:47",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 10105,
+              "request_time": "2026-08-25T12:44:49",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10108,
+              "request_time": "2026-08-25T12:45:09",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10091,
+              "request_time": "2026-08-25T12:45:13",
+              "subject": "Login fails after app update",
+              "classification": "login_issue",
+              "documentation": "Customer reported repeated login failures after installing the latest application update. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10096,
+              "request_time": "2026-08-25T12:46:10",
+              "subject": "Login stopped working",
+              "classification": "login_issue",
+              "documentation": "Customer reported that login stopped working after the latest application version was installed. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10113,
+              "request_time": "2026-08-25T12:46:26",
+              "subject": "Password reset request",
+              "classification": "login_issue",
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10118,
+              "request_time": "2026-08-25T12:47:30",
+              "subject": "Login fails after app update",
+              "classification": "login_issue",
+              "documentation": "Customer reported repeated login failures after installing the latest application update. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10088,
+              "request_time": "2026-08-25T12:47:55",
+              "subject": "Login fails after app update",
+              "classification": "login_issue",
+              "documentation": "Customer reported repeated login failures after installing the latest application update. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 10103,
+              "request_time": "2026-08-25T12:49:52",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 10119,
+              "request_time": "2026-08-25T12:53:12",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Escalated to billing for follow-up."
+            },
+            {
+              "request_id": 10107,
+              "request_time": "2026-08-25T12:54:26",
+              "subject": "Cannot access account after update",
+              "classification": "login_issue",
+              "documentation": "Customer reported being unable to access the account after updating the application. Escalated to technical support for follow-up."
+            }
+          ]
+        }
+      },
+      {
+        "tool": "detect_agent_performance_signals",
+        "args": {
+          "agent_id": "A04",
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07"
+        },
+        "result": {
+          "agent_id": "A04",
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07",
+          "status": "analyzed",
+          "periods": {
+            "earlier": {
+              "dates": [
+                "2026-08-25",
+                "2026-08-31"
+              ],
+              "requests": 62,
+              "transfers": 21,
+              "transfer_rate_percent": 33.87,
+              "average_handling_time_minutes": 6.58,
+              "by_classification": {
+                "general_information": {
+                  "requests": 13,
+                  "transferred": 5,
+                  "transfer_rate_percent": 38.46,
+                  "low_sample": true
+                },
+                "login_issue": {
+                  "requests": 18,
+                  "transferred": 5,
+                  "transfer_rate_percent": 27.78,
+                  "low_sample": true
+                },
+                "payment_issue": {
+                  "requests": 14,
+                  "transferred": 4,
+                  "transfer_rate_percent": 28.57,
+                  "low_sample": true
+                },
+                "technical_issue": {
+                  "requests": 17,
+                  "transferred": 7,
+                  "transfer_rate_percent": 41.18,
+                  "low_sample": true
+                }
+              }
+            },
+            "later": {
+              "dates": [
+                "2026-09-01",
+                "2026-09-07"
+              ],
+              "requests": 66,
+              "transfers": 38,
+              "transfer_rate_percent": 57.58,
+              "average_handling_time_minutes": 6.81,
+              "by_classification": {
+                "general_information": {
+                  "requests": 10,
+                  "transferred": 6,
+                  "transfer_rate_percent": 60.0,
+                  "low_sample": true
+                },
+                "login_issue": {
+                  "requests": 19,
+                  "transferred": 10,
+                  "transfer_rate_percent": 52.63,
+                  "low_sample": true
+                },
+                "payment_issue": {
+                  "requests": 25,
+                  "transferred": 15,
+                  "transfer_rate_percent": 60.0,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 12,
+                  "transferred": 7,
+                  "transfer_rate_percent": 58.33,
+                  "low_sample": true
+                }
+              }
+            },
+            "peers_later": {
+              "requests": 934,
+              "transfers": 216,
+              "transfer_rate_percent": 23.13,
+              "average_handling_time_minutes": 6.95,
+              "by_classification": {
+                "general_information": {
+                  "requests": 228,
+                  "transferred": 45,
+                  "transfer_rate_percent": 19.74,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 250,
+                  "transferred": 68,
+                  "transfer_rate_percent": 27.2,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 225,
+                  "transferred": 51,
+                  "transfer_rate_percent": 22.67,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 231,
+                  "transferred": 52,
+                  "transfer_rate_percent": 22.51,
+                  "low_sample": false
+                }
+              }
+            }
+          },
+          "signals": [
+            {
+              "code": "HIGH_TRANSFER_RATE_VS_PEERS",
+              "evidence": {
+                "agent_transfer_rate_percent": 57.58,
+                "peer_transfer_rate_percent": 23.13,
+                "difference_percentage_points": 34.45,
+                "agent_request_count": 66,
+                "peer_request_count": 934
+              },
+              "interpretation": "Higher transfer rate than peers; review case mix and transfer reasons."
+            },
+            {
+              "code": "RISING_TRANSFER_RATE",
+              "evidence": {
+                "earlier_transfer_rate_percent": 33.87,
+                "later_transfer_rate_percent": 57.58,
+                "change_percentage_points": 23.71,
+                "earlier_requests": 62,
+                "later_requests": 66
+              },
+              "interpretation": "Transfer rate rose between periods; this is not proof of unnecessary transfers."
+            }
+          ],
+          "methodology": "Two halves of scheduled working days; rates are request-weighted. Peer baseline excludes the agent. Thresholds are illustrative heuristics, not validated personnel assessment rules."
+        }
+      },
+      {
+        "tool": "detect_agent_performance_signals",
+        "args": {
+          "agent_id": "A07",
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07"
+        },
+        "result": {
+          "agent_id": "A07",
+          "start_date": "2026-08-25",
+          "end_date": "2026-09-07",
+          "status": "analyzed",
+          "periods": {
+            "earlier": {
+              "dates": [
+                "2026-08-25",
+                "2026-08-31"
+              ],
+              "requests": 60,
+              "transfers": 11,
+              "transfer_rate_percent": 18.33,
+              "average_handling_time_minutes": 6.01,
+              "by_classification": {
+                "general_information": {
+                  "requests": 14,
+                  "transferred": 2,
+                  "transfer_rate_percent": 14.29,
+                  "low_sample": true
+                },
+                "login_issue": {
+                  "requests": 18,
+                  "transferred": 1,
+                  "transfer_rate_percent": 5.56,
+                  "low_sample": true
+                },
+                "payment_issue": {
+                  "requests": 16,
+                  "transferred": 2,
+                  "transfer_rate_percent": 12.5,
+                  "low_sample": true
+                },
+                "technical_issue": {
+                  "requests": 12,
+                  "transferred": 6,
+                  "transfer_rate_percent": 50.0,
+                  "low_sample": true
+                }
+              }
+            },
+            "later": {
+              "dates": [
+                "2026-09-01",
+                "2026-09-07"
+              ],
+              "requests": 54,
+              "transfers": 20,
+              "transfer_rate_percent": 37.04,
+              "average_handling_time_minutes": 3.95,
+              "by_classification": {
+                "general_information": {
+                  "requests": 12,
+                  "transferred": 4,
+                  "transfer_rate_percent": 33.33,
+                  "low_sample": true
+                },
+                "login_issue": {
+                  "requests": 11,
+                  "transferred": 6,
+                  "transfer_rate_percent": 54.55,
+                  "low_sample": true
+                },
+                "payment_issue": {
+                  "requests": 14,
+                  "transferred": 5,
+                  "transfer_rate_percent": 35.71,
+                  "low_sample": true
+                },
+                "technical_issue": {
+                  "requests": 17,
+                  "transferred": 5,
+                  "transfer_rate_percent": 29.41,
+                  "low_sample": true
+                }
+              }
+            },
+            "peers_later": {
+              "requests": 946,
+              "transfers": 234,
+              "transfer_rate_percent": 24.74,
+              "average_handling_time_minutes": 7.11,
+              "by_classification": {
+                "general_information": {
+                  "requests": 226,
+                  "transferred": 47,
+                  "transfer_rate_percent": 20.8,
+                  "low_sample": false
+                },
+                "login_issue": {
+                  "requests": 258,
+                  "transferred": 72,
+                  "transfer_rate_percent": 27.91,
+                  "low_sample": false
+                },
+                "payment_issue": {
+                  "requests": 236,
+                  "transferred": 61,
+                  "transfer_rate_percent": 25.85,
+                  "low_sample": false
+                },
+                "technical_issue": {
+                  "requests": 226,
+                  "transferred": 54,
+                  "transfer_rate_percent": 23.89,
+                  "low_sample": false
+                }
+              }
+            }
+          },
+          "signals": [
+            {
+              "code": "RISING_TRANSFER_RATE",
+              "evidence": {
+                "earlier_transfer_rate_percent": 18.33,
+                "later_transfer_rate_percent": 37.04,
+                "change_percentage_points": 18.71,
+                "earlier_requests": 60,
+                "later_requests": 54
+              },
+              "interpretation": "Transfer rate rose between periods; this is not proof of unnecessary transfers."
+            },
+            {
+              "code": "FALLING_HANDLING_TIME",
+              "evidence": {
+                "earlier_average_minutes": 6.01,
+                "later_average_minutes": 3.95,
+                "change_percent": -34.28
+              },
+              "interpretation": "Handling time fell; investigate context before treating it as positive or negative."
+            },
+            {
+              "code": "FASTER_HANDLING_WITH_MORE_TRANSFERS",
+              "evidence": {
+                "handling_time_change_percent": -34.28,
+                "transfer_rate_change_percentage_points": 18.71
+              },
+              "interpretation": "Concurrent changes warrant review of individual requests and documentation."
+            }
+          ],
+          "methodology": "Two halves of scheduled working days; rates are request-weighted. Peer baseline excludes the agent. Thresholds are illustrative heuristics, not validated personnel assessment rules."
+        }
+      },
+      {
+        "tool": "get_agent_request_evidence",
+        "args": {
+          "agent_id": "A04",
+          "start_date": "2026-09-01",
+          "end_date": "2026-09-07",
+          "limit": 30
+        },
+        "result": {
+          "agent_id": "A04",
+          "start_date": "2026-09-01",
+          "end_date": "2026-09-07",
+          "filters": {
+            "status": null,
+            "classification": null,
+            "transferred_to": null
+          },
+          "total_matching_requests": 66,
+          "returned_requests": 30,
+          "truncated": true,
+          "requests": [
+            {
+              "request_id": 60005,
+              "request_time": "2026-09-01T08:57:43",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 6.28,
+              "documentation": "Customer contacted support regarding a recent payment. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60006,
+              "request_time": "2026-09-01T08:59:00",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 8.83,
+              "documentation": "Customer reported that a notification was not received. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 60031,
+              "request_time": "2026-09-01T09:16:31",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.96,
+              "documentation": "Customer contacted support regarding a recent payment. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 60023,
+              "request_time": "2026-09-01T09:45:59",
+              "classification": "payment_issue",
+              "subject": "Billing inquiry",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 5.89,
+              "documentation": "Customer requested clarification regarding a charge. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60049,
+              "request_time": "2026-09-01T10:32:14",
+              "classification": "login_issue",
+              "subject": "Incorrect password",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 5.06,
+              "documentation": "Customer could not sign in because an incorrect password was entered. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60094,
+              "request_time": "2026-09-01T10:55:54",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 5.36,
+              "documentation": "Customer asked about a transaction that is still pending. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60076,
+              "request_time": "2026-09-01T11:17:05",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 7.89,
+              "documentation": "Customer reported that a notification was not received. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60113,
+              "request_time": "2026-09-01T12:57:00",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 7.34,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60080,
+              "request_time": "2026-09-01T14:06:58",
+              "classification": "login_issue",
+              "subject": "Incorrect password",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 5.82,
+              "documentation": "Customer could not sign in because an incorrect password was entered. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60162,
+              "request_time": "2026-09-01T15:05:14",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 9.68,
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 60171,
+              "request_time": "2026-09-01T15:44:13",
+              "classification": "login_issue",
+              "subject": "Incorrect password",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 5.08,
+              "documentation": "Customer could not sign in because an incorrect password was entered. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70078,
+              "request_time": "2026-09-02T09:12:11",
+              "classification": "login_issue",
+              "subject": "Account access question",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.43,
+              "documentation": "Customer requested assistance accessing the account. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70037,
+              "request_time": "2026-09-02T09:28:09",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.08,
+              "documentation": "Customer contacted support regarding a recent payment. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70029,
+              "request_time": "2026-09-02T09:39:27",
+              "classification": "payment_issue",
+              "subject": "Billing inquiry",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 6.72,
+              "documentation": "Customer requested clarification regarding a charge. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70077,
+              "request_time": "2026-09-02T09:44:48",
+              "classification": "general_information",
+              "subject": "Operating hours",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 5.91,
+              "documentation": "Customer asked about service center operating hours. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70046,
+              "request_time": "2026-09-02T10:40:32",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 11.79,
+              "documentation": "Customer reported difficulty using the service from the browser. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70075,
+              "request_time": "2026-09-02T11:11:54",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 5.21,
+              "documentation": "Customer asked about a transaction that is still pending. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70058,
+              "request_time": "2026-09-02T11:13:35",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "transferred",
+              "transferred_to": "back_office",
+              "handling_time_minutes": 6.82,
+              "documentation": "Customer requested assistance with a technical issue. Escalated to back office for follow-up."
+            },
+            {
+              "request_id": 70116,
+              "request_time": "2026-09-02T12:12:22",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 11.08,
+              "documentation": "Customer reported difficulty using the service from the browser. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70119,
+              "request_time": "2026-09-02T12:45:13",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "transferred",
+              "transferred_to": "supervisor",
+              "handling_time_minutes": 9.81,
+              "documentation": "Customer requested assistance with a technical issue. Escalated to supervisor for follow-up."
+            },
+            {
+              "request_id": 70121,
+              "request_time": "2026-09-02T12:57:15",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 10.22,
+              "documentation": "Customer requested assistance with a technical issue. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70134,
+              "request_time": "2026-09-02T13:02:53",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.88,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70127,
+              "request_time": "2026-09-02T13:16:38",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 7.36,
+              "documentation": "Customer asked about a transaction that is still pending. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70153,
+              "request_time": "2026-09-02T14:08:53",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 6.07,
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70142,
+              "request_time": "2026-09-02T14:35:20",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 5.75,
+              "documentation": "Customer contacted support regarding a recent payment. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70147,
+              "request_time": "2026-09-02T14:41:24",
+              "classification": "general_information",
+              "subject": "Account information",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 7.59,
+              "documentation": "Customer requested information about account settings. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70195,
+              "request_time": "2026-09-02T16:05:45",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.82,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70191,
+              "request_time": "2026-09-02T16:09:36",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 10.35,
+              "documentation": "Customer requested assistance with a technical issue. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70197,
+              "request_time": "2026-09-02T16:52:12",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 5.5,
+              "documentation": "Customer asked about a transaction that is still pending. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 80014,
+              "request_time": "2026-09-03T08:42:29",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 6.16,
+              "documentation": "Customer forgot the account password and requested assistance resetting it. Escalated to billing for follow-up."
+            }
+          ]
+        }
+      },
+      {
+        "tool": "get_agent_request_evidence",
+        "args": {
+          "agent_id": "A07",
+          "start_date": "2026-09-01",
+          "end_date": "2026-09-07",
+          "limit": 30
+        },
+        "result": {
+          "agent_id": "A07",
+          "start_date": "2026-09-01",
+          "end_date": "2026-09-07",
+          "filters": {
+            "status": null,
+            "classification": null,
+            "transferred_to": null
+          },
+          "total_matching_requests": 54,
+          "returned_requests": 30,
+          "truncated": true,
+          "requests": [
+            {
+              "request_id": 60013,
+              "request_time": "2026-09-01T08:30:18",
+              "classification": "payment_issue",
+              "subject": "Pending transaction",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 3.91,
+              "documentation": "Customer asked about a transaction that is still pending. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60092,
+              "request_time": "2026-09-01T08:39:57",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "back_office",
+              "handling_time_minutes": 4.32,
+              "documentation": "Handled."
+            },
+            {
+              "request_id": 60043,
+              "request_time": "2026-09-01T10:39:03",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 6.86,
+              "documentation": "Issue checked."
+            },
+            {
+              "request_id": 60070,
+              "request_time": "2026-09-01T11:34:48",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 4.68,
+              "documentation": "Handled."
+            },
+            {
+              "request_id": 60133,
+              "request_time": "2026-09-01T13:31:18",
+              "classification": "payment_issue",
+              "subject": "Billing inquiry",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 2.9,
+              "documentation": "Customer requested clarification regarding a charge. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60158,
+              "request_time": "2026-09-01T14:00:47",
+              "classification": "general_information",
+              "subject": "Service information",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 5.38,
+              "documentation": "Customer contacted support. Done."
+            },
+            {
+              "request_id": 60148,
+              "request_time": "2026-09-01T14:07:39",
+              "classification": "payment_issue",
+              "subject": "Billing inquiry",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 4.85,
+              "documentation": "Customer requested clarification regarding a charge. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 60178,
+              "request_time": "2026-09-01T15:20:39",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 4.66,
+              "documentation": "Customer reported that a notification was not received. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70002,
+              "request_time": "2026-09-02T08:20:01",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 6.42,
+              "documentation": "Issue checked."
+            },
+            {
+              "request_id": 70007,
+              "request_time": "2026-09-02T08:30:30",
+              "classification": "login_issue",
+              "subject": "Incorrect password",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 4.6,
+              "documentation": "Customer contacted support. Done."
+            },
+            {
+              "request_id": 70027,
+              "request_time": "2026-09-02T09:14:44",
+              "classification": "technical_issue",
+              "subject": "Notification issue",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 5.16,
+              "documentation": "Handled."
+            },
+            {
+              "request_id": 70091,
+              "request_time": "2026-09-02T09:20:37",
+              "classification": "general_information",
+              "subject": "Account information",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 2.65,
+              "documentation": "Customer requested information about account settings. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70038,
+              "request_time": "2026-09-02T10:07:33",
+              "classification": "login_issue",
+              "subject": "Account access question",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 4.59,
+              "documentation": "Customer requested assistance accessing the account. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70048,
+              "request_time": "2026-09-02T10:31:14",
+              "classification": "payment_issue",
+              "subject": "Billing inquiry",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 3.39,
+              "documentation": "Customer requested clarification regarding a charge. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70044,
+              "request_time": "2026-09-02T10:55:54",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 5.99,
+              "documentation": "Issue checked."
+            },
+            {
+              "request_id": 70098,
+              "request_time": "2026-09-02T11:14:37",
+              "classification": "general_information",
+              "subject": "Operating hours",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 3.28,
+              "documentation": "Issue checked."
+            },
+            {
+              "request_id": 70065,
+              "request_time": "2026-09-02T11:19:58",
+              "classification": "payment_issue",
+              "subject": "Billing inquiry",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 4.75,
+              "documentation": "Customer contacted support. Done."
+            },
+            {
+              "request_id": 70084,
+              "request_time": "2026-09-02T11:33:00",
+              "classification": "technical_issue",
+              "subject": "Technical assistance",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 4.35,
+              "documentation": "Handled."
+            },
+            {
+              "request_id": 70113,
+              "request_time": "2026-09-02T12:31:50",
+              "classification": "general_information",
+              "subject": "Operating hours",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 3.06,
+              "documentation": "Handled."
+            },
+            {
+              "request_id": 70139,
+              "request_time": "2026-09-02T13:24:09",
+              "classification": "login_issue",
+              "subject": "Incorrect password",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 2.81,
+              "documentation": "Customer could not sign in because an incorrect password was entered. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70135,
+              "request_time": "2026-09-02T13:27:39",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 2.98,
+              "documentation": "Handled."
+            },
+            {
+              "request_id": 70083,
+              "request_time": "2026-09-02T13:52:22",
+              "classification": "login_issue",
+              "subject": "Incorrect password",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 4.73,
+              "documentation": "Customer could not sign in because an incorrect password was entered. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70160,
+              "request_time": "2026-09-02T14:24:59",
+              "classification": "payment_issue",
+              "subject": "Billing inquiry",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 2.89,
+              "documentation": "Handled."
+            },
+            {
+              "request_id": 70152,
+              "request_time": "2026-09-02T14:29:26",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 3.1,
+              "documentation": "Customer contacted support regarding a recent payment. Verified details and resolved the request on first line."
+            },
+            {
+              "request_id": 70145,
+              "request_time": "2026-09-02T14:36:03",
+              "classification": "general_information",
+              "subject": "Service information",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 2.63,
+              "documentation": "Customer requested general information about the service. Escalated to technical support for follow-up."
+            },
+            {
+              "request_id": 70180,
+              "request_time": "2026-09-02T15:12:32",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 6.85,
+              "documentation": "Issue checked."
+            },
+            {
+              "request_id": 80003,
+              "request_time": "2026-09-03T08:32:13",
+              "classification": "login_issue",
+              "subject": "Password reset request",
+              "status": "transferred",
+              "transferred_to": "technical_support",
+              "handling_time_minutes": 3.16,
+              "documentation": "Handled."
+            },
+            {
+              "request_id": 80025,
+              "request_time": "2026-09-03T09:07:19",
+              "classification": "technical_issue",
+              "subject": "Browser problem",
+              "status": "transferred",
+              "transferred_to": "billing",
+              "handling_time_minutes": 4.83,
+              "documentation": "Issue checked."
+            },
+            {
+              "request_id": 80102,
+              "request_time": "2026-09-03T12:21:10",
+              "classification": "payment_issue",
+              "subject": "Payment question",
+              "status": "resolved",
+              "transferred_to": null,
+              "handling_time_minutes": 2.22,
+              "documentation": "Handled."
+            },
+            {
+              "request_id": 80109,
+              "request_time": "2026-09-03T12:26:16",
+              "classification": "login_issue",
+              "subject": "Account access question",
+              "status": "transferred",
+              "transferred_to": "back_office",
+              "handling_time_minutes": 2.47,
+              "documentation": "Customer contacted support. Done."
+            }
+          ]
+        }
+      }
+    ],
+    "date_range": {
+      "start": "2026-08-25",
+      "end": "2026-09-07"
+    },
+    "model": "claude-sonnet-4-6",
+    "evidence_plan": {
+      "scope": {
+        "start_date": "2026-08-25",
+        "end_date": "2026-09-07",
+        "working_days": 10,
+        "time_window": null,
+        "viewing_date": "2026-09-07",
+        "agents": []
+      },
+      "intents": [
+        "review"
+      ],
+      "calls": [
+        {
+          "tool": "get_daily_series",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        },
+        {
+          "tool": "detect_volume_anomalies",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        },
+        {
+          "tool": "get_agent_comparison",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        }
+      ],
+      "drill_into_anomalies": true,
+      "reasons": [
+        "The question covers 10 working days: collected the day-by-day series and searched every day for unusual hours.",
+        "Broad review: compared all agents over the same period.",
+        "Each unusual hour found gets its demand and staffing context."
+      ],
+      "executed": [
+        {
+          "tool": "get_daily_series",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        },
+        {
+          "tool": "detect_volume_anomalies",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        },
+        {
+          "tool": "get_agent_comparison",
+          "args": {
+            "start_date": "2026-08-25",
+            "end_date": "2026-09-07"
+          }
+        },
+        {
+          "tool": "get_capacity_context",
+          "args": {
+            "start_time": "2026-08-27T15:00:00",
+            "end_time": "2026-08-27T16:00:00"
+          }
+        },
+        {
+          "tool": "get_capacity_context",
+          "args": {
+            "start_time": "2026-08-25T12:00:00",
+            "end_time": "2026-08-25T13:00:00"
+          }
+        },
+        {
+          "tool": "get_capacity_context",
+          "args": {
+            "start_time": "2026-08-26T14:00:00",
+            "end_time": "2026-08-26T15:00:00"
+          }
+        }
+      ]
+    },
+    "answer_checks": [
+      {
+        "kind": "scope_wording",
+        "message": "About an agent: check that the evidence covers the whole period, not one day or a low-sample rate.",
+        "excerpt": "In the reviewed sample of A07's later-period transferred cases, documentation is consistently minimal ('Handled.', 'Done.', 'Issue checked.') with no record of actions taken, and several transfers carry handling times under 3.2 minutes."
+      },
+      {
+        "kind": "category_count",
+        "message": "45 is stated as a count of login_issue requests, but no tool returned that count for login_issue.",
+        "excerpt": "What happened\nThe 12:00\u201313:00 hour on 2026-08-25 recorded **45 login_issue requests** \u2014 more than **2\u00d7 the day's average hourly volume** (22.2/"
+      }
+    ],
+    "status": "completed",
+    "error": null
+  },
+  "grade": {
+    "scenario": "S30",
+    "passed": true,
+    "critical_failures": 0,
+    "score": 1.0,
+    "checks": [
+      {
+        "check": "run completed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "tool: get_agent_comparison",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "tool: count_requests or detect_volume_anomalies or get_capacity_context or get_daily_series or get_requests_by_time_bucket",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "no invalid tool arguments",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "concept in observed_facts/supported_patterns: all ['A04'] any []",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "concept in observed_facts/supported_patterns: all [] any ['08-25', '08-26', '08-27', 'Aug 25', 'Aug 26', 'Aug 27']",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "concept in observed_facts/supported_patterns/hypotheses: all ['A07', 'A09'] any []",
+        "verdict": "PASS",
+        "critical": false,
+        "detail": ""
+      },
+      {
+        "check": "must not: saved run R8 error",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "must not: saved run R8 error",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      },
+      {
+        "check": "root cause left unconfirmed",
+        "verdict": "PASS",
+        "critical": true,
+        "detail": ""
+      }
+    ]
+  },
+  "numbers": {
+    "summary": {
+      "direct": 363,
+      "derived": 0,
+      "loose": 0,
+      "unsupported": 0,
+      "total": 363
+    },
+    "not_verified": [],
+    "identifiers": []
+  }
+}
